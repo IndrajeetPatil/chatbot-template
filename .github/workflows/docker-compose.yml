@@ -55,7 +55,7 @@ jobs:
               --severity CRITICAL \
               --exit-code 1 \
               --no-progress \
-              --ignorefile .trivyignore \
+              --ignorefile .trivyignore.yaml \
               "$image"
           done
 

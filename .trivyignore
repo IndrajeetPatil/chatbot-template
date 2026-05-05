@@ -1,7 +1,0 @@
-# Add CRITICAL CVE IDs here only when the vulnerable OS or library package has no
-# patched release available for the container base image.
-
-# Debian bookworm packages without fixed versions in the current base images.
-CVE-2023-45853 # zlib1g; Debian status: will_not_fix
-CVE-2025-7458 # libsqlite3-0; no fixed version reported
-CVE-2026-33845 # libgnutls30; no fixed version reported

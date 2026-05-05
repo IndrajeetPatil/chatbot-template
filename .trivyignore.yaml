@@ -1,0 +1,16 @@
+vulnerabilities:
+  - id: CVE-2023-45853
+    purls:
+      - pkg:deb/debian/zlib1g
+    expired_at: "2026-08-05T00:00:00Z"
+    statement: Debian bookworm marks this zlib vulnerability as will_not_fix in the current base images.
+  - id: CVE-2025-7458
+    purls:
+      - pkg:deb/debian/libsqlite3-0
+    expired_at: "2026-08-05T00:00:00Z"
+    statement: Trivy reports no fixed Debian bookworm package version in the current base images.
+  - id: CVE-2026-33845
+    purls:
+      - pkg:deb/debian/libgnutls30
+    expired_at: "2026-08-05T00:00:00Z"
+    statement: Trivy reports no fixed Debian bookworm package version in the current base images.
