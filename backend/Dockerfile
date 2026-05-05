@@ -1,4 +1,4 @@
-FROM python:3.14-slim-bookworm
+FROM python:3.14-slim-trixie
 
 # Install system dependencies and build tools first
 # Clean up apt cache in the same layer to keep image size down

@@ -1,6 +1,6 @@
-FROM node:24-bookworm-slim
+FROM node:24-trixie-slim
 
-# Activate the package manager declared in package.json (pnpm@11.0.4)
+# Activate the package manager declared in package.json.
 RUN corepack enable
 
 WORKDIR /app
