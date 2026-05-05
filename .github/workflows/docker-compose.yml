@@ -24,15 +24,43 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends apt-transport-https gnupg wget
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor --yes -o /usr/share/keyrings/trivy.gpg
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends trivy
+          trivy --version
+
       - name: Create .env file
         run: |
           echo AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }} >> backend/.env
           echo AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }} >> backend/.env
           echo AZURE_OPENAI_API_VERSION=${{ secrets.AZURE_OPENAI_API_VERSION }} >> backend/.env
 
-      - name: Build and test services
+      - name: Build services
         run: |
           docker-compose build --no-cache
+
+      - name: Scan built images with Trivy
+        run: |
+          set -euo pipefail
+
+          docker-compose config --images | while read -r image; do
+            trivy image \
+              --scanners vuln \
+              --pkg-types os,library \
+              --severity CRITICAL \
+              --exit-code 1 \
+              --no-progress \
+              --ignorefile .trivyignore \
+              "$image"
+          done
+
+      - name: Test services
+        run: |
           docker-compose up -d
           docker-compose ps
           docker-compose logs
