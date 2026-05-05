@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { afterEach, vi } from "vitest";
 
 vi.mock("@/components/messages/AssistantMessage", () => ({
   default: ({
@@ -33,6 +33,12 @@ const INITIAL_MESSAGE = {
 };
 
 describe("MessageList", () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  afterEach(() => {
+    warnSpy?.mockRestore();
+  });
+
   test("renders initial assistant message marked as first message", () => {
     render(
       <MessageList
@@ -120,7 +126,7 @@ describe("MessageList", () => {
   });
 
   test("non-text message parts yield empty string and warn", () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     render(
       <MessageList
         messages={[
@@ -139,6 +145,5 @@ describe("MessageList", () => {
     expect(warnSpy).toHaveBeenCalledWith(
       '[MessageList] Unexpected non-text message part type: "step-start"',
     );
-    warnSpy.mockRestore();
   });
 });

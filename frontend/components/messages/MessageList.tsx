@@ -10,9 +10,11 @@ function renderMessage(message: UIMessage) {
   const content = message.parts
     .filter((part): part is TextUIPart => {
       if (!isTextUIPart(part)) {
-        console.warn(
-          `[MessageList] Unexpected non-text message part type: "${part.type}"`,
-        );
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[MessageList] Unexpected non-text message part type: "${part.type}"`,
+          );
+        }
         return false;
       }
       return true;

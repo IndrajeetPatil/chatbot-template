@@ -51,7 +51,7 @@ class UIMessage(BaseModel):
     @model_validator(mode="after")
     def validate_content_or_parts(self) -> UIMessage:
         if self.content is None and not self.parts:
-            msg = "At least one of 'content' or 'parts' must be provided."
+            msg: str = "At least one of 'content' or 'parts' must be provided."
             raise ValueError(msg)
         return self
 
