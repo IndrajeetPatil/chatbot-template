@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const CHAT_API =
-  process.env.VITE_CHAT_API_URL ?? "http://localhost:8000/api/v1/chat";
+const CHAT_API_PATH = "**/api/v1/chat";
 
 test.describe("Visual regression", () => {
   test("initial page", async ({ page }) => {
@@ -26,7 +25,7 @@ test.describe("Visual regression", () => {
 
   test("after user message and response", async ({ page }) => {
     const response = "Hello! I am here to help you today.";
-    await page.route(CHAT_API, async (route) => {
+    await page.route(CHAT_API_PATH, async (route) => {
       await route.fulfill({
         body: response,
         contentType: "text/plain; charset=utf-8",
@@ -44,7 +43,7 @@ test.describe("Visual regression", () => {
   });
 
   test("chat input disabled state", async ({ page }) => {
-    await page.route(CHAT_API, () => {
+    await page.route(CHAT_API_PATH, () => {
       // Never fulfilled — keeps the UI in loading/disabled state for screenshot
     });
     await page.goto("/chat");

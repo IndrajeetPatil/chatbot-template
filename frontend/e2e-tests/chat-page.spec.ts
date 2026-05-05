@@ -11,12 +11,14 @@ interface ChatBody {
   }>;
 }
 
+const CHAT_API_PATH = "**/api/v1/chat";
+
 test.describe("Chat Page Model and Temperature Combinations", () => {
   test("should return correct response for selected model and temperature", async ({
     page,
   }) => {
     const expectedResponse = "Test received! How can I assist you today?";
-    await page.route("http://localhost:8000/api/v1/chat", async (route) => {
+    await page.route(CHAT_API_PATH, async (route) => {
       const request = route.request();
       const body = request.postDataJSON() as ChatBody;
 

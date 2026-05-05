@@ -56,6 +56,22 @@ pnpm install --frozen-lockfile
 docker-compose up
 ```
 
+The browser talks to the frontend on the same origin at `/api/v1/chat`. In
+Docker Compose, the frontend container proxies that path to the backend
+container, so the backend host is not exposed to browser code or the network
+tab.
+
+The frontend Docker build is multi-stage: the builder stage installs
+`devDependencies` so it can run `vite build`, while the final runtime image is
+nginx-only and does not ship the frontend `node_modules` tree or dev tooling.
+
+For local Vite development against a non-default backend, set the server-side
+proxy target before starting the frontend dev server:
+
+``` bash
+CHAT_API_PROXY_TARGET=https://example.com pnpm run dev
+```
+
 - The frontend service is available at `http://localhost:3000`
 - The backend service is available at `http://localhost:8000`
 
@@ -119,6 +135,7 @@ More specifically:
 | Pre-commit hooks          | prek                             | prek                      |
 | Commit message linting    | commitlint                       | commitlint                |
 | IaC / workflow scan       | Checkov                          | Checkov                   |
+| Container vuln scan       | Trivy                            | Trivy                     |
 | Unit testing              | Vitest                           | pytest                    |
 | Code coverage             | Vitest                           | coverage.py               |
 | Coverage floor            | 90% statements/functions/lines; 75% branches | 100% |
@@ -147,3 +164,6 @@ make security-scan
 The Checkov scan also runs on every push and pull request through the
 dedicated GitHub Actions security workflow. Commitlint is enforced locally
 through the `commit-msg` prek hook.
+
+Trivy scans the built backend and frontend container images for known
+vulnerabilities during CI.

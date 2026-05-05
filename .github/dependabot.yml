@@ -1,5 +1,4 @@
 version: 2
-
 updates:
   # Keep dependencies for GitHub Actions up-to-date
   - package-ecosystem: "github-actions"
@@ -12,9 +11,17 @@ updates:
     directory: "/frontend"
     schedule:
       interval: "weekly"
+    groups:
+      frontend-deps:
+        patterns:
+          - "*"
 
   # Keep backend (uv) dependencies up-to-date
   - package-ecosystem: "uv"
     directory: "/backend"
     schedule:
       interval: "weekly"
+    groups:
+      backend-deps:
+        patterns:
+          - "*"

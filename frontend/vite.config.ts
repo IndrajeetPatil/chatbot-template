@@ -11,10 +11,24 @@ const VENDOR_CHUNKS: [string, string][] = [
   ["mui", "/@mui/material/"],
   ["markdown", "/react-markdown/"],
 ];
+const CHAT_API_PROXY_TARGET =
+  process.env.CHAT_API_PROXY_TARGET ?? "http://localhost:8000";
+const CHAT_API_PROXY = {
+  "/api": {
+    target: CHAT_API_PROXY_TARGET,
+    changeOrigin: true,
+  },
+};
 
 export default defineConfig({
   plugins: [react()],
   publicDir: "app/favicon",
+  server: {
+    proxy: CHAT_API_PROXY,
+  },
+  preview: {
+    proxy: CHAT_API_PROXY,
+  },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL(".", import.meta.url)),
