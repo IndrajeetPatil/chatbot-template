@@ -119,7 +119,8 @@ describe("MessageList", () => {
     );
   });
 
-  test("non-text message parts yield empty string", () => {
+  test("non-text message parts yield empty string and warn", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     render(
       <MessageList
         messages={[
@@ -135,5 +136,9 @@ describe("MessageList", () => {
     );
     const msg = screen.getByTestId("assistant-message");
     expect(msg).toHaveTextContent("");
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[MessageList] Unexpected non-text message part type: "step-start"',
+    );
+    warnSpy.mockRestore();
   });
 });

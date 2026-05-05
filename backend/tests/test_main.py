@@ -4,9 +4,10 @@ import httpx
 import openai
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from app.entities import AssistantModel, AssistantTemperature, OpenAIMessageRole
-from app.main import UIMessage, app
+from app.main import TextPart, UIMessage, app
 
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Iterator
@@ -103,6 +104,24 @@ def test_ui_message_text_returns_content_field() -> None:
         content="Hello from content",
     )
     assert message.text == "Hello from content"
+
+
+def test_ui_message_text_returns_joined_parts() -> None:
+    message: UIMessage = UIMessage(
+        role=OpenAIMessageRole.USER,
+        parts=[
+            TextPart(type="text", text="Hello "),
+            TextPart(type="text", text="world"),
+        ],
+    )
+    assert message.text == "Hello world"
+
+
+def test_ui_message_rejects_empty_content_and_parts() -> None:
+    with pytest.raises(
+        ValidationError, match="At least one of 'content' or 'parts' must be provided"
+    ):
+        UIMessage(role=OpenAIMessageRole.USER)
 
 
 def test_stream_chat_reraises_non_openai_exception(
