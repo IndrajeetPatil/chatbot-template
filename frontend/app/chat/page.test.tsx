@@ -1,319 +1,251 @@
+import { createTheme } from "@mui/material/styles";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 
 // Hoist mock functions so they can be used inside vi.mock factories
-const { mockSendMessage, mockRegenerate, mockUseChat } = vi.hoisted(() => ({
-  mockSendMessage: vi.fn().mockResolvedValue(undefined),
-  mockRegenerate: vi.fn().mockResolvedValue(undefined),
-  mockUseChat: vi.fn(),
+const {
+  mockUseChatSetup,
+  mockUseDarkMode,
+  mockToggleDarkMode,
+  mockHandleSendMessage,
+  mockHandleRegenerateResponse,
+} = vi.hoisted(() => ({
+  mockUseChatSetup: vi.fn(),
+  mockUseDarkMode: vi.fn(),
+  mockToggleDarkMode: vi.fn(),
+  mockHandleSendMessage: vi.fn().mockResolvedValue(undefined),
+  mockHandleRegenerateResponse: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("@ai-sdk/react", () => ({
-  useChat: mockUseChat,
+vi.mock("@/client/useChatSetup", () => ({
+  useChatSetup: mockUseChatSetup,
 }));
 
-vi.mock("ai", () => ({
-  TextStreamChatTransport: class {},
+vi.mock("@/client/useDarkMode", () => ({
+  useDarkMode: mockUseDarkMode,
 }));
 
-// Mock child components so we can test page.tsx logic in isolation
-vi.mock("@/components/messages/AssistantMessage", () => ({
+// Mock extracted components so we can test page.tsx logic in isolation
+vi.mock("@/components/messages/MessageList", () => ({
   default: ({
-    content,
-    isFirstMessage,
+    messages,
+    assistantIsLoading,
+    error,
   }: {
-    content: string;
-    isFirstMessage: boolean;
+    messages: unknown[];
+    assistantIsLoading: boolean;
+    error: Error | undefined;
   }) => (
     <div
-      data-testid="assistant-message"
-      data-first-message={String(isFirstMessage)}
-    >
-      {content}
+      data-testid="message-list"
+      data-loading={String(assistantIsLoading)}
+      data-error={error?.message ?? ""}
+      data-message-count={String(messages.length)}
+    />
+  ),
+}));
+
+vi.mock("@/components/ControlPanel", () => ({
+  default: ({
+    model,
+    temperature,
+    canRegenerate,
+    disabled,
+    setModel,
+    setTemperature,
+    onToggleDarkMode,
+    onRegenerate,
+    onSendMessage,
+  }: {
+    model: string;
+    temperature: string;
+    canRegenerate: boolean;
+    disabled: boolean;
+    setModel: (m: string) => void;
+    setTemperature: (t: string) => void;
+    onToggleDarkMode: () => void;
+    onRegenerate: () => void;
+    onSendMessage: (msg: string) => Promise<void>;
+  }) => (
+    <div data-testid="control-panel">
+      <span data-testid="cp-model">{model}</span>
+      <span data-testid="cp-temperature">{temperature}</span>
+      <span data-testid="cp-can-regenerate">{String(canRegenerate)}</span>
+      <span data-testid="cp-disabled">{String(disabled)}</span>
+      <button
+        type="button"
+        data-testid="cp-set-model"
+        onClick={() => setModel("gpt-4o-mini")}
+      >
+        Set Model
+      </button>
+      <button
+        type="button"
+        data-testid="cp-set-temperature"
+        onClick={() => setTemperature("CREATIVE")}
+      >
+        Set Temp
+      </button>
+      <button
+        type="button"
+        data-testid="cp-toggle-dark"
+        onClick={onToggleDarkMode}
+      >
+        Toggle Dark
+      </button>
+      <button
+        type="button"
+        data-testid="cp-regenerate"
+        onClick={onRegenerate}
+      >
+        Regenerate
+      </button>
+      <button
+        type="button"
+        data-testid="cp-send"
+        onClick={() => void onSendMessage("hi")}
+      >
+        Send
+      </button>
     </div>
   ),
 }));
 
-vi.mock("@/components/messages/UserMessage", () => ({
-  default: ({ content }: { content: string }) => (
-    <div data-testid="user-message">{content}</div>
-  ),
-}));
-
-vi.mock("@/components/messages/ChatInput", () => ({
-  default: ({
-    onSendMessage,
-    disabled,
-  }: {
-    onSendMessage: (msg: string) => Promise<void>;
-    disabled: boolean;
-  }) => (
-    <button
-      type="button"
-      data-testid="chat-input-send"
-      data-disabled={String(disabled)}
-      onClick={() => void onSendMessage("test message")}
-    >
-      Send
-    </button>
-  ),
-}));
-
-vi.mock("@/components/parameters/DropdownParameter", () => ({
-  default: ({
-    onChange,
-    ariaLabel,
-    options,
-    value,
-  }: {
-    onChange: (v: string) => void;
-    ariaLabel: string;
-    options: Array<{ value: string; label: string }>;
-    value: string;
-  }) => (
-    <select
-      aria-label={ariaLabel}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      {options.map((o) => (
-        <option
-          key={o.value}
-          value={o.value}
-        >
-          {o.label}
-        </option>
-      ))}
-    </select>
-  ),
-}));
-
+import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 import Home from "./page";
-
-type TestMessage = {
-  id: string;
-  role: string;
-  parts: Array<{ type: string; text?: string }>;
-};
 
 const INITIAL_MESSAGES = [
   {
     id: "initial-message",
     role: "assistant" as const,
-    parts: [
-      {
-        type: "text" as const,
-        text: "Hi, I am a chat bot. How can I help you today?",
-      },
-    ],
+    parts: [{ type: "text" as const, text: "Hi, I am a chat bot." }],
   },
 ];
 
-const WITH_USER_MESSAGE: TestMessage[] = [
-  ...INITIAL_MESSAGES,
-  {
-    id: "u1",
-    role: "user" as const,
-    parts: [{ type: "text" as const, text: "Hi" }],
-  },
-];
-
-function setupChat(
+function setupMocks(
   overrides: Partial<{
-    messages: TestMessage[];
-    status: string;
+    messages: typeof INITIAL_MESSAGES;
+    assistantIsLoading: boolean;
+    hasUserMessage: boolean;
     error: Error | undefined;
+    darkMode: boolean;
   }> = {},
 ) {
-  mockUseChat.mockReturnValue({
-    messages: INITIAL_MESSAGES,
-    sendMessage: mockSendMessage,
-    regenerate: mockRegenerate,
-    error: undefined,
-    status: "idle",
-    ...overrides,
+  const {
+    messages = INITIAL_MESSAGES,
+    assistantIsLoading = false,
+    hasUserMessage = false,
+    error = undefined,
+    darkMode = false,
+  } = overrides;
+
+  mockUseChatSetup.mockReturnValue({
+    messages,
+    assistantIsLoading,
+    hasUserMessage,
+    error,
+    handleSendMessage: mockHandleSendMessage,
+    handleRegenerateResponse: mockHandleRegenerateResponse,
   });
-}
 
-class MockMediaQueryList extends EventTarget implements MediaQueryList {
-  readonly matches: boolean;
-  readonly media: string;
-  onchange:
-    | ((this: MediaQueryList, ev: MediaQueryListEvent) => unknown)
-    | null = null;
-
-  constructor(matches: boolean, media: string) {
-    super();
-    this.matches = matches;
-    this.media = media;
-  }
-
-  addListener(): void {}
-  removeListener(): void {}
-}
-
-function mockMatchMedia(prefersDark: boolean) {
-  vi.stubGlobal(
-    "matchMedia",
-    (query: string): MediaQueryList =>
-      new MockMediaQueryList(
-        prefersDark && query === "(prefers-color-scheme: dark)",
-        query,
-      ),
-  );
+  mockUseDarkMode.mockReturnValue({
+    darkMode,
+    theme: createTheme({ palette: { mode: darkMode ? "dark" : "light" } }),
+    toggleDarkMode: mockToggleDarkMode,
+  });
 }
 
 describe("Home page", () => {
   beforeEach(() => {
-    mockMatchMedia(true);
-    setupChat();
+    setupMocks();
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  test("renders initial assistant message marked as first message", () => {
-    render(<Home />);
-    const msg = screen.getByTestId("assistant-message");
-    expect(msg).toHaveTextContent("Hi, I am a chat bot");
-    expect(msg).toHaveAttribute("data-first-message", "true");
+    vi.clearAllMocks();
   });
 
   test("renders main landmark, page heading, and skip link", () => {
     render(<Home />);
     expect(screen.getByRole("main")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Chatbot Template",
-      }),
+      screen.getByRole("heading", { level: 1, name: "Chatbot Template" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Skip to Message" }),
     ).toHaveAttribute("href", "#message-input");
   });
 
-  test("renders user messages via renderMessage", () => {
-    setupChat({
-      messages: [
-        ...INITIAL_MESSAGES,
-        {
-          id: "u1",
-          role: "user" as const,
-          parts: [{ type: "text" as const, text: "Hello bot" }],
-        },
-      ],
-    });
+  test("passes assistantIsLoading to MessageList", () => {
+    setupMocks({ assistantIsLoading: true });
     render(<Home />);
-    expect(screen.getByTestId("user-message")).toHaveTextContent("Hello bot");
-  });
-
-  test("shows CircularProgress when status is submitted", () => {
-    setupChat({ status: "submitted" });
-    render(<Home />);
-    expect(screen.getByRole("status")).toHaveTextContent("Generating…");
-  });
-
-  test("shows CircularProgress when status is streaming", () => {
-    setupChat({ status: "streaming" });
-    render(<Home />);
-    expect(screen.getByRole("status")).toHaveTextContent("Generating…");
-  });
-
-  test("shows error Alert when error is present", () => {
-    setupChat({ error: new Error("Network error") });
-    render(<Home />);
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Something went wrong. Try sending your message again. Details: Network error",
+    expect(screen.getByTestId("message-list")).toHaveAttribute(
+      "data-loading",
+      "true",
     );
   });
 
-  test("starts in dark mode when system prefers dark", () => {
+  test("passes error to MessageList", () => {
+    setupMocks({ error: new Error("oops") });
     render(<Home />);
-    expect(screen.getByLabelText("Switch to light mode")).toBeInTheDocument();
+    expect(screen.getByTestId("message-list")).toHaveAttribute(
+      "data-error",
+      "oops",
+    );
   });
 
-  test("starts in light mode when system prefers light", () => {
-    mockMatchMedia(false);
+  test("passes model to ControlPanel", () => {
     render(<Home />);
-    expect(screen.getByLabelText("Switch to dark mode")).toBeInTheDocument();
+    expect(screen.getByTestId("cp-model")).toHaveTextContent(
+      AssistantModel.FULL,
+    );
   });
 
-  test("toggles from dark to light mode", () => {
+  test("passes temperature to ControlPanel", () => {
     render(<Home />);
-    fireEvent.click(screen.getByLabelText("Switch to light mode"));
-    expect(screen.getByLabelText("Switch to dark mode")).toBeInTheDocument();
+    expect(screen.getByTestId("cp-temperature")).toHaveTextContent(
+      AssistantTemperature.BALANCED,
+    );
   });
 
-  test("regenerate button is disabled when no user messages", () => {
+  test("passes canRegenerate as true when hasUserMessage is true", () => {
+    setupMocks({ hasUserMessage: true });
     render(<Home />);
-    expect(screen.getByLabelText("Regenerate response")).toBeDisabled();
+    expect(screen.getByTestId("cp-can-regenerate")).toHaveTextContent("true");
   });
 
-  test("regenerate invokes chat retry when there is a user message and not loading", () => {
-    setupChat({ messages: WITH_USER_MESSAGE });
+  test("passes disabled as true when assistantIsLoading is true", () => {
+    setupMocks({ assistantIsLoading: true });
     render(<Home />);
-    fireEvent.click(screen.getByLabelText("Regenerate response"));
-    expect(mockRegenerate).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("cp-disabled")).toHaveTextContent("true");
   });
 
-  test("regenerate does not fire when disabled (loading)", () => {
-    setupChat({ status: "streaming", messages: WITH_USER_MESSAGE });
+  test("model state updates when setModel is called from ControlPanel", () => {
     render(<Home />);
-    fireEvent.click(screen.getByLabelText("Regenerate response"));
-    expect(mockRegenerate).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("cp-set-model"));
+    expect(screen.getByTestId("cp-model")).toHaveTextContent("gpt-4o-mini");
   });
 
-  test("syncs browser chrome metadata with the selected theme", () => {
-    const meta = document.createElement("meta");
-    meta.name = "theme-color";
-    document.head.append(meta);
-
+  test("temperature state updates when setTemperature is called from ControlPanel", () => {
     render(<Home />);
-    expect(document.documentElement.style.colorScheme).toBe("dark");
-    expect(meta.content).toBe("#121212");
-
-    fireEvent.click(screen.getByLabelText("Switch to light mode"));
-    expect(document.documentElement.style.colorScheme).toBe("light");
-    expect(meta.content).toBe("#ffffff");
-
-    meta.remove();
+    fireEvent.click(screen.getByTestId("cp-set-temperature"));
+    expect(screen.getByTestId("cp-temperature")).toHaveTextContent("CREATIVE");
   });
 
-  test("sends message from the chat input", async () => {
+  test("toggleDarkMode from useDarkMode is wired to ControlPanel", () => {
     render(<Home />);
-    fireEvent.click(screen.getByTestId("chat-input-send"));
-    expect(mockSendMessage).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByTestId("cp-toggle-dark"));
+    expect(mockToggleDarkMode).toHaveBeenCalledTimes(1);
   });
 
-  test("updates model selection from the dropdown", async () => {
+  test("handleRegenerateResponse from useChatSetup is wired to ControlPanel", () => {
     render(<Home />);
-    const modelSelect = screen.getByLabelText(/Select assistant model/i);
-    fireEvent.change(modelSelect, { target: { value: "gpt-4o-mini" } });
-    expect(modelSelect).toHaveValue("gpt-4o-mini");
+    fireEvent.click(screen.getByTestId("cp-regenerate"));
+    expect(mockHandleRegenerateResponse).toHaveBeenCalledTimes(1);
   });
 
-  test("updates temperature selection from the dropdown", async () => {
+  test("handleSendMessage from useChatSetup is wired to ControlPanel", () => {
     render(<Home />);
-    const tempSelect = screen.getByLabelText(/Select assistant temperature/i);
-    fireEvent.change(tempSelect, { target: { value: "CREATIVE" } });
-    expect(tempSelect).toHaveValue("CREATIVE");
-  });
-
-  test("non-text message parts yield empty string in renderMessage", () => {
-    setupChat({
-      messages: [
-        {
-          id: "a1",
-          role: "assistant" as const,
-          parts: [{ type: "step-start" }],
-        },
-      ],
-    });
-    render(<Home />);
-    // Should render without crashing; non-text parts map to ""
-    const msg = screen.getByTestId("assistant-message");
-    expect(msg).toHaveTextContent("");
+    fireEvent.click(screen.getByTestId("cp-send"));
+    expect(mockHandleSendMessage).toHaveBeenCalledWith("hi");
   });
 });

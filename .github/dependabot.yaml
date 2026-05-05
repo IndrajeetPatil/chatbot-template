@@ -6,3 +6,15 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  # Keep frontend (pnpm) dependencies up-to-date
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+
+  # Keep backend (uv) dependencies up-to-date
+  - package-ecosystem: "uv"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
