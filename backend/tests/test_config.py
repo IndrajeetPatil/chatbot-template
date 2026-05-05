@@ -61,7 +61,8 @@ def test_settings_raises_on_missing_azure_credentials(
 
 def test_settings_whitespace_values_treated_as_missing() -> None:
     with pytest.raises(
-        ValueError, match="Missing required Azure OpenAI settings: AZURE_OPENAI_API_KEY"
+        ValueError,
+        match="Missing required Azure OpenAI settings: AZURE_OPENAI_API_KEY",
     ):
         Settings(
             AZURE_OPENAI_ENDPOINT="https://example.openai.azure.com/",

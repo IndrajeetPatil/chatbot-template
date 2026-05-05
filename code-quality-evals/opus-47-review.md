@@ -36,11 +36,6 @@ streamed via Azure OpenAI
 
 ### Weaknesses
 
-- **`renderMessage` in page.tsx**: This free function lives inside a
-  component module and operates on `UIMessage` objects. It would be
-  easier to follow as a dedicated `<Message>` component — the current
-  placement is a minor readability bump for reviewers unfamiliar with
-  the file.
 - **Inline MUI `sx` props**: Several components pass substantial style
   objects inline rather than hoisting them to named constants. This is
   idiomatic MUI but reduces scannability when styles are long.
@@ -190,16 +185,6 @@ streamed via Azure OpenAI
 
 ### Score: 9.5 / 10
 
-### Weaknesses
-
-- **No explicit WCAG level target in documentation**: The project
-  clearly aims for AA compliance, but this is not stated. Documenting
-  the target level would help reviewers understand what to test against.
-- **Dark mode is default without system preference detection**: The
-  initial state is `darkMode = true` regardless of the user's
-  `prefers-color-scheme`. A user in a light environment may be
-  surprised on first load.
-
 ---
 
 ## 10. Dependency Health
@@ -230,11 +215,7 @@ streamed via Azure OpenAI
    output plus `openapi-typescript` to generate frontend types.
    Eliminates the risk of schema drift between Pydantic models and
    TypeScript types.
-4. **Detect `prefers-color-scheme`**: Replace the hardcoded
-   `darkMode = true` default with
-   `window.matchMedia('(prefers-color-scheme: dark)').matches` so the
-   initial render matches the user's OS preference.
-5. **Add a circuit breaker**: Repeated Azure OpenAI failures currently
+4. **Add a circuit breaker**: Repeated Azure OpenAI failures currently
    result in repeated timeouts. A circuit breaker (`pybreaker`) would
    fail fast after a threshold and recover automatically.
 
