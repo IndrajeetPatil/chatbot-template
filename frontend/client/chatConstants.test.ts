@@ -9,8 +9,8 @@ describe("chatConstants", () => {
     expect(INITIAL_MESSAGE_ID).toBe("initial-message");
   });
 
-  test("CHAT_API_URL falls back to localhost when env var is unset", () => {
-    expect(CHAT_API_URL).toBe("http://localhost:8000/api/v1/chat");
+  test("CHAT_API_URL uses the same-origin proxy path", () => {
+    expect(CHAT_API_URL).toBe("/api/v1/chat");
   });
 
   test("INITIAL_MESSAGES contains one assistant message with matching id", () => {

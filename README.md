@@ -56,6 +56,18 @@ pnpm install --frozen-lockfile
 docker-compose up
 ```
 
+The browser talks to the frontend on the same origin at `/api/v1/chat`. In
+Docker Compose, the frontend container proxies that path to the backend
+container, so the backend host is not exposed to browser code or the network
+tab.
+
+For local Vite development against a non-default backend, set the server-side
+proxy target before starting the frontend dev server:
+
+``` bash
+CHAT_API_PROXY_TARGET=https://example.com pnpm run dev
+```
+
 - The frontend service is available at `http://localhost:3000`
 - The backend service is available at `http://localhost:8000`
 
