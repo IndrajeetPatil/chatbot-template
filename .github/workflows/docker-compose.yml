@@ -12,6 +12,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      TRIVY_VERSION: v0.70.0
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -27,11 +29,8 @@ jobs:
       - name: Install Trivy
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends apt-transport-https gnupg wget
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor --yes -o /usr/share/keyrings/trivy.gpg
-          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends trivy
+          sudo apt-get install -y --no-install-recommends ca-certificates curl
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin "$TRIVY_VERSION"
           trivy --version
 
       - name: Create .env file
@@ -42,7 +41,7 @@ jobs:
 
       - name: Build services
         run: |
-          docker-compose build --no-cache
+          docker-compose build --pull --no-cache
 
       - name: Scan built images with Trivy
         run: |
