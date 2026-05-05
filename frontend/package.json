@@ -56,7 +56,7 @@
     "eslint": "^10.3.0",
     "eslint-plugin-no-unsanitized": "^4.1.5",
     "eslint-plugin-react-dom": "^5.7.2",
-    "fallow": "^2.62.0",
+    "fallow": "^2.64.0",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
     "type-coverage": "^2.29.7",
