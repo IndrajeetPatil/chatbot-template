@@ -9,6 +9,7 @@ dependencies = [
     "loguru>=0.7.3",
     "openai>=2.34.0",
     "pydantic-settings>=2.14.0",
+    "slowapi>=0.1.9",
 ]
 
 [dependency-groups]
@@ -50,6 +51,10 @@ max-returns = 3
 max-statements = 20
 
 [tool.ruff.lint.per-file-ignores]
+"app/main.py" = [
+    # slowapi requires the endpoint parameter named `request`; it never appears in the body
+    "ARG001",
+]
 "test_*.py" = [
     # tests can have asserts
     "S101",
@@ -64,6 +69,8 @@ max-statements = 20
     "PLC1901",
     # long expected-value strings in parametrize are unavoidable
     "E501",
+    # tests must reach private storage to reset rate-limit counters between runs
+    "SLF001",
 ]
 
 [tool.ruff.format]
@@ -91,5 +98,9 @@ addopts = [
     "-ra",
 ]
 xfail_strict = true
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    # slowapi 0.1.9 calls asyncio.iscoroutinefunction, deprecated in Python 3.14
+    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
+]
 python_files = ["test_*.py", "test-*.py", "tests.py", "test.py"]

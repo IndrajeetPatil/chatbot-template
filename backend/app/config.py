@@ -16,6 +16,7 @@ class Settings(BaseSettings):
         default_factory=lambda: ["http://localhost:3000"],
         alias="CORS_ALLOWED_ORIGINS",
     )
+    chat_rate_limit: str = Field(default="10/minute", alias="CHAT_RATE_LIMIT")
     testing: bool = Field(default=False, alias="TESTING")
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(

@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from app.entities import AssistantModel, AssistantTemperature, OpenAIMessageRole
-from app.main import TextPart, UIMessage, app
+from app.main import TextPart, UIMessage, app, limiter, settings
 
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Iterator
@@ -90,6 +90,53 @@ def test_post_chat_rejects_invalid_model_or_temperature(
     assert response.status_code == 422
 
 
+def test_post_chat_rejects_too_many_messages() -> None:
+    client: TestClient = TestClient(app)
+    response: Response = client.post(
+        "/api/v1/chat",
+        json={
+            "messages": [
+                {"role": "user", "parts": [{"type": "text", "text": "Hi"}]},
+            ]
+            * 51,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_post_chat_rejects_message_content_too_long() -> None:
+    client: TestClient = TestClient(app)
+    response: Response = client.post(
+        "/api/v1/chat",
+        json={"messages": [{"role": "user", "content": "x" * 32_001}]},
+    )
+
+    assert response.status_code == 422
+
+
+def test_chat_endpoint_rate_limits_after_threshold(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def mock_stream(**_: object) -> Iterator[str]:
+        yield "ok"
+
+    monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
+    monkeypatch.setattr(settings, "chat_rate_limit", "1/minute")
+    limiter._storage.reset()
+
+    client: TestClient = TestClient(app)
+    payload: dict[str, object] = {
+        "messages": [{"role": "user", "parts": [{"type": "text", "text": "Hi"}]}],
+    }
+
+    assert client.post("/api/v1/chat", json=payload).status_code == 200
+
+    response: Response = client.post("/api/v1/chat", json=payload)
+    assert response.status_code == 429
+    assert response.json() == {"detail": "Rate limit exceeded. Please try again later."}
+
+
 def test_health() -> None:
     client: TestClient = TestClient(app)
     response: Response = client.get("/health")
@@ -119,7 +166,8 @@ def test_ui_message_text_returns_joined_parts() -> None:
 
 def test_ui_message_rejects_empty_content_and_parts() -> None:
     with pytest.raises(
-        ValidationError, match="At least one of 'content' or 'parts' must be provided"
+        ValidationError,
+        match="At least one of 'content' or 'parts' must be provided",
     ):
         UIMessage(role=OpenAIMessageRole.USER)
 
