@@ -27,16 +27,43 @@ const COPY_BTN_COLORS = {
   light: { bg: "#ff9800", hover: "#e65100" },
 } as const;
 
+const BLOCK_CODE_SX = {
+  fontFamily: '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+  fontSize: "0.875rem",
+  whiteSpace: "pre",
+} as const;
+
+const COPY_BUTTON_SX = {
+  position: "absolute",
+  right: 4,
+  top: 4,
+} as const;
+
+const CODE_BLOCK_PRE_SX = {
+  borderRadius: 1,
+  mt: 2,
+  overflowX: "auto",
+  p: 2,
+} as const;
+
+const ASSISTANT_MESSAGE_CONTAINER_SX = {
+  display: "flex",
+  justifyContent: "flex-start",
+} as const;
+
+const ASSISTANT_MESSAGE_PAPER_SX = {
+  maxWidth: "80%",
+  overflowWrap: "anywhere",
+  p: 2,
+  position: "relative",
+  wordWrap: "break-word",
+} as const;
+
 function BlockCode({ text }: { text: string }) {
   return (
     <Typography
       component="code"
-      sx={{
-        fontFamily:
-          '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
-        fontSize: "0.875rem",
-        whiteSpace: "pre",
-      }}
+      sx={BLOCK_CODE_SX}
     >
       {text.replace(/\n$/, "")}
     </Typography>
@@ -65,13 +92,13 @@ function CopyButton({ content, isDark }: CopyButtonProps) {
     <Tooltip title={copied ? "Copied!" : "Copy entire message"}>
       <IconButton
         onClick={handleCopy}
-        sx={{
-          position: "absolute",
-          top: 4,
-          right: 4,
-          backgroundColor: btnColors.bg,
-          "&:hover": { backgroundColor: btnColors.hover },
-        }}
+        sx={[
+          COPY_BUTTON_SX,
+          {
+            "&:hover": { backgroundColor: btnColors.hover },
+            backgroundColor: btnColors.bg,
+          },
+        ]}
       >
         <ContentCopyIcon fontSize="small" />
       </IconButton>
@@ -97,13 +124,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
         <Box
           component="pre"
           data-testid="code-block"
-          sx={{
-            mt: 2,
-            p: 2,
-            overflowX: "auto",
-            borderRadius: 1,
-            backgroundColor: colors.codeBlock,
-          }}
+          sx={[CODE_BLOCK_PRE_SX, { backgroundColor: colors.codeBlock }]}
         >
           {children}
         </Box>
@@ -130,17 +151,10 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
   );
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+    <Box sx={ASSISTANT_MESSAGE_CONTAINER_SX}>
       <Paper
         elevation={2}
-        sx={{
-          p: 2,
-          backgroundColor: colors.paper,
-          maxWidth: "80%",
-          wordWrap: "break-word",
-          overflowWrap: "anywhere",
-          position: "relative",
-        }}
+        sx={[ASSISTANT_MESSAGE_PAPER_SX, { backgroundColor: colors.paper }]}
       >
         <SmartToyIcon sx={{ color: colors.icon }} />
         <Typography
