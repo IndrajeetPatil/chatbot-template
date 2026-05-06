@@ -81,11 +81,6 @@ streamed via Azure OpenAI
 
 ### Weaknesses
 
-- **`UIMessage.text` property**: This property has two code paths
-  depending on whether `content` is a `str` or a list. The
-  `str | list[...]` union type is correct but produces branchy runtime
-  logic that would benefit from a dedicated parsing function so the
-  property body is trivially typed.
 - **No shared OpenAPI contract**: TypeScript types are hand-written to
   match Pydantic models. A generated client (e.g., `openapi-typescript`)
   would make the contract machine-checked.
@@ -267,19 +262,10 @@ missed after re-reading the source.
    site. Sonnet praised the same pattern on `get_settings` without
    noting that the client variant has different implications
    (network state, not just config).
-4. **`UIMessage.content: str | None` is doubly-permissive**:
-   `entities.py`-side schema accepts both `content` (legacy) and
-   `parts` (Vercel AI SDK shape). There's no validator ensuring at
-   least one is populated; `text` returns `""` when both are missing,
-   which then gets filtered out by `_to_openai_messages`. The contract
-   would be cleaner as a discriminated union.
-5. **`renderMessage` strips non-text parts silently** (`page.tsx:94`).
-   If the SDK ever yields a non-text part (tool call, image), it's
-   coerced to `""`. Should at minimum log or assert.
-6. **CORS uses `allow_methods=["*"], allow_headers=["*"]`** without
+4. **CORS uses `allow_methods=["*"], allow_headers=["*"]`** without
    `allow_credentials`. Permissive but not catastrophic; Sonnet's §6
    praised CORS without auditing the wildcards.
-7. **No Python `from __future__ import annotations`** anywhere, despite
+5. **No Python `from __future__ import annotations`** anywhere, despite
    targeting 3.14. Not a bug — just inconsistent with the otherwise
    strict typing posture. (Arguably unnecessary on 3.14, so skip if
    intentional.)
@@ -300,9 +286,6 @@ missed after re-reading the source.
    trailer** so the frontend can distinguish "stream ended cleanly"
    from "stream aborted." Without this, the `Alert` in `MessageList`
    is best-effort.
-7. **Validate `UIMessage` with a model validator** that requires
-   exactly one of `content` or non-empty `parts`. Eliminates the dual
-   representation at the boundary.
-8. **Log token usage via the OpenAI streaming `usage` chunk**
+7. **Log token usage via the OpenAI streaming `usage` chunk**
    (`stream_options={"include_usage": True}`). Cheap, accurate, and
    removes the character-count proxy Sonnet flagged.
