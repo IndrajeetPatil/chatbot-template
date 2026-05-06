@@ -1,12 +1,25 @@
 import type { UIMessage } from "@ai-sdk/react";
 import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
+import type { TextUIPart } from "ai";
+import { isTextUIPart } from "ai";
 import { INITIAL_MESSAGE_ID } from "@/client/chatConstants";
 import AssistantMessage from "@/components/messages/AssistantMessage";
 import UserMessage from "@/components/messages/UserMessage";
 
 function renderMessage(message: UIMessage) {
   const content = message.parts
-    .map((part) => (part.type === "text" ? part.text : ""))
+    .filter((part): part is TextUIPart => {
+      if (!isTextUIPart(part)) {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[MessageList] Unexpected non-text message part type: "${part.type}"`,
+          );
+        }
+        return false;
+      }
+      return true;
+    })
+    .map((part) => part.text)
     .join("");
 
   return message.role === "user" ? (

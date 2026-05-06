@@ -23,7 +23,7 @@ backend-type-check:
 
 backend-audit:
 	@echo "$(COLOR_BLUE_BG)Auditing backend dependencies...$(COLOR_RESET)"
-	cd $(BACKEND_DIR) && uv audit --no-dev --locked --preview-features audit
+	cd $(BACKEND_DIR) && uv audit --no-dev --frozen --preview-features audit
 
 backend-validate-api-schema:
 	@echo "$(COLOR_BLUE_BG)Validating API schema...$(COLOR_RESET)"

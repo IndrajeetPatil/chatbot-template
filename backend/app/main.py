@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from loguru import logger
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.azure_client import ChatMessage, stream_azure_openai_response
 from app.config import get_settings
@@ -37,16 +37,27 @@ class TextPart(BaseModel):
     text: str
 
 
+def _parse_message_text(content: str | None, parts: list[TextPart]) -> str:
+    if content is not None:
+        return content
+    return "".join(part.text for part in parts)
+
+
 class UIMessage(BaseModel):
     role: OpenAIMessageRole
     content: str | None = None
     parts: list[TextPart] = Field(default_factory=list)
 
+    @model_validator(mode="after")
+    def validate_content_or_parts(self) -> UIMessage:
+        if self.content is None and not self.parts:
+            msg: str = "At least one of 'content' or 'parts' must be provided."
+            raise ValueError(msg)
+        return self
+
     @property
     def text(self) -> str:
-        if self.content is not None:
-            return self.content
-        return "".join(part.text for part in self.parts)
+        return _parse_message_text(self.content, self.parts)
 
 
 class ChatRequest(BaseModel):
