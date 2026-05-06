@@ -33,10 +33,8 @@ const INITIAL_MESSAGE = {
 };
 
 describe("MessageList", () => {
-  let warnSpy: ReturnType<typeof vi.spyOn>;
-
   afterEach(() => {
-    warnSpy?.mockRestore();
+    vi.restoreAllMocks();
   });
 
   test("renders initial assistant message marked as first message", () => {
@@ -126,7 +124,7 @@ describe("MessageList", () => {
   });
 
   test("non-text message parts yield empty string and warn", () => {
-    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     render(
       <MessageList
         messages={[
