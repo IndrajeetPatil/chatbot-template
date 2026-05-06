@@ -6,9 +6,10 @@ description: >
   show the UI in a PR comment, verify visual changes in a PR, or
   include visual evidence after UI work.
 allowed-tools: >
-  Bash(gh *), Bash(curl *), Bash(npx playwright*), Bash(lsof *),
-  Bash(pnpm *), Bash(kill *), Bash(sleep *), Bash(jq *),
-  Bash(seq *), Bash(cat *), Bash(date *)
+  Bash(gh *), Bash(git *), Bash(curl *), Bash(npx playwright*),
+  Bash(lsof *), Bash(pnpm *), Bash(kill *), Bash(sleep *),
+  Bash(seq *), Bash(cp *), Bash(mkdir *), Bash(cat *),
+  Bash(date *), Bash(printf *)
 ---
 
 # frontend-pr-screenshot
@@ -62,7 +63,8 @@ fully rendered), then saves the screenshot.
 cd frontend && npx playwright screenshot \
   "http://localhost:3000/chat" \
   /tmp/frontend-screenshot.png \
-  --wait-for-selector "[aria-label='Message']"
+  --wait-for-selector "#message-input" \
+  --timeout 15000
 ```
 
 If Playwright is not installed, run:
@@ -71,38 +73,53 @@ If Playwright is not installed, run:
 pnpm exec playwright install chromium --with-deps
 ```
 
-### Step 4 — Upload the PNG to GitHub's CDN
+### Step 4 — Publish the PNG on a dedicated asset branch
 
-GitHub's issue-assets upload endpoint hosts the image and returns a
-permanent URL that can be embedded in a PR comment.
+GitHub's undocumented issue-assets upload endpoint has become unreliable
+for this workflow. The working fallback is to publish the PNG on a
+dedicated branch and use the raw GitHub URL in the PR comment.
 
 ```bash
-TOKEN=$(gh auth token)
-UPLOAD_RESPONSE=$(curl -s -X POST \
-  "https://uploads.github.com/repos/${REPO}/issues/${PR_NUMBER}/assets\
-?name=frontend-screenshot.png" \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -H "Content-Type: image/png" \
-  --data-binary "@/tmp/frontend-screenshot.png")
+CURRENT_BRANCH=$(git branch --show-current)
+ASSET_BRANCH="pr-screenshot-${PR_NUMBER}"
+ASSET_PATH=".github/pr-assets/frontend-screenshot-${PR_NUMBER}.png"
 
-IMAGE_URL=$(echo "$UPLOAD_RESPONSE" | jq -r '.browser_download_url')
+if git show-ref --verify --quiet "refs/heads/${ASSET_BRANCH}"; then
+  git switch "${ASSET_BRANCH}"
+else
+  git switch -c "${ASSET_BRANCH}"
+fi
+
+mkdir -p .github/pr-assets
+cp /tmp/frontend-screenshot.png "${ASSET_PATH}"
+git add "${ASSET_PATH}"
+git commit -m "docs: add PR screenshot asset" || true
+git push -u origin "${ASSET_BRANCH}"
+git switch "${CURRENT_BRANCH}"
+
+IMAGE_URL="https://raw.githubusercontent.com/${REPO}/${ASSET_BRANCH}/${ASSET_PATH}"
 ```
 
-Verify `IMAGE_URL` is not `null` or empty before proceeding. If the
-upload fails, tell the user what the API returned and stop — do not
-post a broken comment.
+Verify the published image URL resolves before commenting:
+
+```bash
+curl -sfI "${IMAGE_URL}"
+```
 
 ### Step 5 — Post the screenshot as a PR comment
 
 ```bash
-gh pr comment "$PR_NUMBER" --body "$(cat <<EOF
+DATE_UTC=$(date -u '+%Y-%m-%d %H:%M UTC')
+
+cat >/tmp/pr-screenshot-comment.md <<EOF
 ## Frontend Screenshot
 
 ![App screenshot](${IMAGE_URL})
 
-> Captured from \`/chat\` — $(date -u '+%Y-%m-%d %H:%M UTC')
+> Captured from /chat — ${DATE_UTC}
 EOF
-)"
+
+gh pr comment "$PR_NUMBER" --body-file /tmp/pr-screenshot-comment.md
 ```
 
 ### Step 6 — Clean up (optional)
@@ -118,7 +135,7 @@ If you started the dev server in Step 2, you may stop it:
 | Symptom | Fix |
 |---------|-----|
 | `gh pr view` fails | No open PR. Ask the user to open one first. |
-| Screenshot is blank | Add `--timeout 15000` to the screenshot command. |
-| Upload returns 404 | Check `REPO` with `gh repo view`. |
-| Upload returns 403 | Re-authenticate: `gh auth login`. |
-| `jq` not available | `brew install jq` or `apt-get install jq`. |
+| Playwright waits forever | Use `#message-input` instead of `[aria-label='Message']` and add `--timeout 15000`. |
+| Raw image URL 404s | Confirm the asset branch pushed successfully and `curl -I "$IMAGE_URL"` returns 200 before commenting. |
+| Browser session is signed out | Stay on the asset-branch flow; it does not require GitHub web login. |
+| Extra screenshot comments were posted while debugging | Delete them with `gh api -X DELETE /repos/<owner>/<repo>/issues/comments/<comment_id>`. |
