@@ -80,6 +80,16 @@ def test_settings_testing_mode_allows_empty_azure_credentials() -> None:
     assert s.testing is True
 
 
+def test_settings_default_chat_rate_limit() -> None:
+    s: Settings = Settings(TESTING=True)
+    assert s.chat_rate_limit == "10/minute"
+
+
+def test_settings_raises_on_invalid_chat_rate_limit() -> None:
+    with pytest.raises(ValueError, match="Invalid rate limit format: 10/minx"):
+        Settings(TESTING=True, CHAT_RATE_LIMIT="10/minx")
+
+
 def test_get_settings_returns_cached_instance() -> None:
     get_settings.cache_clear()
     first: Settings = get_settings()

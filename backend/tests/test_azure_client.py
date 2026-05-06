@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any
 import httpx
 import openai
 import pytest
+from fastapi import status
 
 from app.azure_client import get_azure_openai_client, stream_azure_openai_response
 from app.entities import AssistantModel, AssistantTemperature
@@ -39,6 +40,16 @@ def create_chunk(content: str | None) -> object:
 
 
 @pytest.fixture
+def prompt_messages() -> list[dict[str, str]]:
+    return [
+        {
+            "role": "user",
+            "content": "Test prompt",
+        },
+    ]
+
+
+@pytest.fixture
 def mock_azure_client(monkeypatch: pytest.MonkeyPatch) -> MockAzureClient:
     mock_client: MockAzureClient = MockAzureClient()
     get_azure_openai_client.cache_clear()
@@ -57,6 +68,7 @@ def mock_azure_client(monkeypatch: pytest.MonkeyPatch) -> MockAzureClient:
 )
 def test_stream_successful_response(
     mock_azure_client: MockAzureClient,
+    prompt_messages: list[dict[str, str]],
     model: AssistantModel,
     temperature: AssistantTemperature,
     expected_model: str,
@@ -70,7 +82,7 @@ def test_stream_successful_response(
 
     response: list[str] = list(
         stream_azure_openai_response(
-            messages=[{"role": "user", "content": "Test prompt"}],
+            messages=prompt_messages,
             model=model,
             temperature=temperature,
         ),
@@ -81,7 +93,7 @@ def test_stream_successful_response(
         {
             "model": expected_model,
             "temperature": expected_temp,
-            "messages": [{"role": "user", "content": "Test prompt"}],
+            "messages": prompt_messages,
             "stream": True,
         },
     ]
@@ -97,6 +109,7 @@ def test_stream_successful_response(
 )
 def test_api_exception(
     mock_azure_client: MockAzureClient,
+    prompt_messages: list[dict[str, str]],
     exc_class: type[Exception],
     message: str,
 ) -> None:
@@ -105,7 +118,7 @@ def test_api_exception(
     with pytest.raises(exc_class, match=message):
         list(
             stream_azure_openai_response(
-                messages=[{"role": "user", "content": "Test prompt"}],
+                messages=prompt_messages,
                 model=AssistantModel.FULL,
                 temperature=AssistantTemperature.BALANCED,
             ),
@@ -125,12 +138,12 @@ def _make_response(status_code: int) -> httpx.Response:
     [
         openai.AuthenticationError(
             "auth failed",
-            response=_make_response(401),
+            response=_make_response(status.HTTP_401_UNAUTHORIZED),
             body=None,
         ),
         openai.RateLimitError(
             "rate limited",
-            response=_make_response(429),
+            response=_make_response(status.HTTP_429_TOO_MANY_REQUESTS),
             body=None,
         ),
         openai.APIConnectionError(
@@ -139,13 +152,14 @@ def _make_response(status_code: int) -> httpx.Response:
         ),
         openai.InternalServerError(
             "server error",
-            response=_make_response(500),
+            response=_make_response(status.HTTP_500_INTERNAL_SERVER_ERROR),
             body=None,
         ),
     ],
 )
 def test_openai_api_exceptions_are_reraised(
     mock_azure_client: MockAzureClient,
+    prompt_messages: list[dict[str, str]],
     exc: openai.APIError,
 ) -> None:
     mock_azure_client.chat.completions.side_effect = exc
@@ -153,7 +167,7 @@ def test_openai_api_exceptions_are_reraised(
     with pytest.raises(type(exc)):
         list(
             stream_azure_openai_response(
-                messages=[{"role": "user", "content": "Test prompt"}],
+                messages=prompt_messages,
                 model=AssistantModel.FULL,
                 temperature=AssistantTemperature.BALANCED,
             ),
@@ -195,7 +209,7 @@ def test_openai_api_error_mid_stream_is_reraised(
 ) -> None:
     mid_stream_exc: openai.InternalServerError = openai.InternalServerError(
         "mid-stream failure",
-        response=_make_response(500),
+        response=_make_response(status.HTTP_500_INTERNAL_SERVER_ERROR),
         body=None,
     )
 
@@ -208,7 +222,12 @@ def test_openai_api_error_mid_stream_is_reraised(
     with pytest.raises(openai.InternalServerError, match="mid-stream failure"):
         list(
             stream_azure_openai_response(
-                messages=[{"role": "user", "content": "Test"}],
+                messages=[
+                    {
+                        "role": "user",
+                        "content": "Test",
+                    },
+                ],
                 model=AssistantModel.FULL,
                 temperature=AssistantTemperature.BALANCED,
             ),
@@ -227,7 +246,12 @@ def test_stream_skips_chunks_with_empty_choices(
 
     result: list[str] = list(
         stream_azure_openai_response(
-            messages=[{"role": "user", "content": "Test"}],
+            messages=[
+                {
+                    "role": "user",
+                    "content": "Test",
+                },
+            ],
             model=AssistantModel.FULL,
             temperature=AssistantTemperature.BALANCED,
         ),

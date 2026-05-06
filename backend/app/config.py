@@ -1,7 +1,8 @@
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from pydantic import Field, model_validator
+from limits import parse
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
@@ -16,12 +17,23 @@ class Settings(BaseSettings):
         default_factory=lambda: ["http://localhost:3000"],
         alias="CORS_ALLOWED_ORIGINS",
     )
+    chat_rate_limit: str = Field(default="10/minute", alias="CHAT_RATE_LIMIT")
     testing: bool = Field(default=False, alias="TESTING")
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
     )
+
+    @field_validator("chat_rate_limit", mode="after")
+    @classmethod
+    def validate_rate_limit(cls, v: str) -> str:
+        try:
+            parse(v)
+        except ValueError as e:
+            msg: str = f"Invalid rate limit format: {v}"
+            raise ValueError(msg) from e
+        return v
 
     @model_validator(mode="after")
     def validate_azure_settings(self) -> Settings:

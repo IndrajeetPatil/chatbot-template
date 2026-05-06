@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { StatusCodes } from "http-status-codes";
 
 const CHAT_API_PATH = "**/api/v1/chat";
 
@@ -29,7 +30,7 @@ test.describe("Visual regression", () => {
       await route.fulfill({
         body: response,
         contentType: "text/plain; charset=utf-8",
-        status: 200,
+        status: StatusCodes.OK,
       });
     });
     await page.goto("/chat");
