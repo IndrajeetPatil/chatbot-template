@@ -16,6 +16,11 @@ if TYPE_CHECKING:  # pragma: no cover
     from httpx import Response
 
 
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter() -> None:
+    limiter._storage.reset()  # noqa: SLF001
+
+
 @pytest.fixture
 def client() -> TestClient:
     return TestClient(app)
@@ -160,7 +165,6 @@ def test_chat_endpoint_rate_limits_after_threshold(
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
     monkeypatch.setattr(settings, "chat_rate_limit", "1/minute")
-    limiter._storage.reset()
 
     payload: dict[str, object] = {"messages": [hi_message]}
 

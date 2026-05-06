@@ -69,8 +69,6 @@ max-statements = 20
     "PLC1901",
     # long expected-value strings in parametrize are unavoidable
     "E501",
-    # tests must reach private storage to reset rate-limit counters between runs
-    "SLF001",
 ]
 
 [tool.ruff.format]
