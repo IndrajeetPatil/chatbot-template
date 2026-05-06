@@ -20,10 +20,11 @@ template or local demo, but it is a hard blocker for production exposure.
 Any deployed version should put the chat endpoint behind identity, session
 checks, or another explicit access-control layer.
 
-The backend also lacks rate limiting, request size limits, message count
-limits, per-user quotas, and token-budget controls. For an LLM-backed service,
-those are reliability and cost controls as much as security controls. Without
-them, a single client can create runaway Azure OpenAI spend or degrade service
+The backend now includes basic request-envelope protections: rate limiting,
+message-count caps, and per-message size limits. It still lacks per-user
+quotas and token-budget controls. For an LLM-backed service, those are
+reliability and cost controls as much as security controls. Without them, a
+single client can still create runaway Azure OpenAI spend or degrade service
 for everyone else.
 
 ### Error Semantics for Streaming
@@ -54,10 +55,10 @@ this template is used as the seed for a real product.
 
 ## Recommended Next Steps
 
-1. Document the deployment boundary: local/demo template unless auth, rate
-   limits, quotas, and request-size limits are added.
-2. Add request-level limits: max messages, max characters, timeout policy, and
-   basic rate limiting.
+1. Document the deployment boundary: local/demo template unless auth, quotas,
+   and token-budget controls are added.
+2. Add the remaining request-level controls: timeout policy, per-user quotas,
+   and a token budget.
 3. Add minimal LLM evals: a small golden prompt set, safety probes, latency
    budget, and cost budget for the configured deployments.
 4. Add request IDs and structured metadata to backend logs.

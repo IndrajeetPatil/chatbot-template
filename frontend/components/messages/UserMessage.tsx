@@ -7,25 +7,46 @@ interface UserMessageProps {
   content: string;
 }
 
+const USER_MESSAGE_CONTAINER_SX = {
+  display: "flex",
+  justifyContent: "flex-end",
+  mb: 2,
+} as const;
+
+const USER_MESSAGE_PAPER_SX = {
+  maxWidth: "70%",
+  p: 2,
+  wordWrap: "break-word",
+} as const;
+
+const USER_MESSAGE_COLORS = {
+  dark: {
+    icon: "#90caf9",
+    paper: "#1a237e",
+    text: "common.white",
+  },
+  light: {
+    icon: "#1976d2",
+    paper: "#e3f2fd",
+    text: "inherit",
+  },
+} as const;
+
 const UserMessage: React.FC<UserMessageProps> = ({ content }) => {
   const isDark = useIsDark();
+  const colors = isDark ? USER_MESSAGE_COLORS.dark : USER_MESSAGE_COLORS.light;
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+    <Box sx={USER_MESSAGE_CONTAINER_SX}>
       <Paper
         elevation={2}
-        sx={{
-          p: 2,
-          backgroundColor: isDark ? "#1a237e" : "#e3f2fd",
-          maxWidth: "70%",
-          wordWrap: "break-word",
-        }}
+        sx={[USER_MESSAGE_PAPER_SX, { backgroundColor: colors.paper }]}
       >
-        <PersonIcon sx={{ color: isDark ? "#90caf9" : "#1976d2" }} />
+        <PersonIcon sx={{ color: colors.icon }} />
         <Typography
           variant="body1"
           component="div"
-          sx={{ color: isDark ? "common.white" : "inherit" }}
+          sx={{ color: colors.text }}
         >
           {content}
         </Typography>

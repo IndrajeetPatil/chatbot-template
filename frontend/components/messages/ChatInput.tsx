@@ -8,6 +8,21 @@ interface ChatInputProps {
   disabled?: boolean;
 }
 
+const CHAT_INPUT_FORM_SX = {
+  alignItems: "flex-start",
+  display: "flex",
+  gap: 1,
+  mt: 2,
+} as const;
+
+const CHAT_INPUT_FIELD_SX = { flexGrow: 1 } as const;
+
+const CHAT_INPUT_SEND_BUTTON_SX = {
+  minHeight: 56,
+  mt: 2,
+  touchAction: "manipulation",
+} as const;
+
 const ChatInput: React.FC<ChatInputProps> = ({
   disabled = false,
   onSendMessage,
@@ -46,12 +61,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     <Box
       component="form"
       onSubmit={handleSubmit}
-      sx={{
-        alignItems: "flex-start",
-        display: "flex",
-        gap: 1,
-        mt: 2,
-      }}
+      sx={CHAT_INPUT_FORM_SX}
     >
       <TextField
         id="message-input"
@@ -76,7 +86,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             ? "Enter a message before sending."
             : "Press Enter for a new line. Press Ctrl+Enter or Cmd+Enter to send."
         }
-        sx={{ flexGrow: 1 }}
+        sx={CHAT_INPUT_FIELD_SX}
       />
       <Button
         type="submit"
@@ -93,7 +103,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <SendIcon />
           )
         }
-        sx={{ minHeight: 56, mt: 2, touchAction: "manipulation" }}
+        sx={CHAT_INPUT_SEND_BUTTON_SX}
       >
         Send
       </Button>

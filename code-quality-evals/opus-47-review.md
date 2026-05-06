@@ -36,9 +36,7 @@ streamed via Azure OpenAI
 
 ### Weaknesses
 
-- **Inline MUI `sx` props**: Several components pass substantial style
-  objects inline rather than hoisting them to named constants. This is
-  idiomatic MUI but reduces scannability when styles are long.
+No material readability issues currently stand out.
 
 ---
 
@@ -69,9 +67,6 @@ streamed via Azure OpenAI
   statement coverage threshold. Given the strict backend standard, the
   asymmetry is noticeable. Some branches — particularly around the
   streaming error path — may not be fully exercised.
-- **E2E tests require both servers running**: There is no mocked backend
-  for E2E, which makes the E2E suite harder to run locally in isolation
-  and slower in CI.
 
 ---
 
@@ -118,16 +113,10 @@ streamed via Azure OpenAI
 
 ### Weaknesses
 
-- **No rate limiting**: The `/api/v1/chat` endpoint is unbounded. In
-  any deployment beyond localhost, a single caller can exhaust Azure
-  OpenAI quota. `slowapi` integrates with FastAPI in ~10 lines.
-- **No request-size limit**: FastAPI's default body limit is 1 MB. A
-  crafted request with a very long message history could force the
-  backend to tokenize and forward expensive payloads to Azure.
 - **CORS origins come from `.env`**: In production this is correct, but
   the default (`localhost`) is easy to forget. Documenting the required
-  value in `.env.example` and failing startup when `CORS_ORIGINS` is
-  not set in production would be safer.
+  value in `.env.example` and failing startup when `CORS_ALLOWED_ORIGINS`
+  is not set in production would be safer.
 
 ---
 
@@ -200,17 +189,14 @@ streamed via Azure OpenAI
 
 ## Top Recommendations
 
-1. **Add rate limiting** (`slowapi`, ~10 lines): The chat endpoint has
-   no guard against quota exhaustion. This is the highest-risk gap for
-   any deployment beyond localhost.
-2. **Log token usage**: Replace character-count logging with token
+1. **Log token usage**: Replace character-count logging with token
    counts. This is the primary cost lever for Azure OpenAI and is
    invisible today.
-3. **Generate a shared API contract**: Use FastAPI's `/openapi.json`
+2. **Generate a shared API contract**: Use FastAPI's `/openapi.json`
    output plus `openapi-typescript` to generate frontend types.
    Eliminates the risk of schema drift between Pydantic models and
    TypeScript types.
-4. **Add a circuit breaker**: Repeated Azure OpenAI failures currently
+3. **Add a circuit breaker**: Repeated Azure OpenAI failures currently
    result in repeated timeouts. A circuit breaker (`pybreaker`) would
    fail fast after a threshold and recover automatically.
 
@@ -235,9 +221,9 @@ missed after re-reading the source.
   clean 500 with a JSON body. This is a more serious correctness gap
   than Sonnet implies and deserves its own bullet: **streaming errors
   are unobservable to the frontend except as a truncated body**. The
-  current `Alert` in `page.tsx:147` may not even fire reliably for
-  mid-stream failures, depending on how `useChat` surfaces transport
-  errors.
+  current `Alert` in `frontend/components/messages/MessageList.tsx` may
+  not even fire reliably for mid-stream failures, depending on how
+  `useChat` surfaces transport errors.
 - **"Empty messages rejected with HTTP 400 before any API call"** (§5)
   is only partly true: `_to_openai_messages` *silently drops* messages
   whose text is whitespace-only and only raises 400 if **all** are
@@ -275,7 +261,7 @@ missed after re-reading the source.
 | Dimension       | Sonnet 4.6 | Opus 4.7 | Reason                                          |
 |-----------------|----------:|--------:|-------------------------------------------------|
 | Error Handling  |        8.5 |     7.5 | Streaming-error opacity + silent message drop   |
-| Security        |        9.0 |     8.5 | No rate limit + no body-size cap is more weight |
+| Security        |        9.0 |     8.5 | Remaining quota/cost gaps + permissive CORS wildcards |
 | Performance     |        8.0 |     8.0 | Agree                                           |
 | Documentation   |        8.5 |     8.0 | No ADRs feels heavier on a template repo        |
 | **Overall**     |    **9.2** | **8.9** | Still strong; closer to "very good," not "near-perfect" |

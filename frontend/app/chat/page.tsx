@@ -43,6 +43,13 @@ const SKIP_LINK_SX = {
   },
 } as const;
 
+const CHAT_MAIN_SX = {
+  display: "flex",
+  flexDirection: "column",
+  height: "100dvh",
+  minHeight: 0,
+} as const;
+
 export default function Home() {
   const [model, setModel] = useState<AssistantModel>(AssistantModel.FULL);
   const [temperature, setTemperature] = useState<AssistantTemperature>(
@@ -72,12 +79,7 @@ export default function Home() {
         id="chat-main"
         component="main"
         maxWidth="md"
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100dvh",
-          minHeight: 0,
-        }}
+        sx={CHAT_MAIN_SX}
       >
         <Typography
           component="h1"
