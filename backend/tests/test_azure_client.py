@@ -40,6 +40,16 @@ def create_chunk(content: str | None) -> object:
 
 
 @pytest.fixture
+def prompt_messages() -> list[dict[str, str]]:
+    return [
+        {
+            "role": "user",
+            "content": "Test prompt",
+        },
+    ]
+
+
+@pytest.fixture
 def mock_azure_client(monkeypatch: pytest.MonkeyPatch) -> MockAzureClient:
     mock_client: MockAzureClient = MockAzureClient()
     get_azure_openai_client.cache_clear()
@@ -58,6 +68,7 @@ def mock_azure_client(monkeypatch: pytest.MonkeyPatch) -> MockAzureClient:
 )
 def test_stream_successful_response(
     mock_azure_client: MockAzureClient,
+    prompt_messages: list[dict[str, str]],
     model: AssistantModel,
     temperature: AssistantTemperature,
     expected_model: str,
@@ -71,12 +82,7 @@ def test_stream_successful_response(
 
     response: list[str] = list(
         stream_azure_openai_response(
-            messages=[
-                {
-                    "role": "user",
-                    "content": "Test prompt",
-                },
-            ],
+            messages=prompt_messages,
             model=model,
             temperature=temperature,
         ),
@@ -87,12 +93,7 @@ def test_stream_successful_response(
         {
             "model": expected_model,
             "temperature": expected_temp,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": "Test prompt",
-                },
-            ],
+            "messages": prompt_messages,
             "stream": True,
         },
     ]
@@ -108,6 +109,7 @@ def test_stream_successful_response(
 )
 def test_api_exception(
     mock_azure_client: MockAzureClient,
+    prompt_messages: list[dict[str, str]],
     exc_class: type[Exception],
     message: str,
 ) -> None:
@@ -116,12 +118,7 @@ def test_api_exception(
     with pytest.raises(exc_class, match=message):
         list(
             stream_azure_openai_response(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": "Test prompt",
-                    },
-                ],
+                messages=prompt_messages,
                 model=AssistantModel.FULL,
                 temperature=AssistantTemperature.BALANCED,
             ),
@@ -162,6 +159,7 @@ def _make_response(status_code: int) -> httpx.Response:
 )
 def test_openai_api_exceptions_are_reraised(
     mock_azure_client: MockAzureClient,
+    prompt_messages: list[dict[str, str]],
     exc: openai.APIError,
 ) -> None:
     mock_azure_client.chat.completions.side_effect = exc
@@ -169,12 +167,7 @@ def test_openai_api_exceptions_are_reraised(
     with pytest.raises(type(exc)):
         list(
             stream_azure_openai_response(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": "Test prompt",
-                    },
-                ],
+                messages=prompt_messages,
                 model=AssistantModel.FULL,
                 temperature=AssistantTemperature.BALANCED,
             ),

@@ -16,7 +16,34 @@ if TYPE_CHECKING:  # pragma: no cover
     from httpx import Response
 
 
-def test_post_chat_stream_success(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.fixture
+def client() -> TestClient:
+    return TestClient(app)
+
+
+@pytest.fixture
+def raising_client() -> TestClient:
+    return TestClient(app, raise_server_exceptions=True)
+
+
+@pytest.fixture
+def hi_message() -> dict[str, object]:
+    return {
+        "role": "user",
+        "parts": [
+            {
+                "type": "text",
+                "text": "Hi",
+            },
+        ],
+    }
+
+
+def test_post_chat_stream_success(
+    monkeypatch: pytest.MonkeyPatch,
+    client: TestClient,
+    hi_message: dict[str, object],
+) -> None:
     calls: list[dict[str, object]] = []
 
     def mock_stream(**kwargs: object) -> Iterator[str]:
@@ -26,21 +53,10 @@ def test_post_chat_stream_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
 
-    client: TestClient = TestClient(app)
     response: Response = client.post(
         "/api/v1/chat",
         json={
-            "messages": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {
-                            "type": "text",
-                            "text": "Hi",
-                        },
-                    ],
-                },
-            ],
+            "messages": [hi_message],
             "model": "gpt-4o-mini",
             "temperature": "BALANCED",
         },
@@ -58,8 +74,7 @@ def test_post_chat_stream_success(monkeypatch: pytest.MonkeyPatch) -> None:
     ]
 
 
-def test_post_chat_rejects_empty_messages() -> None:
-    client: TestClient = TestClient(app)
+def test_post_chat_rejects_empty_messages(client: TestClient) -> None:
     response: Response = client.post(
         "/api/v1/chat",
         json={
@@ -90,24 +105,15 @@ def test_post_chat_rejects_empty_messages() -> None:
     ],
 )
 def test_post_chat_rejects_invalid_model_or_temperature(
+    client: TestClient,
+    hi_message: dict[str, object],
     model: str,
     temperature: str,
 ) -> None:
-    client: TestClient = TestClient(app)
     response: Response = client.post(
         "/api/v1/chat",
         json={
-            "messages": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {
-                            "type": "text",
-                            "text": "Hi",
-                        },
-                    ],
-                },
-            ],
+            "messages": [hi_message],
             "model": model,
             "temperature": temperature,
         },
@@ -116,31 +122,19 @@ def test_post_chat_rejects_invalid_model_or_temperature(
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
-def test_post_chat_rejects_too_many_messages() -> None:
-    client: TestClient = TestClient(app)
+def test_post_chat_rejects_too_many_messages(
+    client: TestClient,
+    hi_message: dict[str, object],
+) -> None:
     response: Response = client.post(
         "/api/v1/chat",
-        json={
-            "messages": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {
-                            "type": "text",
-                            "text": "Hi",
-                        },
-                    ],
-                },
-            ]
-            * 51,
-        },
+        json={"messages": [hi_message] * 51},
     )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
-def test_post_chat_rejects_message_content_too_long() -> None:
-    client: TestClient = TestClient(app)
+def test_post_chat_rejects_message_content_too_long(client: TestClient) -> None:
     response: Response = client.post(
         "/api/v1/chat",
         json={
@@ -158,6 +152,8 @@ def test_post_chat_rejects_message_content_too_long() -> None:
 
 def test_chat_endpoint_rate_limits_after_threshold(
     monkeypatch: pytest.MonkeyPatch,
+    client: TestClient,
+    hi_message: dict[str, object],
 ) -> None:
     def mock_stream(**_: object) -> Iterator[str]:
         yield "ok"
@@ -166,20 +162,7 @@ def test_chat_endpoint_rate_limits_after_threshold(
     monkeypatch.setattr(settings, "chat_rate_limit", "1/minute")
     limiter._storage.reset()
 
-    client: TestClient = TestClient(app)
-    payload: dict[str, object] = {
-        "messages": [
-            {
-                "role": "user",
-                "parts": [
-                    {
-                        "type": "text",
-                        "text": "Hi",
-                    },
-                ],
-            },
-        ],
-    }
+    payload: dict[str, object] = {"messages": [hi_message]}
 
     assert client.post("/api/v1/chat", json=payload).status_code == status.HTTP_200_OK
 
@@ -188,8 +171,7 @@ def test_chat_endpoint_rate_limits_after_threshold(
     assert response.json() == {"detail": "Rate limit exceeded. Please try again later."}
 
 
-def test_health() -> None:
-    client: TestClient = TestClient(app)
+def test_health(client: TestClient) -> None:
     response: Response = client.get("/health")
 
     assert response.status_code == status.HTTP_200_OK
@@ -225,6 +207,8 @@ def test_ui_message_rejects_empty_content_and_parts() -> None:
 
 def test_stream_chat_reraises_non_openai_exception(
     monkeypatch: pytest.MonkeyPatch,
+    raising_client: TestClient,
+    hi_message: dict[str, object],
 ) -> None:
     def mock_stream(**kwargs: object) -> None:
         msg: str = "Upstream failure"
@@ -232,23 +216,10 @@ def test_stream_chat_reraises_non_openai_exception(
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
 
-    client: TestClient = TestClient(app, raise_server_exceptions=True)
     with pytest.raises(RuntimeError, match="Upstream failure"):
-        client.post(
+        raising_client.post(
             "/api/v1/chat",
-            json={
-                "messages": [
-                    {
-                        "role": "user",
-                        "parts": [
-                            {
-                                "type": "text",
-                                "text": "Hi",
-                            },
-                        ],
-                    },
-                ],
-            },
+            json={"messages": [hi_message]},
         )
 
 
@@ -286,7 +257,9 @@ def _make_openai_response(status_code: int) -> httpx.Response:
 )
 def test_stream_chat_reraises_openai_api_errors(
     monkeypatch: pytest.MonkeyPatch,
+    raising_client: TestClient,
     exc: openai.APIError,
+    hi_message: dict[str, object],
 ) -> None:
     captured_exc: openai.APIError = exc
 
@@ -295,21 +268,8 @@ def test_stream_chat_reraises_openai_api_errors(
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
 
-    client: TestClient = TestClient(app, raise_server_exceptions=True)
     with pytest.raises(type(captured_exc)):
-        client.post(
+        raising_client.post(
             "/api/v1/chat",
-            json={
-                "messages": [
-                    {
-                        "role": "user",
-                        "parts": [
-                            {
-                                "type": "text",
-                                "text": "Hi",
-                            },
-                        ],
-                    },
-                ],
-            },
+            json={"messages": [hi_message]},
         )
