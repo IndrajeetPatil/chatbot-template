@@ -1,5 +1,31 @@
 # Code Quality Review — Claude Opus 4.7 — Actionable Items
 
+## Summary scorecard
+
+| Dimension | Score | One-line rationale |
+| --- | --- | --- |
+| Readability | 9.0 | Short files, strict complexity ceiling, clear names |
+| Maintainability | 9.0 | Clean layers, pinned toolchain, auto-formatting |
+| Testability | 9.0 | 100% backend branch coverage, good pyramid |
+| Type Safety | 9.5 | 100% coverage enforced both sides, strict TS config |
+| Error Handling | 8.5 | Good specificity, missing retry/circuit-breaker |
+| Security | 9.0 | XSS blocked, secrets safe, non-root containers |
+| Documentation | 8.5 | Accurate README, no ADRs, minimal API examples |
+| Performance | 8.0 | Good streaming, no token logging or caching |
+| Accessibility | 9.5 | Full semantic HTML, ARIA, skip links, focus styles |
+| Dependency Health | 9.0 | Frozen lockfiles, audits in CI, Dependabot |
+| **Overall** | **9.2** | Production-ready; gaps are omissions, not errors |
+
+## Revised scores
+
+| Dimension | Sonnet 4.6 | Opus 4.7 | Reason |
+| --- | ---: | ---: | --- |
+| Error Handling | 8.5 | 7.5 | Streaming-error opacity + silent message drop |
+| Security | 9.0 | 8.5 | Remaining quota/cost gaps + permissive CORS wildcards |
+| Performance | 8.0 | 8.0 | Agree |
+| Documentation | 8.5 | 8.0 | No ADRs feels heavier on a template repo |
+| **Overall** | **9.2** | **8.9** | Still strong; closer to "very good," not "near-perfect" |
+
 ## API contract and maintainability
 
 1. Generate a shared API contract from FastAPI's OpenAPI output and consume it

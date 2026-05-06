@@ -1,5 +1,12 @@
 # GPT-5.5 Code Quality Review — Actionable Items
 
+## Ratings
+
+| Dimension | Score |
+| --- | --- |
+| Template quality | 8.2 / 10 |
+| Production readiness (without additional controls) | 6.7 / 10 |
+
 ## Production boundary controls
 
 1. Add authentication or another explicit access-control layer before any
