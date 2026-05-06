@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { StatusCodes } from "http-status-codes";
 import { getModelDisplay, getTemperatureDisplay } from "@/client/helpers";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 
@@ -31,7 +32,7 @@ test.describe("Chat Page Model and Temperature Combinations", () => {
       await route.fulfill({
         body: expectedResponse,
         contentType: "text/plain; charset=utf-8",
-        status: 200,
+        status: StatusCodes.OK,
       });
     });
 

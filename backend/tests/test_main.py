@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import httpx
 import openai
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
@@ -32,7 +33,12 @@ def test_post_chat_stream_success(monkeypatch: pytest.MonkeyPatch) -> None:
             "messages": [
                 {
                     "role": "user",
-                    "parts": [{"type": "text", "text": "Hi"}],
+                    "parts": [
+                        {
+                            "type": "text",
+                            "text": "Hi",
+                        },
+                    ],
                 },
             ],
             "model": "gpt-4o-mini",
@@ -40,7 +46,7 @@ def test_post_chat_stream_success(monkeypatch: pytest.MonkeyPatch) -> None:
         },
     )
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.text == "Hello world"
     assert response.headers["content-type"].startswith("text/plain")
     assert calls == [
@@ -57,11 +63,21 @@ def test_post_chat_rejects_empty_messages() -> None:
     response: Response = client.post(
         "/api/v1/chat",
         json={
-            "messages": [{"role": "user", "parts": [{"type": "text", "text": "  "}]}],
+            "messages": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "type": "text",
+                            "text": "  ",
+                        },
+                    ],
+                },
+            ],
         },
     )
 
-    assert response.status_code == 400
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {"detail": "At least one text message is required."}
 
 
@@ -81,13 +97,23 @@ def test_post_chat_rejects_invalid_model_or_temperature(
     response: Response = client.post(
         "/api/v1/chat",
         json={
-            "messages": [{"role": "user", "parts": [{"type": "text", "text": "Hi"}]}],
+            "messages": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "type": "text",
+                            "text": "Hi",
+                        },
+                    ],
+                },
+            ],
             "model": model,
             "temperature": temperature,
         },
     )
 
-    assert response.status_code == 422
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_post_chat_rejects_too_many_messages() -> None:
@@ -96,23 +122,38 @@ def test_post_chat_rejects_too_many_messages() -> None:
         "/api/v1/chat",
         json={
             "messages": [
-                {"role": "user", "parts": [{"type": "text", "text": "Hi"}]},
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "type": "text",
+                            "text": "Hi",
+                        },
+                    ],
+                },
             ]
             * 51,
         },
     )
 
-    assert response.status_code == 422
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_post_chat_rejects_message_content_too_long() -> None:
     client: TestClient = TestClient(app)
     response: Response = client.post(
         "/api/v1/chat",
-        json={"messages": [{"role": "user", "content": "x" * 32_001}]},
+        json={
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "x" * 32_001,
+                },
+            ],
+        },
     )
 
-    assert response.status_code == 422
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_chat_endpoint_rate_limits_after_threshold(
@@ -127,13 +168,23 @@ def test_chat_endpoint_rate_limits_after_threshold(
 
     client: TestClient = TestClient(app)
     payload: dict[str, object] = {
-        "messages": [{"role": "user", "parts": [{"type": "text", "text": "Hi"}]}],
+        "messages": [
+            {
+                "role": "user",
+                "parts": [
+                    {
+                        "type": "text",
+                        "text": "Hi",
+                    },
+                ],
+            },
+        ],
     }
 
-    assert client.post("/api/v1/chat", json=payload).status_code == 200
+    assert client.post("/api/v1/chat", json=payload).status_code == status.HTTP_200_OK
 
     response: Response = client.post("/api/v1/chat", json=payload)
-    assert response.status_code == 429
+    assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
     assert response.json() == {"detail": "Rate limit exceeded. Please try again later."}
 
 
@@ -141,7 +192,7 @@ def test_health() -> None:
     client: TestClient = TestClient(app)
     response: Response = client.get("/health")
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"status": "ok"}
 
 
@@ -187,7 +238,15 @@ def test_stream_chat_reraises_non_openai_exception(
             "/api/v1/chat",
             json={
                 "messages": [
-                    {"role": "user", "parts": [{"type": "text", "text": "Hi"}]},
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "type": "text",
+                                "text": "Hi",
+                            },
+                        ],
+                    },
                 ],
             },
         )
@@ -206,12 +265,12 @@ def _make_openai_response(status_code: int) -> httpx.Response:
     [
         openai.RateLimitError(
             "rate limit",
-            response=_make_openai_response(429),
+            response=_make_openai_response(status.HTTP_429_TOO_MANY_REQUESTS),
             body=None,
         ),
         openai.AuthenticationError(
             "auth failed",
-            response=_make_openai_response(401),
+            response=_make_openai_response(status.HTTP_401_UNAUTHORIZED),
             body=None,
         ),
         openai.APIConnectionError(
@@ -220,7 +279,7 @@ def _make_openai_response(status_code: int) -> httpx.Response:
         ),
         openai.InternalServerError(
             "server error",
-            response=_make_openai_response(500),
+            response=_make_openai_response(status.HTTP_500_INTERNAL_SERVER_ERROR),
             body=None,
         ),
     ],
@@ -242,7 +301,15 @@ def test_stream_chat_reraises_openai_api_errors(
             "/api/v1/chat",
             json={
                 "messages": [
-                    {"role": "user", "parts": [{"type": "text", "text": "Hi"}]},
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "type": "text",
+                                "text": "Hi",
+                            },
+                        ],
+                    },
                 ],
             },
         )

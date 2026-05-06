@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Annotated, Literal
 
 import openai
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from loguru import logger
@@ -45,7 +45,7 @@ app.add_middleware(
 @app.exception_handler(RateLimitExceeded)
 def rate_limit_handler(_request: Request, _exc: RateLimitExceeded) -> JSONResponse:
     return JSONResponse(
-        status_code=429,
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
         content={"detail": "Rate limit exceeded. Please try again later."},
     )
 
@@ -128,7 +128,7 @@ def _to_openai_messages(messages: list[UIMessage]) -> list[ChatMessage]:
 
     if not openai_messages:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least one text message is required.",
         )
 
