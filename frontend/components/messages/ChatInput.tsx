@@ -23,6 +23,73 @@ const CHAT_INPUT_SEND_BUTTON_SX = {
   touchAction: "manipulation",
 } as const;
 
+function SendButton({ disabled }: { disabled: boolean }) {
+  return (
+    <Button
+      type="submit"
+      variant="contained"
+      disabled={disabled}
+      endIcon={
+        disabled ? (
+          <CircularProgress
+            aria-hidden={true}
+            color="inherit"
+            size={16}
+          />
+        ) : (
+          <SendIcon />
+        )
+      }
+      sx={CHAT_INPUT_SEND_BUTTON_SX}
+    >
+      Send
+    </Button>
+  );
+}
+
+interface MessageFieldProps {
+  inputRef: React.Ref<HTMLTextAreaElement>;
+  disabled: boolean;
+  message: string;
+  submittedEmpty: boolean;
+  onChange: (value: string) => void;
+  onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+}
+
+function MessageField({
+  inputRef,
+  disabled,
+  message,
+  submittedEmpty,
+  onChange,
+  onKeyDown,
+}: MessageFieldProps) {
+  return (
+    <TextField
+      id="message-input"
+      inputRef={inputRef}
+      multiline={true}
+      fullWidth={true}
+      disabled={disabled}
+      label="Message"
+      name="message"
+      autoComplete="off"
+      placeholder="Type your message…"
+      rows={2}
+      value={message}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={onKeyDown}
+      error={submittedEmpty}
+      helperText={
+        submittedEmpty
+          ? "Enter a message before sending."
+          : "Press Enter for a new line. Press Ctrl+Enter or Cmd+Enter to send."
+      }
+      sx={CHAT_INPUT_FIELD_SX}
+    />
+  );
+}
+
 const ChatInput: React.FC<ChatInputProps> = ({
   disabled = false,
   onSendMessage,
@@ -30,11 +97,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [message, setMessage] = useState("");
   const [submittedEmpty, setSubmittedEmpty] = useState(false);
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    void sendMessage();
-  };
 
   const sendMessage = async () => {
     const trimmedMessage = message.trim();
@@ -50,63 +112,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
     await onSendMessage(trimmedMessage);
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-      event.preventDefault();
-      void sendMessage();
-    }
-  };
-
   return (
     <Box
       component="form"
-      onSubmit={handleSubmit}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void sendMessage();
+      }}
       sx={CHAT_INPUT_FORM_SX}
     >
-      <TextField
-        id="message-input"
+      <MessageField
         inputRef={inputRef}
-        multiline={true}
-        fullWidth={true}
         disabled={disabled}
-        label="Message"
-        name="message"
-        autoComplete="off"
-        placeholder="Type your message…"
-        rows={2}
-        value={message}
-        onChange={(e) => {
-          setMessage(e.target.value);
+        message={message}
+        submittedEmpty={submittedEmpty}
+        onChange={(value) => {
+          setMessage(value);
           if (submittedEmpty) setSubmittedEmpty(false);
         }}
-        onKeyDown={handleKeyDown}
-        error={submittedEmpty}
-        helperText={
-          submittedEmpty
-            ? "Enter a message before sending."
-            : "Press Enter for a new line. Press Ctrl+Enter or Cmd+Enter to send."
-        }
-        sx={CHAT_INPUT_FIELD_SX}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            event.preventDefault();
+            void sendMessage();
+          }
+        }}
       />
-      <Button
-        type="submit"
-        variant="contained"
-        disabled={disabled}
-        endIcon={
-          disabled ? (
-            <CircularProgress
-              aria-hidden={true}
-              color="inherit"
-              size={16}
-            />
-          ) : (
-            <SendIcon />
-          )
-        }
-        sx={CHAT_INPUT_SEND_BUTTON_SX}
-      >
-        Send
-      </Button>
+      <SendButton disabled={disabled} />
     </Box>
   );
 };
