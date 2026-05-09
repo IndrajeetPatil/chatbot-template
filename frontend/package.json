@@ -13,7 +13,7 @@
     "test": "vitest run --coverage",
     "test:update": "vitest run --update",
     "test:e2e": "npx playwright test",
-    "fallow": "fallow --fail-on-issues --quiet --skip health",
+    "fallow": "fallow --fail-on-issues --quiet",
     "css-quality": "node scripts/css-quality.mjs",
     "lint:security": "eslint app client components src",
     "type-coverage": "type-coverage --strict --at-least 100"
