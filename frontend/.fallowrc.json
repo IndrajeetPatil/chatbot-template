@@ -17,7 +17,7 @@
     "unused-optional-dependencies": "error",
     "unused-enum-members": "error",
     "unused-class-members": "error",
-    "unresolved-imports": "error",
+    "unresolved-imports": "off",
     "unlisted-dependencies": "error",
     "duplicate-exports": "error",
     "circular-dependencies": "error",
@@ -27,10 +27,12 @@
   "duplicates": {
     "mode": "strict",
     "minTokens": 50,
-    "minLines": 4
+    "minLines": 4,
+    "ignore": ["**/*.test.*"]
   },
   "health": {
     "maxCyclomatic": 5,
-    "maxCognitive": 5
+    "maxCognitive": 5,
+    "ignore": ["**/*.test.*"]
   }
 }

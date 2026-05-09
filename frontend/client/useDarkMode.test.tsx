@@ -61,44 +61,43 @@ describe("useDarkMode", () => {
     expect(result.current.darkMode).toBe(true);
   });
 
-  test("syncs colorScheme and theme-color meta to dark", () => {
-    mockMatchMedia(true);
+  function withThemeColorMeta(fn: (meta: HTMLMetaElement) => void) {
     const meta = document.createElement("meta");
     meta.name = "theme-color";
     document.head.append(meta);
+    try {
+      fn(meta);
+    } finally {
+      meta.remove();
+    }
+  }
 
-    renderHook(() => useDarkMode());
-    expect(document.documentElement.style.colorScheme).toBe("dark");
-    expect(meta.content).toBe("#121212");
-
-    meta.remove();
+  test("syncs colorScheme and theme-color meta to dark", () => {
+    mockMatchMedia(true);
+    withThemeColorMeta((meta) => {
+      renderHook(() => useDarkMode());
+      expect(document.documentElement.style.colorScheme).toBe("dark");
+      expect(meta.content).toBe("#121212");
+    });
   });
 
   test("syncs colorScheme and theme-color meta to light", () => {
     mockMatchMedia(false);
-    const meta = document.createElement("meta");
-    meta.name = "theme-color";
-    document.head.append(meta);
-
-    renderHook(() => useDarkMode());
-    expect(document.documentElement.style.colorScheme).toBe("light");
-    expect(meta.content).toBe("#ffffff");
-
-    meta.remove();
+    withThemeColorMeta((meta) => {
+      renderHook(() => useDarkMode());
+      expect(document.documentElement.style.colorScheme).toBe("light");
+      expect(meta.content).toBe("#ffffff");
+    });
   });
 
   test("syncs browser chrome metadata when toggled from dark to light", () => {
     mockMatchMedia(true);
-    const meta = document.createElement("meta");
-    meta.name = "theme-color";
-    document.head.append(meta);
-
-    const { result } = renderHook(() => useDarkMode());
-    act(() => result.current.toggleDarkMode());
-    expect(document.documentElement.style.colorScheme).toBe("light");
-    expect(meta.content).toBe("#ffffff");
-
-    meta.remove();
+    withThemeColorMeta((meta) => {
+      const { result } = renderHook(() => useDarkMode());
+      act(() => result.current.toggleDarkMode());
+      expect(document.documentElement.style.colorScheme).toBe("light");
+      expect(meta.content).toBe("#ffffff");
+    });
   });
 
   test("theme palette mode is dark when darkMode is true", () => {
