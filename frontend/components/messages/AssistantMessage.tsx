@@ -106,19 +106,10 @@ function CopyButton({ content, isDark }: CopyButtonProps) {
   );
 }
 
-interface AssistantMessageProps {
-  content: string;
-  isFirstMessage: boolean;
-}
+type ThemeColors = typeof DARK_COLORS | typeof LIGHT_COLORS;
 
-const AssistantMessage: React.FC<AssistantMessageProps> = ({
-  content,
-  isFirstMessage,
-}) => {
-  const isDark = useIsDark();
-  const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
-
-  const markdownComponents = useMemo(
+function useMarkdownComponents(colors: ThemeColors) {
+  return useMemo(
     () => ({
       pre: ({ children }: React.ComponentPropsWithoutRef<"pre">) => (
         <Box
@@ -149,6 +140,20 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
     }),
     [colors],
   );
+}
+
+interface AssistantMessageProps {
+  content: string;
+  isFirstMessage: boolean;
+}
+
+const AssistantMessage: React.FC<AssistantMessageProps> = ({
+  content,
+  isFirstMessage,
+}) => {
+  const isDark = useIsDark();
+  const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
+  const markdownComponents = useMarkdownComponents(colors);
 
   return (
     <Box sx={ASSISTANT_MESSAGE_CONTAINER_SX}>

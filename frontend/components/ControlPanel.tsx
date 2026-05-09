@@ -41,7 +41,33 @@ function DarkModeToggle({ darkMode, onToggle }: DarkModeToggleProps) {
   );
 }
 
-interface ControlPanelProps {
+interface RegenerateButtonProps {
+  disabled: boolean;
+  canRegenerate: boolean;
+  onRegenerate: () => void;
+}
+
+function RegenerateButton({
+  disabled,
+  canRegenerate,
+  onRegenerate,
+}: RegenerateButtonProps) {
+  return (
+    <Tooltip title="Regenerate Response">
+      <span>
+        <IconButton
+          disabled={disabled || !canRegenerate}
+          onClick={onRegenerate}
+          aria-label="Regenerate response"
+        >
+          <RefreshIcon />
+        </IconButton>
+      </span>
+    </Tooltip>
+  );
+}
+
+interface ToolbarProps {
   model: AssistantModel;
   setModel: (m: AssistantModel) => void;
   temperature: AssistantTemperature;
@@ -51,10 +77,9 @@ interface ControlPanelProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
   disabled: boolean;
-  onSendMessage: (message: string) => Promise<void>;
 }
 
-function ControlPanel({
+function Toolbar({
   model,
   setModel,
   temperature,
@@ -64,59 +89,69 @@ function ControlPanel({
   darkMode,
   onToggleDarkMode,
   disabled,
+}: ToolbarProps) {
+  return (
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{ mb: 2 }}
+    >
+      <DropdownParameter
+        value={model}
+        onChange={setModel}
+        icon={<PsychologyIcon />}
+        tooltipTitle={
+          <>
+            Choose Assistant Model
+            <br />
+            (Current: {getModelDisplay(model)})
+          </>
+        }
+        ariaLabel={`Select assistant model. Current model: ${getModelDisplay(model)}`}
+        options={MODEL_OPTIONS}
+      />
+      <DropdownParameter
+        value={temperature}
+        onChange={setTemperature}
+        icon={<ThermostatIcon />}
+        tooltipTitle={
+          <>
+            Choose Temperature
+            <br />
+            (Current: {getTemperatureDisplay(temperature)})
+          </>
+        }
+        ariaLabel={`Select assistant temperature. Current temperature: ${getTemperatureDisplay(temperature)}`}
+        options={TEMPERATURE_OPTIONS}
+      />
+      <RegenerateButton
+        disabled={disabled}
+        canRegenerate={canRegenerate}
+        onRegenerate={onRegenerate}
+      />
+      <DarkModeToggle
+        darkMode={darkMode}
+        onToggle={onToggleDarkMode}
+      />
+    </Stack>
+  );
+}
+
+interface ControlPanelProps extends ToolbarProps {
+  onSendMessage: (message: string) => Promise<void>;
+}
+
+function ControlPanel({
   onSendMessage,
+  disabled,
+  ...toolbarProps
 }: ControlPanelProps) {
   return (
     <Box sx={{ p: 2 }}>
-      <Stack
-        direction="row"
-        spacing={2}
-        sx={{ mb: 2 }}
-      >
-        <DropdownParameter
-          value={model}
-          onChange={setModel}
-          icon={<PsychologyIcon />}
-          tooltipTitle={
-            <>
-              Choose Assistant Model
-              <br />
-              (Current: {getModelDisplay(model)})
-            </>
-          }
-          ariaLabel={`Select assistant model. Current model: ${getModelDisplay(model)}`}
-          options={MODEL_OPTIONS}
-        />
-        <DropdownParameter
-          value={temperature}
-          onChange={setTemperature}
-          icon={<ThermostatIcon />}
-          tooltipTitle={
-            <>
-              Choose Temperature
-              <br />
-              (Current: {getTemperatureDisplay(temperature)})
-            </>
-          }
-          ariaLabel={`Select assistant temperature. Current temperature: ${getTemperatureDisplay(temperature)}`}
-          options={TEMPERATURE_OPTIONS}
-        />
-        <Tooltip title="Regenerate Response">
-          <span>
-            <IconButton
-              disabled={disabled || !canRegenerate}
-              onClick={onRegenerate}
-              aria-label="Regenerate response"
-            >
-              <RefreshIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <DarkModeToggle
-          darkMode={darkMode}
-          onToggle={onToggleDarkMode}
-        />
-      </Stack>
+      <Toolbar
+        {...toolbarProps}
+        disabled={disabled}
+      />
       <ChatInput
         onSendMessage={onSendMessage}
         disabled={disabled}
