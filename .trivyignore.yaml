@@ -14,3 +14,19 @@ vulnerabilities:
       - pkg:deb/debian/libgnutls30
     expired_at: "2026-08-05T00:00:00Z"
     statement: Trivy reports no fixed Debian trixie package version in the current base images.
+  - id: CVE-2026-42496
+    purls:
+      - pkg:deb/debian/libperl5.40
+      - pkg:deb/debian/perl
+      - pkg:deb/debian/perl-base
+      - pkg:deb/debian/perl-modules-5.40
+    expired_at: "2026-08-30T00:00:00Z"
+    statement: Trivy reports no fixed Debian trixie package version in the current base images.
+  - id: CVE-2026-8376
+    purls:
+      - pkg:deb/debian/libperl5.40
+      - pkg:deb/debian/perl
+      - pkg:deb/debian/perl-base
+      - pkg:deb/debian/perl-modules-5.40
+    expired_at: "2026-08-30T00:00:00Z"
+    statement: Trivy reports no fixed Debian trixie package version in the current base images.
