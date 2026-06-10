@@ -11,6 +11,13 @@ hooks = [
 ]
 
 [[repos]]
+repo = "https://github.com/astral-sh/ty-pre-commit"
+rev = "v0.0.47"
+hooks = [
+  { id = "ty", args = ["--directory=backend", "--isolated"] },
+]
+
+[[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
 rev = "v0.1.86"
 hooks = [
