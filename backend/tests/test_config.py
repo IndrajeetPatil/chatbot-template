@@ -1,8 +1,12 @@
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
 from app.config import Settings, get_settings
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_settings_valid_azure_credentials() -> None:
@@ -72,7 +76,11 @@ def test_settings_whitespace_values_treated_as_missing() -> None:
         )
 
 
-def test_settings_testing_mode_allows_empty_azure_credentials() -> None:
+def test_settings_testing_mode_allows_empty_azure_credentials(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.chdir(tmp_path)
     s: Settings = Settings(TESTING=True)
     assert s.azure_openai_endpoint == ""
     assert s.azure_openai_api_key == ""
@@ -80,7 +88,11 @@ def test_settings_testing_mode_allows_empty_azure_credentials() -> None:
     assert s.testing is True
 
 
-def test_settings_default_chat_rate_limit() -> None:
+def test_settings_default_chat_rate_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.chdir(tmp_path)
     s: Settings = Settings(TESTING=True)
     assert s.chat_rate_limit == "10/minute"
 

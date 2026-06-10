@@ -16,6 +16,7 @@ Azure OpenAI credentials before running.
 ## Commands
 
 ```bash
+make update-deps # refresh backend/frontend deps and prek hook revisions
 make qa          # full suite: format, lint, type-check, test,
                  #   coverage, security — run before every commit
 make test        # unit tests only

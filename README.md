@@ -98,6 +98,12 @@ All checks can be run locally with:
 make qa
 ```
 
+To refresh backend/frontend dependencies and `prek` hook revisions locally:
+
+``` bash
+make update-deps
+```
+
 To validate Lighthouse scores against thresholds locally:
 
 ``` bash
