@@ -13,7 +13,7 @@ from app.main import TextPart, UIMessage, app, limiter, settings
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Iterator
 
-    from httpx import Response
+    from httpx2 import Response as TestClientResponse
 
 
 @pytest.fixture(autouse=True)
@@ -58,7 +58,7 @@ def test_post_chat_stream_success(
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
 
-    response: Response = client.post(
+    response: TestClientResponse = client.post(
         "/api/v1/chat",
         json={
             "messages": [hi_message],
@@ -80,7 +80,7 @@ def test_post_chat_stream_success(
 
 
 def test_post_chat_rejects_empty_messages(client: TestClient) -> None:
-    response: Response = client.post(
+    response: TestClientResponse = client.post(
         "/api/v1/chat",
         json={
             "messages": [
@@ -115,7 +115,7 @@ def test_post_chat_rejects_invalid_model_or_temperature(
     model: str,
     temperature: str,
 ) -> None:
-    response: Response = client.post(
+    response: TestClientResponse = client.post(
         "/api/v1/chat",
         json={
             "messages": [hi_message],
@@ -131,7 +131,7 @@ def test_post_chat_rejects_too_many_messages(
     client: TestClient,
     hi_message: dict[str, object],
 ) -> None:
-    response: Response = client.post(
+    response: TestClientResponse = client.post(
         "/api/v1/chat",
         json={"messages": [hi_message] * 51},
     )
@@ -140,7 +140,7 @@ def test_post_chat_rejects_too_many_messages(
 
 
 def test_post_chat_rejects_message_content_too_long(client: TestClient) -> None:
-    response: Response = client.post(
+    response: TestClientResponse = client.post(
         "/api/v1/chat",
         json={
             "messages": [
@@ -170,13 +170,13 @@ def test_chat_endpoint_rate_limits_after_threshold(
 
     assert client.post("/api/v1/chat", json=payload).status_code == status.HTTP_200_OK
 
-    response: Response = client.post("/api/v1/chat", json=payload)
+    response: TestClientResponse = client.post("/api/v1/chat", json=payload)
     assert response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
     assert response.json() == {"detail": "Rate limit exceeded. Please try again later."}
 
 
 def test_health(client: TestClient) -> None:
-    response: Response = client.get("/health")
+    response: TestClientResponse = client.get("/health")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"status": "ok"}

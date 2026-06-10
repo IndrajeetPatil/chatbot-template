@@ -16,6 +16,7 @@ dependencies = [
 dev = [
     "add-trailing-comma>=4.0.0",
     "coverage>=7.13.5",
+    "httpx2>=2.3.0",
     "locust>=2.43.4",
     "prek>=0.3.12",
     "pytest-random-order>=1.2.0",

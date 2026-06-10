@@ -11,6 +11,17 @@ include makefiles/frontend.mk
 
 CHECKOV_VERSION := 3.2.526
 
+# Dependency updates
+update-deps:
+	@echo "$(COLOR_BLUE_BG)Updating backend Python dependencies...$(COLOR_RESET)"
+	cd ./backend && uv lock --upgrade && uv sync
+	@echo "$(COLOR_BLUE_BG)Updating frontend Node dependencies...$(COLOR_RESET)"
+	cd ./frontend && pnpm update
+	@echo "$(COLOR_BLUE_BG)Updating prek hook revisions...$(COLOR_RESET)"
+	prek auto-update
+
+upgrade-deps: update-deps
+
 # Aggregate targets
 lint: backend-lint frontend-lint markdown-lint
 format: backend-format frontend-format
@@ -71,7 +82,8 @@ docker-down:
 e2e-test:
 	$(MAKE) frontend-e2e-test
 
-.PHONY: lint format type-check test type-coverage clean \
+.PHONY: update-deps upgrade-deps \
+	lint format type-check test type-coverage clean \
 	fallow css-quality lighthouse \
 	commitlint markdown-lint security-scan file-naming hooks \
 	qa-backend qa-frontend qa \

@@ -4,7 +4,7 @@ default_stages = ["pre-commit"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ruff-pre-commit"
-rev = "v0.15.12"
+rev = "v0.15.16"
 hooks = [
   { id = "ruff", args = ["--fix"] },
   { id = "ruff-format" },
@@ -19,7 +19,7 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "v0.1.86"
+rev = "v0.2.11"
 hooks = [
   { id = "rumdl" },
 ]

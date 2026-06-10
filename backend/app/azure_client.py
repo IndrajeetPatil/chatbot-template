@@ -63,6 +63,16 @@ def _create_openai_stream(
         raise
 
 
+def _iter_stream_content(stream: Stream[ChatCompletionChunk]) -> Iterator[str]:
+    for chunk in stream:
+        if not chunk.choices:
+            continue
+
+        content: str = chunk.choices[0].delta.content or ""
+        if content:
+            yield content
+
+
 def stream_azure_openai_response(
     *,
     messages: Sequence[ChatMessage],
@@ -80,14 +90,9 @@ def stream_azure_openai_response(
 
     total_length: int = 0
     try:
-        for chunk in stream:
-            if not chunk.choices:
-                continue
-
-            content: str = chunk.choices[0].delta.content or ""
-            if content:
-                total_length += len(content)
-                yield content
+        for content in _iter_stream_content(stream):
+            total_length += len(content)
+            yield content
     except openai.APIError:
         logger.exception(
             "Azure OpenAI error during streaming after {} characters",
