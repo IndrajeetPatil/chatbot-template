@@ -83,9 +83,9 @@ REST API can be interactively explored using FastAPI's Swagger UI:
 | Runtime / tool | Version source | Current value |
 |----------------|----------------|---------------|
 | Python         | `backend/.python-version` / `backend/pyproject.toml` | 3.14 |
-| uv             | `backend/pyproject.toml` / `backend/Dockerfile` | ≥ 0.11.2 locally, 0.11.8 in Docker |
+| uv             | `backend/pyproject.toml` / `backend/Dockerfile` | ≥ 0.11.10 locally, 0.11.23 in Docker |
 | Node.js        | `frontend/.nvmrc` / frontend Docker image | 24 |
-| pnpm           | `frontend/package.json` / CI workflows | 11.0.4 |
+| pnpm           | `frontend/package.json` / CI workflows | 11.8.0 |
 
 ## Quality Assurance
 
