@@ -55,7 +55,10 @@ Install if missing: `pnpm exec playwright install chromium --with-deps`
 
 ### 4 — Commit screenshot on current branch and push
 
+Run from the repo root (steps 2–3 may have changed into `frontend/`):
+
 ```bash
+cd "$(git rev-parse --show-toplevel)"
 BRANCH=$(git branch --show-current)
 ASSET_PATH=".github/pr-assets/frontend-screenshot-${PR_NUMBER}.png"
 mkdir -p .github/pr-assets
