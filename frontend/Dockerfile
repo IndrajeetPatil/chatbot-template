@@ -1,4 +1,4 @@
-FROM node:24-trixie-slim AS builder
+FROM node:24-trixie-slim@sha256:287c662bed62f3c7b68ea68544814eaff9d7ed2254d2fc9627f2df5957bb7401 AS builder
 
 # Activate the package manager declared in package.json.
 RUN corepack enable
@@ -12,7 +12,7 @@ COPY . .
 
 RUN pnpm run build
 
-FROM debian:trixie-slim
+FROM debian:trixie-slim@sha256:4e401d95de7083948053197a9c3913343cd06b706bf15eb6a0c3ccd26f436a0e
 
 RUN apt-get update && apt-get install -y --no-install-recommends nginx-light \
     && rm -rf /var/lib/apt/lists/*

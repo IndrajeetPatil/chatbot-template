@@ -27,7 +27,7 @@ dev = [
 ]
 
 [tool.uv]
-required-version = ">=0.11.10"
+required-version = ">=0.11.22"
 
 [tool.uv.audit]
 ignore = []
@@ -57,6 +57,8 @@ max-statements = 20
     "ARG001",
 ]
 "test_*.py" = [
+    # autouse fixtures are intentional for test isolation
+    "RUF076",
     # tests can have asserts
     "S101",
     # magic values in assertions are fine
@@ -99,7 +101,7 @@ addopts = [
 xfail_strict = true
 filterwarnings = [
     "error",
-    # slowapi 0.1.9 calls asyncio.iscoroutinefunction, deprecated in Python 3.14
+    # slowapi 0.1.10 calls asyncio.iscoroutinefunction, deprecated in Python 3.14
     "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
 ]
 python_files = ["test_*.py", "test-*.py", "tests.py", "test.py"]
