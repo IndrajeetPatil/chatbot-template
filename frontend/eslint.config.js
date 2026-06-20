@@ -1,7 +1,7 @@
-import globals from "globals";
+import tsParser from "@typescript-eslint/parser";
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 import reactDom from "eslint-plugin-react-dom";
-import tsParser from "@typescript-eslint/parser";
+import globals from "globals";
 
 /**
  * Security-focused ESLint config.

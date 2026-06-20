@@ -62,6 +62,11 @@ export default defineConfig({
         lines: 90,
       },
     },
+    server: {
+      deps: {
+        inline: ["@mui/material"],
+      },
+    },
     environment: "jsdom",
     exclude: ["**/node_modules/**", "**/dist/**", "**/e2e-tests/**"],
     globals: true,
