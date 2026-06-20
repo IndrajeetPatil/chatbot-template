@@ -15,7 +15,7 @@ function useDarkMode() {
   const [darkMode, setDarkMode] = useState(() =>
     typeof window !== "undefined" && typeof window.matchMedia === "function"
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
-      : false,
+      : true,
   );
 
   useEffect(() => {

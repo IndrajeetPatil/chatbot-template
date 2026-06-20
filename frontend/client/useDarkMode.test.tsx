@@ -111,4 +111,10 @@ describe("useDarkMode", () => {
     const { result } = renderHook(() => useDarkMode());
     expect(result.current.theme.palette.mode).toBe("light");
   });
+
+  test("defaults to dark mode when matchMedia is unavailable", () => {
+    vi.stubGlobal("matchMedia", undefined);
+    const { result } = renderHook(() => useDarkMode());
+    expect(result.current.darkMode).toBe(true);
+  });
 });
