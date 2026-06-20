@@ -40,7 +40,11 @@ for (const file of files.sort()) {
   console.log(`\n── ${label} ── (scores out of 100, higher is better)`);
 
   for (const [dim, data, note] of [
-    ["performance   ", performance, " [not enforced: @font-face resolved at build time]"],
+    [
+      "performance   ",
+      performance,
+      " [not enforced: @font-face resolved at build time]",
+    ],
     ["maintainability", maintainability, ""],
     ["complexity    ", complexity, ""],
   ]) {
