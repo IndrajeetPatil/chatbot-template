@@ -30,9 +30,10 @@ concise action copy.
 
 The project targets **WCAG 2.1 Level AA** compliance. Reviewers should test
 against WCAG 2.1 AA success criteria across the four POUR principles
-(Perceivable, Operable, Understandable, and Robust). Lighthouse CI enforces an
-accessibility score ≥ 95%, but automated checks do not cover every AA criterion,
-so manual verification is also required for new UI.
+(Perceivable, Operable, Understandable, and Robust). Lighthouse CI enforces a
+perfect score (100%) for accessibility, best-practices, and SEO, with
+performance at ≥ 90% (warn-only). Automated checks do not cover every AA
+criterion, so manual verification is also required for new UI.
 
 ## Setup
 
@@ -133,7 +134,7 @@ More specifically:
 | Import sorter             | Biome                            | Ruff                      |
 | Type checker              | TypeScript                       | ty                        |
 | Type annotation coverage  | type-coverage                    | typecoverage              |
-| Security linting          | ESLint (`react/no-unsanitized`)  | \-                        |
+| Security linting          | ESLint (`no-unsanitized`, `react-dom`) | \-                  |
 | Dead-code / complexity    | fallow                           | \-                        |
 | CSS code quality          | @projectwallace/css-code-quality | \-                        |
 | Markdown linting          | rumdl                            | rumdl                     |
