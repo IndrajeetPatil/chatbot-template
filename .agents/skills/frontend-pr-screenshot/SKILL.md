@@ -43,32 +43,36 @@ fi
 
 ### 3 — Screenshot with Playwright
 
+The app defaults to dark mode when no OS preference is detected.
+Pass `--color-scheme dark` so headless Chromium matches.
+
 ```bash
 cd frontend && npx playwright screenshot \
   "http://localhost:3000/chat" \
   /tmp/frontend-screenshot.png \
   --wait-for-selector "#message-input" \
+  --color-scheme dark \
   --timeout 15000
 ```
 
 Install if missing: `pnpm exec playwright install chromium --with-deps`
 
-### 4 — Commit screenshot on current branch and push
+### 4 — Upload screenshot to a GitHub release
 
-Run from the repo root (steps 2–3 may have changed into `frontend/`):
+Do NOT commit screenshots to the repo (`.github/pr-assets/` is gitignored).
+Upload as a release asset to a dedicated `pr-screenshots` release instead.
 
 ```bash
-cd "$(git rev-parse --show-toplevel)"
-BRANCH=$(git branch --show-current)
-ASSET_PATH=".github/pr-assets/frontend-screenshot-${PR_NUMBER}.png"
-mkdir -p .github/pr-assets
-cp /tmp/frontend-screenshot.png "$ASSET_PATH"
-git add "$ASSET_PATH"
-git commit -m "docs: add frontend screenshot for PR #${PR_NUMBER}"
-git push
+gh release view pr-screenshots &>/dev/null || \
+  gh release create pr-screenshots --title "PR Screenshots" \
+    --notes "Auto-generated assets for PR review" --latest=false
 
-IMAGE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/${ASSET_PATH}"
-curl -sfI "$IMAGE_URL"   # verify URL resolves before commenting
+FILENAME="frontend-screenshot-pr-${PR_NUMBER}.png"
+cp /tmp/frontend-screenshot.png "/tmp/${FILENAME}"
+gh release upload pr-screenshots "/tmp/${FILENAME}" --clobber
+
+IMAGE_URL="https://github.com/${REPO}/releases/download/pr-screenshots/${FILENAME}"
+sleep 2 && curl -sfI -L "$IMAGE_URL"   # verify URL resolves
 ```
 
 ### 5 — Post PR comment
