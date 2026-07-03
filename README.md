@@ -35,6 +35,16 @@ perfect score (100%) for accessibility, best-practices, and SEO, with
 performance at ≥ 90% (warn-only). Automated checks do not cover every AA
 criterion, so manual verification is also required for new UI.
 
+The app has also been reviewed against [The Website
+Specification](https://specification.website/checklist/), a broad checklist of
+web good practices. The relevant items — document foundations, security
+response headers, nginx caching and compression, and PWA metadata — are
+implemented in `frontend/index.html`, `frontend/frontend.nginx.conf`, and
+`frontend/app/favicon/site.webmanifest`. The SEO, internationalisation, and
+agent-readiness categories are intentionally out of scope for an internal
+chatbot SPA. Deferred items to revisit if deployment changes: HSTS (depends on
+where TLS terminates), and shipping fonts as WOFF2.
+
 ## Setup
 
 - Clone the repository
