@@ -7,7 +7,7 @@ set -euo pipefail
 # ──────────────────────────────────────────────────────────────────────────────
 # uv — Python package / project manager (pinned version)
 # ──────────────────────────────────────────────────────────────────────────────
-UV_VERSION="0.11.23"
+UV_VERSION="0.11.26"
 curl -LsSf https://astral.sh/uv/install.sh | UV_VERSION="${UV_VERSION}" sh
 export PATH="$HOME/.local/bin:$PATH"
 # Verify the installed version matches the pinned version
@@ -20,7 +20,7 @@ echo "${INSTALLED_UV_VERSION}" | grep -qF "${UV_VERSION}" || {
 # ──────────────────────────────────────────────────────────────────────────────
 # pnpm — Node.js package manager (version locked to match package.json)
 # ──────────────────────────────────────────────────────────────────────────────
-npm install -g pnpm@11.8.0
+npm install -g pnpm@11.9.0
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ls-lint — file-naming linter
