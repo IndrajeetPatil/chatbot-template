@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import pytest
 from hypothesis import assume, given
@@ -20,6 +20,13 @@ AZURE_ENV_NAMES: list[str] = [
 ]
 
 
+class _AzureCase(NamedTuple):
+    endpoint: str
+    api_key: str
+    api_version: str
+    missing: list[str]  # env-var names expected in the "missing" error
+
+
 def test_settings_valid_azure_credentials() -> None:
     s: Settings = Settings(
         azure_openai_endpoint="https://example.openai.azure.com/",
@@ -34,13 +41,10 @@ def test_settings_valid_azure_credentials() -> None:
 
 
 @st.composite
-def _azure_credentials_with_blanks(
-    draw: st.DrawFn,
-) -> tuple[str, str, str, list[str]]:
+def _azure_credentials_with_blanks(draw: st.DrawFn) -> _AzureCase:
     """Blank out a non-empty subset of the Azure fields (with any whitespace).
 
-    Returns (endpoint, api_key, api_version, expected-missing-env-names), so the
-    property covers both empty and whitespace-only values in one shot.
+    The blank values cover both empty and whitespace-only strings in one shot.
     """
     is_blank: list[bool] = draw(
         st.lists(st.booleans(), min_size=3, max_size=3).filter(any),
@@ -52,23 +56,19 @@ def _azure_credentials_with_blanks(
         values.append(draw(whitespace) if blank else "valid")
         if blank:
             missing.append(env_name)
-    endpoint, api_key, api_version = values
-    return endpoint, api_key, api_version, missing
+    return _AzureCase(values[0], values[1], values[2], missing)
 
 
 @given(_azure_credentials_with_blanks())
-def test_settings_raises_on_missing_azure_credentials(
-    case: tuple[str, str, str, list[str]],
-) -> None:
-    endpoint, api_key, api_version, missing = case
+def test_settings_raises_on_missing_azure_credentials(case: _AzureCase) -> None:
     pattern: str = "Missing required Azure OpenAI settings: " + re.escape(
-        ", ".join(missing),
+        ", ".join(case.missing),
     )
     with pytest.raises(ValueError, match=pattern):
         Settings(
-            azure_openai_endpoint=endpoint,
-            azure_openai_api_key=api_key,
-            azure_openai_api_version=api_version,
+            azure_openai_endpoint=case.endpoint,
+            azure_openai_api_key=case.api_key,
+            azure_openai_api_version=case.api_version,
             testing=False,
         )
 
@@ -96,6 +96,7 @@ def test_settings_default_chat_rate_limit(
 
 @given(st.text(alphabet=st.characters(min_codepoint=33, max_codepoint=126), min_size=1))
 def test_settings_raises_on_invalid_chat_rate_limit(value: str) -> None:
+    is_valid_rate_limit: bool
     try:
         parse(value)
     except ValueError:
