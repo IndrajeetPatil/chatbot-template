@@ -7,8 +7,9 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
+from app.config import Settings
 from app.entities import AssistantModel, AssistantTemperature, OpenAIMessageRole
-from app.main import TextPart, UIMessage, app, limiter, settings
+from app.main import TextPart, UIMessage, app, limiter
 
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Iterator
@@ -164,7 +165,10 @@ def test_chat_endpoint_rate_limits_after_threshold(
         yield "ok"
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
-    monkeypatch.setattr(settings, "chat_rate_limit", "1/minute")
+    # `settings` is frozen, so swap the whole module-global instance (which the
+    # rate-limit lambda reads at call time) instead of mutating it in place.
+    low_limit_settings: Settings = Settings(testing=True, chat_rate_limit="1/minute")
+    monkeypatch.setattr("app.main.settings", low_limit_settings)
 
     payload: dict[str, object] = {"messages": [hi_message]}
 

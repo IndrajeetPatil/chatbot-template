@@ -87,6 +87,21 @@ describe("ChatInput component", () => {
     ).toBeVisible();
   });
 
+  test("rejects a message that exceeds the maximum length", () => {
+    const onSendMessageMock = vi.fn();
+    render(<ChatInput onSendMessage={onSendMessageMock} />);
+
+    fireEvent.change(screen.getByLabelText("Message"), {
+      target: { value: "x".repeat(32_001) },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(onSendMessageMock).not.toHaveBeenCalled();
+    expect(
+      screen.getByText("Message is too long (max 32,000 characters)."),
+    ).toBeVisible();
+  });
+
   test("send button is disabled when disabled prop is true", () => {
     const onSendMessageMock = vi.fn();
     render(

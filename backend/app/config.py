@@ -10,19 +10,22 @@ if TYPE_CHECKING:
 
 
 class Settings(BaseSettings):
-    azure_openai_endpoint: str = Field(default="", alias="AZURE_OPENAI_ENDPOINT")
-    azure_openai_api_key: str = Field(default="", alias="AZURE_OPENAI_API_KEY")
-    azure_openai_api_version: str = Field(default="", alias="AZURE_OPENAI_API_VERSION")
+    # pydantic-settings reads each field from its upper-cased name as the env var
+    # (AZURE_OPENAI_ENDPOINT, CHAT_RATE_LIMIT, TESTING, …) case-insensitively, so
+    # no explicit aliases are needed.
+    azure_openai_endpoint: str = ""
+    azure_openai_api_key: str = ""
+    azure_openai_api_version: str = ""
     cors_allowed_origins: list[str] = Field(
         default_factory=lambda: ["http://localhost:3000"],
-        alias="CORS_ALLOWED_ORIGINS",
     )
-    chat_rate_limit: str = Field(default="10/minute", alias="CHAT_RATE_LIMIT")
-    testing: bool = Field(default=False, alias="TESTING")
+    chat_rate_limit: str = "10/minute"
+    testing: bool = False
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
+        frozen=True,
     )
 
     @field_validator("chat_rate_limit", mode="after")
