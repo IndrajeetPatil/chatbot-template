@@ -15,29 +15,21 @@ vi.mock("ai", () => ({
   TextStreamChatTransport: class {},
 }));
 
+import { makeTextMessage } from "@/client/testUtils";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 import { useChatSetup } from "./useChatSetup";
 
 const INITIAL_MESSAGES = [
-  {
-    id: "initial-message",
-    role: "assistant" as const,
-    parts: [
-      {
-        type: "text" as const,
-        text: "Hi, I am a chat bot. How can I help you today?",
-      },
-    ],
-  },
+  makeTextMessage(
+    "initial-message",
+    "assistant",
+    "Hi, I am a chat bot. How can I help you today?",
+  ),
 ];
 
 const WITH_USER_MESSAGE = [
   ...INITIAL_MESSAGES,
-  {
-    id: "u1",
-    role: "user" as const,
-    parts: [{ type: "text" as const, text: "Hi" }],
-  },
+  makeTextMessage("u1", "user", "Hi"),
 ];
 
 function setupMockChat(

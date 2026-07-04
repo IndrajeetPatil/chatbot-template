@@ -93,15 +93,12 @@ vi.mock("@/components/ControlPanel", () => ({
   ),
 }));
 
+import { makeTextMessage } from "@/client/testUtils";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 import Home from "./page";
 
 const INITIAL_MESSAGES = [
-  {
-    id: "initial-message",
-    role: "assistant" as const,
-    parts: [{ type: "text" as const, text: "Hi, I am a chat bot." }],
-  },
+  makeTextMessage("initial-message", "assistant", "Hi, I am a chat bot."),
 ];
 
 function setupMocks(

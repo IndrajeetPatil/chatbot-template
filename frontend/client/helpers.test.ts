@@ -1,3 +1,5 @@
+import { fc, test } from "@fast-check/vitest";
+
 import { getModelDisplay, getTemperatureDisplay } from "./helpers";
 import { AssistantModel, AssistantTemperature } from "./types/assistant";
 
@@ -8,6 +10,11 @@ describe("getModelDisplay", () => {
   ])("returns %s for model %s", (model, expected) => {
     expect(getModelDisplay(model)).toBe(expected);
   });
+
+  test.prop([fc.constantFrom(...Object.values(AssistantModel))])(
+    "returns a non-empty label for every supported model",
+    (model) => getModelDisplay(model).length > 0,
+  );
 });
 
 describe("getTemperatureDisplay", () => {
@@ -18,4 +25,9 @@ describe("getTemperatureDisplay", () => {
   ])("returns %s for temperature %s", (temp, expected) => {
     expect(getTemperatureDisplay(temp)).toBe(expected);
   });
+
+  test.prop([fc.constantFrom(...Object.values(AssistantTemperature))])(
+    "returns a non-empty label for every supported temperature",
+    (temp) => getTemperatureDisplay(temp).length > 0,
+  );
 });

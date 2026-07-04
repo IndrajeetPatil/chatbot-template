@@ -133,38 +133,14 @@ def _make_response(status_code: int) -> httpx.Response:
     return httpx.Response(status_code=status_code, request=_make_request())
 
 
-@pytest.mark.parametrize(
-    "exc",
-    [
-        openai.AuthenticationError(
-            "auth failed",
-            response=_make_response(status.HTTP_401_UNAUTHORIZED),
-            body=None,
-        ),
-        openai.RateLimitError(
-            "rate limited",
-            response=_make_response(status.HTTP_429_TOO_MANY_REQUESTS),
-            body=None,
-        ),
-        openai.APIConnectionError(
-            message="connection failed",
-            request=_make_request(),
-        ),
-        openai.InternalServerError(
-            "server error",
-            response=_make_response(status.HTTP_500_INTERNAL_SERVER_ERROR),
-            body=None,
-        ),
-    ],
-)
 def test_openai_api_exceptions_are_reraised(
     mock_azure_client: MockAzureClient,
     prompt_messages: list[dict[str, str]],
-    exc: openai.APIError,
+    openai_api_error: openai.APIError,
 ) -> None:
-    mock_azure_client.chat.completions.side_effect = exc
+    mock_azure_client.chat.completions.side_effect = openai_api_error
 
-    with pytest.raises(type(exc)):
+    with pytest.raises(type(openai_api_error)):
         list(
             stream_azure_openai_response(
                 messages=prompt_messages,

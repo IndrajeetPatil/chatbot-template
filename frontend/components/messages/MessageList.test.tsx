@@ -24,13 +24,14 @@ vi.mock("@/components/messages/UserMessage", () => ({
   ),
 }));
 
+import { makeTextMessage } from "@/client/testUtils";
 import MessageList from "./MessageList";
 
-const INITIAL_MESSAGE = {
-  id: "initial-message",
-  role: "assistant" as const,
-  parts: [{ type: "text" as const, text: "Hi, I am a chat bot." }],
-};
+const INITIAL_MESSAGE = makeTextMessage(
+  "initial-message",
+  "assistant",
+  "Hi, I am a chat bot.",
+);
 
 describe("MessageList", () => {
   afterEach(() => {
@@ -55,11 +56,7 @@ describe("MessageList", () => {
       <MessageList
         messages={[
           INITIAL_MESSAGE,
-          {
-            id: "a2",
-            role: "assistant" as const,
-            parts: [{ type: "text" as const, text: "Reply" }],
-          },
+          makeTextMessage("a2", "assistant", "Reply"),
         ]}
         assistantIsLoading={false}
         error={undefined}
@@ -73,14 +70,7 @@ describe("MessageList", () => {
   test("renders user messages", () => {
     render(
       <MessageList
-        messages={[
-          INITIAL_MESSAGE,
-          {
-            id: "u1",
-            role: "user" as const,
-            parts: [{ type: "text" as const, text: "Hello bot" }],
-          },
-        ]}
+        messages={[INITIAL_MESSAGE, makeTextMessage("u1", "user", "Hello bot")]}
         assistantIsLoading={false}
         error={undefined}
       />,

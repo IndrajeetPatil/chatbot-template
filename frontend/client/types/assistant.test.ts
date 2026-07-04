@@ -1,3 +1,5 @@
+import { fc, test } from "@fast-check/vitest";
+
 import {
   AssistantModel,
   AssistantModelSchema,
@@ -20,18 +22,26 @@ describe("assistant type values", () => {
 });
 
 describe("assistant schemas", () => {
-  test("accepts supported model values and rejects unknown ones", () => {
-    expect(AssistantModelSchema.safeParse(AssistantModel.FULL).success).toBe(
-      true,
-    );
-    expect(AssistantModelSchema.safeParse("gpt-5").success).toBe(false);
-  });
+  const modelValues: string[] = Object.values(AssistantModel);
+  const temperatureValues: string[] = Object.values(AssistantTemperature);
 
-  test("accepts supported temperature values and rejects unknown ones", () => {
-    expect(
-      AssistantTemperatureSchema.safeParse(AssistantTemperature.BALANCED)
-        .success,
-    ).toBe(true);
-    expect(AssistantTemperatureSchema.safeParse("HOT").success).toBe(false);
-  });
+  test.prop([fc.constantFrom(...modelValues)])(
+    "accepts every supported model value",
+    (model) => AssistantModelSchema.safeParse(model).success,
+  );
+
+  test.prop([fc.string().filter((s) => !modelValues.includes(s))])(
+    "rejects any value outside the supported models",
+    (value) => !AssistantModelSchema.safeParse(value).success,
+  );
+
+  test.prop([fc.constantFrom(...temperatureValues)])(
+    "accepts every supported temperature value",
+    (temperature) => AssistantTemperatureSchema.safeParse(temperature).success,
+  );
+
+  test.prop([fc.string().filter((s) => !temperatureValues.includes(s))])(
+    "rejects any value outside the supported temperatures",
+    (value) => !AssistantTemperatureSchema.safeParse(value).success,
+  );
 });

@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING
 
-import httpx
-import openai
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -14,6 +12,7 @@ from app.main import TextPart, UIMessage, app, limiter
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Iterator
 
+    import openai
     from httpx2 import Response as TestClientResponse
 
 
@@ -231,52 +230,18 @@ def test_stream_chat_reraises_non_openai_exception(
         )
 
 
-def _make_openai_request() -> httpx.Request:
-    return httpx.Request("POST", "https://example.openai.azure.com/")
-
-
-def _make_openai_response(status_code: int) -> httpx.Response:
-    return httpx.Response(status_code=status_code, request=_make_openai_request())
-
-
-@pytest.mark.parametrize(
-    "exc",
-    [
-        openai.RateLimitError(
-            "rate limit",
-            response=_make_openai_response(status.HTTP_429_TOO_MANY_REQUESTS),
-            body=None,
-        ),
-        openai.AuthenticationError(
-            "auth failed",
-            response=_make_openai_response(status.HTTP_401_UNAUTHORIZED),
-            body=None,
-        ),
-        openai.APIConnectionError(
-            message="connection failed",
-            request=_make_openai_request(),
-        ),
-        openai.InternalServerError(
-            "server error",
-            response=_make_openai_response(status.HTTP_500_INTERNAL_SERVER_ERROR),
-            body=None,
-        ),
-    ],
-)
 def test_stream_chat_reraises_openai_api_errors(
     monkeypatch: pytest.MonkeyPatch,
     raising_client: TestClient,
-    exc: openai.APIError,
+    openai_api_error: openai.APIError,
     hi_message: dict[str, object],
 ) -> None:
-    captured_exc: openai.APIError = exc
-
     def mock_stream(**kwargs: object) -> None:
-        raise captured_exc
+        raise openai_api_error
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
 
-    with pytest.raises(type(captured_exc)):
+    with pytest.raises(type(openai_api_error)):
         raising_client.post(
             "/api/v1/chat",
             json={"messages": [hi_message]},

@@ -1,8 +1,8 @@
-import { createTheme, ThemeProvider } from "@mui/material";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import type React from "react";
 import { vi } from "vitest";
 
+import { renderWithTheme } from "@/client/testUtils";
 import AssistantMessage from "./AssistantMessage";
 
 interface MockComponents {
@@ -47,58 +47,48 @@ vi.mock("react-markdown", () => ({
   },
 }));
 
-const Wrapper: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}): React.JSX.Element => (
-  <ThemeProvider theme={createTheme()}>{children}</ThemeProvider>
-);
-
 describe("AssistantMessage", () => {
   test.each([
     ["plain text", "This is a simple text message"],
     ["empty content", ""],
     ["inline code", "Use the `console.log()` function"],
   ])("renders %s without error", async (_label, content) => {
-    render(
+    renderWithTheme(
       <AssistantMessage
         content={content}
         isFirstMessage={false}
       />,
-      { wrapper: Wrapper },
     );
     expect(await screen.findByTestId("markdown-content")).toBeInTheDocument();
   });
 
   test("renders code block with block container", async () => {
-    render(
+    renderWithTheme(
       <AssistantMessage
         content={'```javascript\nconsole.log("hello");\n```'}
         isFirstMessage={false}
       />,
-      { wrapper: Wrapper },
     );
     expect(await screen.findByTestId("markdown-content")).toBeInTheDocument();
     expect(await screen.findByTestId("code-block")).toBeInTheDocument();
   });
 
   test("does not show copy button when isFirstMessage is true", () => {
-    const { queryByRole } = render(
+    const { queryByRole } = renderWithTheme(
       <AssistantMessage
         content="Welcome!"
         isFirstMessage={true}
       />,
-      { wrapper: Wrapper },
     );
     expect(queryByRole("button")).not.toBeInTheDocument();
   });
 
   test("shows copy button when isFirstMessage is false", () => {
-    const { getByRole } = render(
+    const { getByRole } = renderWithTheme(
       <AssistantMessage
         content="A response"
         isFirstMessage={false}
       />,
-      { wrapper: Wrapper },
     );
     expect(getByRole("button")).toBeInTheDocument();
   });
@@ -126,12 +116,11 @@ describe("AssistantMessage", () => {
         writable: true,
       });
 
-      const { getByRole } = render(
+      const { getByRole } = renderWithTheme(
         <AssistantMessage
           content="Copy me!"
           isFirstMessage={false}
         />,
-        { wrapper: Wrapper },
       );
 
       fireEvent.click(getByRole("button"));
