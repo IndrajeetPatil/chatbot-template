@@ -52,6 +52,16 @@ const CODE_BLOCK_PRE_SX = {
   p: 2,
 } as const;
 
+// Paragraphs get spacing between them, but the outer edges collapse so a
+// single-paragraph message (e.g. the greeting) renders with no vertical
+// margin — matching the raw-text Suspense fallback exactly, so upgrading to
+// rendered markdown causes no layout shift.
+const MARKDOWN_P_SX = {
+  my: 2,
+  "&:first-of-type": { mt: 0 },
+  "&:last-of-type": { mb: 0 },
+} as const;
+
 const ASSISTANT_MESSAGE_CONTAINER_SX = {
   display: "flex",
   justifyContent: "flex-start",
@@ -118,6 +128,14 @@ type ThemeColors = typeof DARK_COLORS | typeof LIGHT_COLORS;
 // manual useMemo is needed to keep the reference stable across renders.
 function useMarkdownComponents(colors: ThemeColors) {
   return {
+    p: ({ children }: React.ComponentPropsWithoutRef<"p">) => (
+      <Box
+        component="p"
+        sx={MARKDOWN_P_SX}
+      >
+        {children}
+      </Box>
+    ),
     pre: ({ children }: React.ComponentPropsWithoutRef<"pre">) => (
       <Box
         component="pre"
