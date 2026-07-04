@@ -172,6 +172,7 @@ More specifically:
 | IaC / workflow scan       | Checkov                          | Checkov                   |
 | Container vuln scan       | Trivy                            | Trivy                     |
 | Unit testing              | Vitest                           | pytest                    |
+| Property-based testing    | fast-check                       | Hypothesis                |
 | Code coverage             | Vitest                           | coverage.py               |
 | Coverage floor            | 90% statements/functions/lines; 75% branches | 100% |
 | Load testing              | \-                               | locust                    |

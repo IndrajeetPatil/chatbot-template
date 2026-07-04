@@ -36,9 +36,9 @@ describe("DropdownParameter", () => {
   test("opens menu and shows all options when button is clicked", () => {
     renderDropdown();
     fireEvent.click(screen.getByLabelText("Select an option"));
-    expect(screen.getByText("Option 1")).toBeInTheDocument();
-    expect(screen.getByText("Option 2")).toBeInTheDocument();
-    expect(screen.getByText("Option 3")).toBeInTheDocument();
+    for (const { label } of OPTIONS) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
   });
 
   test("calls onChange with selected value", () => {

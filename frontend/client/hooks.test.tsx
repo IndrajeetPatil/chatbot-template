@@ -1,29 +1,15 @@
-import { createTheme, ThemeProvider } from "@mui/material";
 import { renderHook } from "@testing-library/react";
-import type React from "react";
-
 import { useIsDark } from "./hooks";
-
-const makeWrapper =
-  (mode: "dark" | "light") =>
-  ({ children }: { children: React.ReactNode }) => (
-    <ThemeProvider theme={createTheme({ palette: { mode } })}>
-      {children}
-    </ThemeProvider>
-  );
+import { makeThemeWrapper } from "./test-utils";
 
 describe("useIsDark", () => {
-  test("returns true when palette mode is dark", () => {
+  test.each([
+    ["dark", true],
+    ["light", false],
+  ] as const)("returns %s palette mode as %s", (mode, expected) => {
     const { result } = renderHook(() => useIsDark(), {
-      wrapper: makeWrapper("dark"),
+      wrapper: makeThemeWrapper(mode),
     });
-    expect(result.current).toBe(true);
-  });
-
-  test("returns false when palette mode is light", () => {
-    const { result } = renderHook(() => useIsDark(), {
-      wrapper: makeWrapper("light"),
-    });
-    expect(result.current).toBe(false);
+    expect(result.current).toBe(expected);
   });
 });

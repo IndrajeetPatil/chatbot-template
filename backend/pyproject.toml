@@ -17,8 +17,10 @@ dev = [
     "add-trailing-comma>=4.0.0",
     "coverage>=7.13.5",
     "httpx2>=2.3.0",
+    "hypothesis>=6.122.0",
     "locust>=2.43.4",
     "prek>=0.3.12",
+    "pytest-env>=1.1.5",
     "pytest-random-order>=1.2.0",
     "pytest>=9.0.3",
     "ruff>=0.15.12",
@@ -98,6 +100,10 @@ addopts = [
     "--random-order",
     "-ra",
 ]
+# pytest-env sets TESTING before any app module is imported, so Settings() does
+# not reject missing Azure credentials during collection. The `D:` (default)
+# prefix only sets it when absent, mirroring os.environ.setdefault.
+env = ["D:TESTING=true"]
 xfail_strict = true
 filterwarnings = [
     "error",
