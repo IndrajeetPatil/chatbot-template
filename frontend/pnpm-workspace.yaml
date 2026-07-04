@@ -1,18 +1,3 @@
 allowBuilds:
   fallow: true
-minimumReleaseAgeExclude:
-  - '@eslint-react/ast@5.9.1'
-  - '@eslint-react/eslint@5.9.1'
-  - '@eslint-react/jsx@5.9.1'
-  - '@eslint-react/shared@5.9.1'
-  - '@eslint-react/var@5.9.1'
-  - '@fallow-cli/darwin-arm64@2.100.0'
-  - '@fallow-cli/darwin-x64@2.100.0'
-  - '@fallow-cli/linux-arm64-gnu@2.100.0'
-  - '@fallow-cli/linux-arm64-musl@2.100.0'
-  - '@fallow-cli/linux-x64-gnu@2.100.0'
-  - '@fallow-cli/linux-x64-musl@2.100.0'
-  - '@fallow-cli/win32-arm64-msvc@2.100.0'
-  - '@fallow-cli/win32-x64-msvc@2.100.0'
-  - eslint-plugin-react-dom@5.9.1
-  - fallow@2.100.0
+minimumReleaseAge: 0
