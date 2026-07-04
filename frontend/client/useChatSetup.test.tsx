@@ -15,7 +15,7 @@ vi.mock("ai", () => ({
   TextStreamChatTransport: class {},
 }));
 
-import { makeTextMessage } from "@/client/test-utils";
+import { makeTextMessage } from "@/client/testUtils";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 import { useChatSetup } from "./useChatSetup";
 

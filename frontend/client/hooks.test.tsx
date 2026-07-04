@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
 import { useIsDark } from "./hooks";
-import { makeThemeWrapper } from "./test-utils";
+import { makeThemeWrapper } from "./testUtils";
 
 describe("useIsDark", () => {
   test.each([

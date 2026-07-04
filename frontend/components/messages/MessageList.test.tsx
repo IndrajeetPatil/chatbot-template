@@ -24,7 +24,7 @@ vi.mock("@/components/messages/UserMessage", () => ({
   ),
 }));
 
-import { makeTextMessage } from "@/client/test-utils";
+import { makeTextMessage } from "@/client/testUtils";
 import MessageList from "./MessageList";
 
 const INITIAL_MESSAGE = makeTextMessage(

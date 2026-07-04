@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import type React from "react";
 import { vi } from "vitest";
 
-import { renderWithTheme } from "@/client/test-utils";
+import { renderWithTheme } from "@/client/testUtils";
 import AssistantMessage from "./AssistantMessage";
 
 interface MockComponents {
