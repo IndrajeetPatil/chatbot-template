@@ -33,6 +33,7 @@ clean: backend-clean frontend-clean
 # Convenience aliases for frontend-only tools
 fallow: frontend-fallow
 css-quality: frontend-css-quality
+contrast-audit: frontend-build frontend-contrast-audit
 lighthouse: frontend-build frontend-lighthouse
 
 # Project-wide tools
@@ -59,8 +60,8 @@ hooks:
 
 # Quality assurance suites
 qa-backend: backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
-qa-frontend: frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-security-lint frontend-type-coverage
-qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-security-lint type-coverage file-naming security-scan
+qa-frontend: frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage
+qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-build frontend-contrast-audit frontend-security-lint type-coverage file-naming security-scan
 
 # Run targets
 run: run-backend run-frontend
@@ -84,7 +85,7 @@ e2e-test:
 
 .PHONY: update-deps upgrade-deps \
 	lint format type-check test type-coverage clean \
-	fallow css-quality lighthouse \
+	fallow css-quality contrast-audit lighthouse \
 	commitlint markdown-lint security-scan file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \

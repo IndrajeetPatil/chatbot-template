@@ -15,6 +15,7 @@
     "test:e2e": "npx playwright test",
     "fallow": "fallow --fail-on-issues --quiet",
     "css-quality": "node scripts/css-quality.mjs",
+    "contrast-audit": "node scripts/contrast-audit.mjs",
     "lint:security": "eslint app client components src",
     "type-coverage": "type-coverage --strict --at-least 100"
   },
@@ -53,6 +54,7 @@
     "@typescript-eslint/parser": "^8.62.1",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.9",
+    "axe-core": "^4.12.1",
     "eslint": "^10.6.0",
     "eslint-plugin-no-unsanitized": "^4.1.5",
     "eslint-plugin-react-dom": "^5.10.3",
