@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from "node:url";
 
-import react from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 // react-markdown is intentionally absent: it is dynamically imported by
@@ -23,8 +24,20 @@ const CHAT_API_PROXY = {
   },
 };
 
+// The React Compiler auto-memoizes components and hooks, so manual useMemo/
+// useCallback/React.memo is unnecessary. It runs as a build-time Babel pass
+// (Vite 8 drives React Refresh through Oxc, so the compiler is wired in
+// separately via @rolldown/plugin-babel). We skip it under Vitest: memoization
+// is a performance optimization with no bearing on behavior, and running tests
+// against the un-compiled source keeps coverage measuring the code we wrote
+// rather than the compiler's injected memo-cache guards.
+const isTest = process.env.VITEST === "true";
+const reactCompiler = isTest
+  ? []
+  : [babel({ presets: [reactCompilerPreset()] })];
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), ...reactCompiler],
   publicDir: "app/favicon",
   server: {
     proxy: CHAT_API_PROXY,

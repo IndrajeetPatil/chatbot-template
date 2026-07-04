@@ -1,5 +1,5 @@
 import { createTheme } from "@mui/material/styles";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 const DARK_THEME_COLOR = "#121212";
 const LIGHT_THEME_COLOR = "#ffffff";
@@ -22,10 +22,7 @@ function useDarkMode() {
     syncBrowserTheme(darkMode);
   }, [darkMode]);
 
-  const theme = useMemo(
-    () => createTheme({ palette: { mode: darkMode ? "dark" : "light" } }),
-    [darkMode],
-  );
+  const theme = createTheme({ palette: { mode: darkMode ? "dark" : "light" } });
 
   const toggleDarkMode = () => setDarkMode((prev) => !prev);
 

@@ -2,7 +2,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { Box, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import type React from "react";
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { useIsDark } from "@/client/hooks";
 
 // Load the markdown renderer lazily so it stays off the initial critical
@@ -114,38 +114,37 @@ function CopyButton({ content, isDark }: CopyButtonProps) {
 
 type ThemeColors = typeof DARK_COLORS | typeof LIGHT_COLORS;
 
+// The React Compiler memoizes this object by its `colors` dependency, so no
+// manual useMemo is needed to keep the reference stable across renders.
 function useMarkdownComponents(colors: ThemeColors) {
-  return useMemo(
-    () => ({
-      pre: ({ children }: React.ComponentPropsWithoutRef<"pre">) => (
-        <Box
-          component="pre"
-          data-testid="code-block"
-          sx={[CODE_BLOCK_PRE_SX, { backgroundColor: colors.codeBlock }]}
+  return {
+    pre: ({ children }: React.ComponentPropsWithoutRef<"pre">) => (
+      <Box
+        component="pre"
+        data-testid="code-block"
+        sx={[CODE_BLOCK_PRE_SX, { backgroundColor: colors.codeBlock }]}
+      >
+        {children}
+      </Box>
+    ),
+    code: ({
+      className = "",
+      children,
+    }: React.ComponentPropsWithoutRef<"code">) => {
+      const language = className.match(/language-(\w+)/)?.[1];
+      const text = String(children ?? "");
+      if (language || text.includes("\n")) {
+        return <BlockCode text={text} />;
+      }
+      return (
+        <code
+          style={{ backgroundColor: colors.inlineBg, color: colors.inlineFg }}
         >
           {children}
-        </Box>
-      ),
-      code: ({
-        className = "",
-        children,
-      }: React.ComponentPropsWithoutRef<"code">) => {
-        const language = className.match(/language-(\w+)/)?.[1];
-        const text = String(children ?? "");
-        if (language || text.includes("\n")) {
-          return <BlockCode text={text} />;
-        }
-        return (
-          <code
-            style={{ backgroundColor: colors.inlineBg, color: colors.inlineFg }}
-          >
-            {children}
-          </code>
-        );
-      },
-    }),
-    [colors],
-  );
+        </code>
+      );
+    },
+  };
 }
 
 interface AssistantMessageProps {
