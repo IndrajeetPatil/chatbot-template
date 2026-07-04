@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from "node:url";
 
 import babel from "@rolldown/plugin-babel";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import type { PluginOption } from "vite";
 import { defineConfig } from "vitest/config";
 
 // react-markdown is intentionally absent: it is dynamically imported by
@@ -32,7 +33,7 @@ const CHAT_API_PROXY = {
 // against the un-compiled source keeps coverage measuring the code we wrote
 // rather than the compiler's injected memo-cache guards.
 const isTest = process.env.VITEST === "true";
-const reactCompiler = isTest
+const reactCompiler: PluginOption[] = isTest
   ? []
   : [babel({ presets: [reactCompilerPreset()] })];
 
