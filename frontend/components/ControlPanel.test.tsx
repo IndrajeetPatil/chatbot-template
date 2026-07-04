@@ -108,10 +108,12 @@ function renderControlPanel(overrides: Partial<typeof DEFAULT_PROPS> = {}) {
 }
 
 describe("ControlPanel", () => {
-  // Note: mode persistence is a no-op here — vitest's jsdom environment has no
-  // localStorage (Node's experimental global shadows jsdom's), and MUI guards
-  // all storage access with try/catch, so no state bleeds between tests.
+  // Vitest's jsdom environment currently has no localStorage (Node's
+  // experimental global shadows jsdom's), so MUI's mode persistence is a
+  // try/catch-guarded no-op and an unguarded clear() would throw. The optional
+  // chain keeps tests isolated if the environment ever gains storage.
   afterEach(() => {
+    window.localStorage?.clear();
     vi.unstubAllGlobals();
   });
 
