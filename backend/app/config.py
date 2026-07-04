@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
+        frozen=True,
     )
 
     @field_validator("chat_rate_limit", mode="after")

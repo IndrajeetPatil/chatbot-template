@@ -2,11 +2,18 @@ import SendIcon from "@mui/icons-material/Send";
 import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import type React from "react";
 import { type KeyboardEvent, useRef, useState } from "react";
+import {
+  ChatMessageTextSchema,
+  MAX_MESSAGE_CHARS,
+} from "@/client/chatConstants";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void | Promise<void>;
   disabled?: boolean;
 }
+
+const EMPTY_MESSAGE_ERROR = "Enter a message before sending.";
+const TOO_LONG_MESSAGE_ERROR = `Message is too long (max ${MAX_MESSAGE_CHARS.toLocaleString("en-US")} characters).`;
 
 const CHAT_INPUT_FORM_SX = {
   alignItems: "flex-start",
@@ -51,7 +58,7 @@ interface MessageFieldProps {
   inputRef: React.Ref<HTMLTextAreaElement>;
   disabled: boolean;
   message: string;
-  submittedEmpty: boolean;
+  validationError: string | null;
   onChange: (value: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
 }
@@ -60,7 +67,7 @@ function MessageField({
   inputRef,
   disabled,
   message,
-  submittedEmpty,
+  validationError,
   onChange,
   onKeyDown,
 }: MessageFieldProps) {
@@ -79,11 +86,10 @@ function MessageField({
       value={message}
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={onKeyDown}
-      error={submittedEmpty}
+      error={validationError !== null}
       helperText={
-        submittedEmpty
-          ? "Enter a message before sending."
-          : "Press Enter for a new line. Press Ctrl+Enter or Cmd+Enter to send."
+        validationError ??
+        "Press Enter for a new line. Press Ctrl+Enter or Cmd+Enter to send."
       }
       sx={CHAT_INPUT_FIELD_SX}
     />
@@ -93,20 +99,25 @@ function MessageField({
 function ChatInput({ disabled = false, onSendMessage }: ChatInputProps) {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [message, setMessage] = useState("");
-  const [submittedEmpty, setSubmittedEmpty] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const sendMessage = async () => {
-    const trimmedMessage = message.trim();
+    // Same rule the server enforces, checked here for instant UX feedback.
+    const result = ChatMessageTextSchema.safeParse(message);
 
-    if (!trimmedMessage) {
-      setSubmittedEmpty(true);
+    if (!result.success) {
+      setValidationError(
+        message.trim().length === 0
+          ? EMPTY_MESSAGE_ERROR
+          : TOO_LONG_MESSAGE_ERROR,
+      );
       inputRef.current?.focus();
       return;
     }
 
-    setSubmittedEmpty(false);
+    setValidationError(null);
     setMessage("");
-    await onSendMessage(trimmedMessage);
+    await onSendMessage(result.data);
   };
 
   return (
@@ -122,10 +133,10 @@ function ChatInput({ disabled = false, onSendMessage }: ChatInputProps) {
         inputRef={inputRef}
         disabled={disabled}
         message={message}
-        submittedEmpty={submittedEmpty}
+        validationError={validationError}
         onChange={(value) => {
           setMessage(value);
-          if (submittedEmpty) setSubmittedEmpty(false);
+          if (validationError !== null) setValidationError(null);
         }}
         onKeyDown={(event) => {
           if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
