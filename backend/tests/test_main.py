@@ -167,7 +167,7 @@ def test_chat_endpoint_rate_limits_after_threshold(
     monkeypatch.setattr("app.main.stream_azure_openai_response", mock_stream)
     # `settings` is frozen, so swap the whole module-global instance (which the
     # rate-limit lambda reads at call time) instead of mutating it in place.
-    low_limit_settings: Settings = Settings(TESTING=True, CHAT_RATE_LIMIT="1/minute")
+    low_limit_settings: Settings = Settings(testing=True, chat_rate_limit="1/minute")
     monkeypatch.setattr("app.main.settings", low_limit_settings)
 
     payload: dict[str, object] = {"messages": [hi_message]}
