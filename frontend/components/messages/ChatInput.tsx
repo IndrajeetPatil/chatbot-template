@@ -90,10 +90,7 @@ function MessageField({
   );
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({
-  disabled = false,
-  onSendMessage,
-}) => {
+function ChatInput({ disabled = false, onSendMessage }: ChatInputProps) {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [message, setMessage] = useState("");
   const [submittedEmpty, setSubmittedEmpty] = useState(false);
@@ -140,6 +137,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       <SendButton disabled={disabled} />
     </Box>
   );
-};
+}
 
 export default ChatInput;

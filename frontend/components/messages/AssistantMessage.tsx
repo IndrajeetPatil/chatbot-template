@@ -170,10 +170,7 @@ interface AssistantMessageProps {
   isFirstMessage: boolean;
 }
 
-const AssistantMessage: React.FC<AssistantMessageProps> = ({
-  content,
-  isFirstMessage,
-}) => {
+function AssistantMessage({ content, isFirstMessage }: AssistantMessageProps) {
   const isDark = useIsDark();
   const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
   const markdownComponents = useMarkdownComponents(colors);
@@ -204,6 +201,6 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
       </Paper>
     </Box>
   );
-};
+}
 
 export default AssistantMessage;

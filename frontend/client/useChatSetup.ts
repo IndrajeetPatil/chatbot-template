@@ -6,16 +6,15 @@ import type {
   AssistantTemperature,
 } from "@/client/types/assistant";
 
+const CHAT_TRANSPORT = new TextStreamChatTransport({ api: CHAT_API_URL });
+
 function useChatSetup(
   model: AssistantModel,
   temperature: AssistantTemperature,
 ) {
-  // The React Compiler memoizes this dependency-free constructor call once for
-  // the hook's lifetime, matching the previous useMemo(…, []) behavior.
-  const transport = new TextStreamChatTransport({ api: CHAT_API_URL });
   const { messages, sendMessage, regenerate, error, status } = useChat({
     messages: INITIAL_MESSAGES,
-    transport,
+    transport: CHAT_TRANSPORT,
     experimental_throttle: 50,
   });
   const assistantIsLoading = status === "submitted" || status === "streaming";

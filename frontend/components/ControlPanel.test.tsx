@@ -1,5 +1,7 @@
+import { ThemeProvider } from "@mui/material/styles";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
+import { theme } from "@/client/theme";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 
 vi.mock("@/components/messages/ChatInput", () => ({
@@ -59,110 +61,124 @@ const DEFAULT_PROPS = {
   setTemperature: vi.fn(),
   onRegenerate: vi.fn(),
   canRegenerate: true,
-  darkMode: false,
-  onToggleDarkMode: vi.fn(),
   disabled: false,
   onSendMessage: vi.fn().mockResolvedValue(undefined),
 };
 
+class MockMediaQueryList extends EventTarget implements MediaQueryList {
+  readonly matches: boolean;
+  readonly media: string;
+  onchange:
+    | ((this: MediaQueryList, ev: MediaQueryListEvent) => unknown)
+    | null = null;
+
+  constructor(matches: boolean, media: string) {
+    super();
+    this.matches = matches;
+    this.media = media;
+  }
+
+  addListener(): void {}
+  removeListener(): void {}
+}
+
+function mockMatchMedia(prefersDark: boolean) {
+  vi.stubGlobal(
+    "matchMedia",
+    (query: string): MediaQueryList =>
+      new MockMediaQueryList(
+        prefersDark && query === "(prefers-color-scheme: dark)",
+        query,
+      ),
+  );
+}
+
+function renderControlPanel(overrides: Partial<typeof DEFAULT_PROPS> = {}) {
+  return render(
+    <ThemeProvider
+      theme={theme}
+      noSsr={true}
+    >
+      <ControlPanel
+        {...DEFAULT_PROPS}
+        {...overrides}
+      />
+    </ThemeProvider>,
+  );
+}
+
 describe("ControlPanel", () => {
+  // Vitest's jsdom environment currently has no localStorage (Node's
+  // experimental global shadows jsdom's), so MUI's mode persistence is a
+  // try/catch-guarded no-op and an unguarded clear() would throw. The optional
+  // chain keeps tests isolated if the environment ever gains storage.
+  afterEach(() => {
+    window.localStorage?.clear();
+    vi.unstubAllGlobals();
+  });
+
   test("renders model dropdown", () => {
-    render(<ControlPanel {...DEFAULT_PROPS} />);
+    renderControlPanel();
     expect(
       screen.getByLabelText(/Select assistant model/i),
     ).toBeInTheDocument();
   });
 
   test("renders temperature dropdown", () => {
-    render(<ControlPanel {...DEFAULT_PROPS} />);
+    renderControlPanel();
     expect(
       screen.getByLabelText(/Select assistant temperature/i),
     ).toBeInTheDocument();
   });
 
   test("regenerate button is enabled when canRegenerate is true and not disabled", () => {
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        canRegenerate={true}
-        disabled={false}
-      />,
-    );
+    renderControlPanel({ canRegenerate: true, disabled: false });
     expect(screen.getByLabelText("Regenerate response")).not.toBeDisabled();
   });
 
   test("regenerate button is disabled when canRegenerate is false", () => {
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        canRegenerate={false}
-      />,
-    );
+    renderControlPanel({ canRegenerate: false });
     expect(screen.getByLabelText("Regenerate response")).toBeDisabled();
   });
 
   test("regenerate button is disabled when disabled is true", () => {
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        disabled={true}
-      />,
-    );
+    renderControlPanel({ disabled: true });
     expect(screen.getByLabelText("Regenerate response")).toBeDisabled();
   });
 
   test("clicking regenerate calls onRegenerate", () => {
     const onRegenerate = vi.fn();
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        onRegenerate={onRegenerate}
-      />,
-    );
+    renderControlPanel({ onRegenerate });
     fireEvent.click(screen.getByLabelText("Regenerate response"));
     expect(onRegenerate).toHaveBeenCalledTimes(1);
   });
 
-  test("shows dark mode icon when darkMode is false", () => {
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        darkMode={false}
-      />,
-    );
+  test("shows dark mode toggle when system preference is not dark", () => {
+    renderControlPanel();
     expect(screen.getByLabelText("Switch to dark mode")).toBeInTheDocument();
   });
 
-  test("shows light mode icon when darkMode is true", () => {
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        darkMode={true}
-      />,
-    );
+  test("shows light mode toggle when system prefers dark", () => {
+    mockMatchMedia(true);
+    renderControlPanel();
     expect(screen.getByLabelText("Switch to light mode")).toBeInTheDocument();
   });
 
-  test("clicking dark mode toggle calls onToggleDarkMode", () => {
-    const onToggleDarkMode = vi.fn();
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        darkMode={false}
-        onToggleDarkMode={onToggleDarkMode}
-      />,
-    );
+  test("clicking the toggle switches from light to dark mode", () => {
+    renderControlPanel();
     fireEvent.click(screen.getByLabelText("Switch to dark mode"));
-    expect(onToggleDarkMode).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText("Switch to light mode")).toBeInTheDocument();
+  });
+
+  test("clicking the toggle switches from dark to light mode", () => {
+    mockMatchMedia(true);
+    renderControlPanel();
+    fireEvent.click(screen.getByLabelText("Switch to light mode"));
+    expect(screen.getByLabelText("Switch to dark mode")).toBeInTheDocument();
   });
 
   test("ChatInput receives disabled prop", () => {
-    render(
-      <ControlPanel
-        {...DEFAULT_PROPS}
-        disabled={true}
-      />,
-    );
+    renderControlPanel({ disabled: true });
     expect(screen.getByTestId("chat-input-send")).toHaveAttribute(
       "data-disabled",
       "true",
