@@ -64,7 +64,11 @@ cd ..
 # Frontend — Node.js dependencies + Playwright browser binaries
 # ──────────────────────────────────────────────────────────────────────────────
 cd frontend
-pnpm install --frozen-lockfile
+# confirmModulesPurge=false: when a local checkout is mounted into the
+# container, any node_modules built on the host (different OS/arch) must be
+# purged and reinstalled for Linux. Without a TTY, pnpm would otherwise abort
+# rather than prompt for confirmation.
+pnpm install --frozen-lockfile --config.confirmModulesPurge=false
 pnpm exec playwright install --with-deps
 cd ..
 
