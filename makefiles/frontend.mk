@@ -10,6 +10,7 @@ VITE_START=pnpm run start
 PLAYWRIGHT=pnpm run test:e2e
 FALLOW=pnpm run fallow
 CSS_QUALITY=pnpm run css-quality
+CONTRAST_AUDIT=pnpm run contrast-audit
 SECURITY_LINT=pnpm run lint:security
 TSCOVERAGE=pnpm run type-coverage
 LHCI=pnpm dlx @lhci/cli@0.15.1
@@ -44,6 +45,10 @@ frontend-css-quality:
 	@echo "$(COLOR_BLUE_BG)Running frontend CSS code quality checks...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(CSS_QUALITY)
 
+frontend-contrast-audit:
+	@echo "$(COLOR_BLUE_BG)Running frontend contrast audit in light and dark mode...$(COLOR_RESET)"
+	cd $(FRONTEND_DIR) && $(CONTRAST_AUDIT)
+
 frontend-security-lint:
 	@echo "$(COLOR_BLUE_BG)Running frontend security linting with ESLint...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(SECURITY_LINT)
@@ -76,5 +81,5 @@ run-frontend:
 
 .PHONY: frontend-lint frontend-format frontend-type-check \
 	frontend-test frontend-build frontend-audit frontend-fallow \
-	frontend-css-quality frontend-security-lint frontend-type-coverage \
+	frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage \
 	frontend-lighthouse frontend-e2e-test frontend-clean run-frontend

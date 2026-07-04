@@ -28,6 +28,10 @@ make run         # start both servers
 docker-compose up
 ```
 
+Unless explicitly requested, do not wait for CI/CD checks to finish after
+pushing. Report that the checks were triggered and include the relevant PR or
+workflow link instead.
+
 ## Hard constraints
 
 - **Backend coverage**: 100% lines + branches

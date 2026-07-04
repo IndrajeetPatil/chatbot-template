@@ -3,6 +3,12 @@
 A minimal full-stack chatbot template using React and FastAPI, backed by
 Azure OpenAI GPT-4o and GPT-4o mini deployments.
 
+## Interface Preview
+
+| Light mode | Dark mode |
+|------------|-----------|
+| ![Chatbot Template light mode UI](docs/images/chatbot-template-light.png) | ![Chatbot Template dark mode UI](docs/images/chatbot-template-dark.png) |
+
 ## Architecture/Design
 
 The project is structured as a monorepo with two services:
@@ -32,8 +38,9 @@ The project targets **WCAG 2.1 Level AA** compliance. Reviewers should test
 against WCAG 2.1 AA success criteria across the four POUR principles
 (Perceivable, Operable, Understandable, and Robust). Lighthouse CI enforces a
 perfect score (100%) for accessibility, best-practices, and SEO, with
-performance at ≥ 90% (warn-only). Automated checks do not cover every AA
-criterion, so manual verification is also required for new UI.
+performance at ≥ 85% as a hard failure. A separate axe-powered contrast audit
+checks WCAG AA colour contrast in both light and dark mode. Automated checks do
+not cover every AA criterion, so manual verification is also required for new UI.
 
 The app has also been reviewed against [The Website
 Specification](https://specification.website/checklist/), a broad checklist of
@@ -91,12 +98,12 @@ REST API can be interactively explored using FastAPI's Swagger UI:
 
 ## Runtime Versions
 
-| Runtime / tool | Version source | Current value |
+| Runtime / tool | Version source | Current major |
 |----------------|----------------|---------------|
-| Python         | `backend/.python-version` / `backend/pyproject.toml` | 3.14 |
-| uv             | `backend/pyproject.toml` / `backend/Dockerfile` | ≥ 0.11.10 locally, 0.11.23 in Docker |
+| Python         | `backend/.python-version` / `backend/pyproject.toml` | 3 |
+| uv             | `backend/pyproject.toml` / `backend/Dockerfile` | 0 |
 | Node.js        | `frontend/.nvmrc` / frontend Docker image | 24 |
-| pnpm           | `frontend/package.json` / CI workflows | 11.8.0 |
+| pnpm           | `frontend/package.json` / CI workflows | 11 |
 
 ## Quality Assurance
 
@@ -121,11 +128,21 @@ To validate Lighthouse scores against thresholds locally:
 make lighthouse
 ```
 
-Lighthouse covers automated performance, accessibility, best-practices, and
-SEO checks. New UI changes should still be reviewed against the Vercel Web
-Interface Guidelines, because many interaction, content, and layout details
-require manual judgment. The guidelines are an implementation target, not a
-blanket claim that every existing screen is already fully compliant.
+Lighthouse runs three mobile-throttled samples and asserts the median result.
+Performance, accessibility, best-practices, SEO, LCP, CLS, and TBT are all hard
+failures. Lighthouse reports must not contain unresolved `runWarnings` or
+warn-only assertions.
+
+To validate WCAG AA colour contrast in both UI themes:
+
+``` bash
+make contrast-audit
+```
+
+New UI changes should still be reviewed against the Vercel Web Interface
+Guidelines, because many interaction, content, and layout details require
+manual judgment. The guidelines are an implementation target, not a blanket
+claim that every existing screen is already fully compliant.
 
 To remove all build artifacts and tool caches for a clean slate (useful
 for testing cold-cache behaviour):
@@ -147,6 +164,7 @@ More specifically:
 | Security linting          | ESLint (`no-unsanitized`, `react-dom`) | \-                  |
 | Dead-code / complexity    | fallow                           | \-                        |
 | CSS code quality          | @projectwallace/css-code-quality | \-                        |
+| Contrast audit            | axe-core (`color-contrast`) in light and dark mode | \- |
 | Markdown linting          | rumdl                            | rumdl                     |
 | File naming               | ls-lint                          | ls-lint                   |
 | Pre-commit hooks          | prek                             | prek                      |
@@ -159,7 +177,7 @@ More specifically:
 | Load testing              | \-                               | locust                    |
 | End-to-end testing        | Playwright                       | \-                        |
 | Dependency audit          | pnpm audit                       | uv audit                  |
-| Performance / a11y        | Lighthouse CI                    | \-                        |
+| Performance / a11y        | Lighthouse CI, axe-core          | \-                        |
 | API client                | Vercel AI SDK                    | openai                    |
 | API server                | \-                               | FastAPI                   |
 | UI toolkit                | Material UI                      | \-                        |
