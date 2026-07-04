@@ -2,9 +2,15 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { Box, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import type React from "react";
-import { useMemo, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { lazy, Suspense, useRef, useState } from "react";
 import { useIsDark } from "@/client/hooks";
+
+// Load the markdown renderer lazily so it stays off the initial critical
+// path. The first paint (including the LCP greeting) renders the message
+// text as-is via the Suspense fallback, then upgrades to rendered markdown
+// once the chunk arrives — visually identical for plain text, so no layout
+// shift.
+const ReactMarkdown = lazy(() => import("react-markdown"));
 
 const DARK_COLORS = {
   codeBlock: "#1e1e1e",
@@ -44,6 +50,16 @@ const CODE_BLOCK_PRE_SX = {
   mt: 2,
   overflowX: "auto",
   p: 2,
+} as const;
+
+// Paragraphs get spacing between them, but the outer edges collapse so a
+// single-paragraph message (e.g. the greeting) renders with no vertical
+// margin — matching the raw-text Suspense fallback exactly, so upgrading to
+// rendered markdown causes no layout shift.
+const MARKDOWN_P_SX = {
+  my: 2,
+  "&:first-of-type": { mt: 0 },
+  "&:last-of-type": { mb: 0 },
 } as const;
 
 const ASSISTANT_MESSAGE_CONTAINER_SX = {
@@ -108,38 +124,45 @@ function CopyButton({ content, isDark }: CopyButtonProps) {
 
 type ThemeColors = typeof DARK_COLORS | typeof LIGHT_COLORS;
 
+// The React Compiler memoizes this object by its `colors` dependency, so no
+// manual useMemo is needed to keep the reference stable across renders.
 function useMarkdownComponents(colors: ThemeColors) {
-  return useMemo(
-    () => ({
-      pre: ({ children }: React.ComponentPropsWithoutRef<"pre">) => (
-        <Box
-          component="pre"
-          data-testid="code-block"
-          sx={[CODE_BLOCK_PRE_SX, { backgroundColor: colors.codeBlock }]}
+  return {
+    p: ({ children }: React.ComponentPropsWithoutRef<"p">) => (
+      <Box
+        component="p"
+        sx={MARKDOWN_P_SX}
+      >
+        {children}
+      </Box>
+    ),
+    pre: ({ children }: React.ComponentPropsWithoutRef<"pre">) => (
+      <Box
+        component="pre"
+        data-testid="code-block"
+        sx={[CODE_BLOCK_PRE_SX, { backgroundColor: colors.codeBlock }]}
+      >
+        {children}
+      </Box>
+    ),
+    code: ({
+      className = "",
+      children,
+    }: React.ComponentPropsWithoutRef<"code">) => {
+      const language = className.match(/language-(\w+)/)?.[1];
+      const text = String(children ?? "");
+      if (language || text.includes("\n")) {
+        return <BlockCode text={text} />;
+      }
+      return (
+        <code
+          style={{ backgroundColor: colors.inlineBg, color: colors.inlineFg }}
         >
           {children}
-        </Box>
-      ),
-      code: ({
-        className = "",
-        children,
-      }: React.ComponentPropsWithoutRef<"code">) => {
-        const language = className.match(/language-(\w+)/)?.[1];
-        const text = String(children ?? "");
-        if (language || text.includes("\n")) {
-          return <BlockCode text={text} />;
-        }
-        return (
-          <code
-            style={{ backgroundColor: colors.inlineBg, color: colors.inlineFg }}
-          >
-            {children}
-          </code>
-        );
-      },
-    }),
-    [colors],
-  );
+        </code>
+      );
+    },
+  };
 }
 
 interface AssistantMessageProps {
@@ -166,9 +189,11 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
           variant="body1"
           component="div"
         >
-          <ReactMarkdown components={markdownComponents}>
-            {content}
-          </ReactMarkdown>
+          <Suspense fallback={content}>
+            <ReactMarkdown components={markdownComponents}>
+              {content}
+            </ReactMarkdown>
+          </Suspense>
         </Typography>
         {!isFirstMessage && (
           <CopyButton

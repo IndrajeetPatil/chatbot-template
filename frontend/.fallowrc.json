@@ -6,7 +6,8 @@
     "@ai-sdk/__mocks__",
     "@emotion/react",
     "@emotion/styled",
-    "@mui/__mocks__"
+    "@mui/__mocks__",
+    "babel-plugin-react-compiler"
   ],
   "rules": {
     "unused-files": "error",

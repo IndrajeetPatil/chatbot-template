@@ -1,6 +1,5 @@
 import { useChat } from "@ai-sdk/react";
 import { TextStreamChatTransport } from "ai";
-import { useMemo } from "react";
 import { CHAT_API_URL, INITIAL_MESSAGES } from "@/client/chatConstants";
 import type {
   AssistantModel,
@@ -11,10 +10,9 @@ function useChatSetup(
   model: AssistantModel,
   temperature: AssistantTemperature,
 ) {
-  const transport = useMemo(
-    () => new TextStreamChatTransport({ api: CHAT_API_URL }),
-    [],
-  );
+  // The React Compiler memoizes this dependency-free constructor call once for
+  // the hook's lifetime, matching the previous useMemo(…, []) behavior.
+  const transport = new TextStreamChatTransport({ api: CHAT_API_URL });
   const { messages, sendMessage, regenerate, error, status } = useChat({
     messages: INITIAL_MESSAGES,
     transport,
