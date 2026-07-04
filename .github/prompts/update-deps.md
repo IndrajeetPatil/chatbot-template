@@ -23,11 +23,14 @@ If the pnpm version changes, update every declaration together:
 - `frontend/package.json` (`packageManager`)
 - `.github/workflows/qa.yml` (`pnpm/action-setup` `version:`)
 - `.github/workflows/tests.yml` (`pnpm/action-setup` `version:` in both jobs)
+- `.devcontainer/post-create.sh` (`npm install -g pnpm@<version>`)
 
 If the Node.js version changes, update every runtime declaration together:
 
 - `frontend/.nvmrc`
 - `frontend/Dockerfile` (`node:<version>-trixie-slim`)
+- `.devcontainer/devcontainer.json`
+  (`ghcr.io/devcontainers/features/node` `version`)
 
 The GitHub workflows read Node from `frontend/.nvmrc`; do not add a separate
 hard-coded workflow Node version unless the workflow design changes.
@@ -38,11 +41,13 @@ If the Python version changes, update every backend runtime declaration together
 - `backend/uv.lock` (`requires-python`)
 - `backend/Dockerfile` (`python:<version>-slim-trixie`)
 
-If the uv version changes, update every workflow setup declaration together:
+If the uv version changes, update every declaration together:
 
+- `backend/pyproject.toml` (`[tool.uv]` `required-version`)
 - `.github/workflows/qa.yml`
 - `.github/workflows/tests.yml`
 - `.github/workflows/security.yml`
+- `.devcontainer/post-create.sh` (`UV_VERSION`)
 
 Do an online search and ensure that the public GitHub Actions used in
 `.github/workflows/` are still on the latest stable release. Actions are pinned

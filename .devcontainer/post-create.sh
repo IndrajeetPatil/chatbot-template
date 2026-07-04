@@ -7,8 +7,9 @@ set -euo pipefail
 # ──────────────────────────────────────────────────────────────────────────────
 # uv — Python package / project manager (pinned version)
 # ──────────────────────────────────────────────────────────────────────────────
-UV_VERSION="0.11.23"
-curl -LsSf https://astral.sh/uv/install.sh | UV_VERSION="${UV_VERSION}" sh
+UV_VERSION="0.11.26"
+curl -LsSf --retry 3 --retry-delay 2 --retry-all-errors \
+  https://astral.sh/uv/install.sh | UV_VERSION="${UV_VERSION}" sh
 export PATH="$HOME/.local/bin:$PATH"
 # Verify the installed version matches the pinned version
 INSTALLED_UV_VERSION=$(uv --version)
@@ -20,7 +21,7 @@ echo "${INSTALLED_UV_VERSION}" | grep -qF "${UV_VERSION}" || {
 # ──────────────────────────────────────────────────────────────────────────────
 # pnpm — Node.js package manager (version locked to match package.json)
 # ──────────────────────────────────────────────────────────────────────────────
-npm install -g pnpm@11.8.0
+npm install -g pnpm@11.9.0
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ls-lint — file-naming linter
@@ -32,7 +33,7 @@ case "$MACHINE" in
   aarch64) ARCH="arm64" ;;
   *) echo "Unsupported architecture: $MACHINE" && exit 1 ;;
 esac
-curl -fsSL \
+curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
   "https://github.com/loeffel-io/ls-lint/releases/download/v2.3.1/ls-lint-${KERNEL}-${ARCH}" \
   -o /tmp/ls-lint
 case "${KERNEL}-${ARCH}" in
@@ -63,7 +64,11 @@ cd ..
 # Frontend — Node.js dependencies + Playwright browser binaries
 # ──────────────────────────────────────────────────────────────────────────────
 cd frontend
-pnpm install --frozen-lockfile
+# confirmModulesPurge=false: when a local checkout is mounted into the
+# container, any node_modules built on the host (different OS/arch) must be
+# purged and reinstalled for Linux. Without a TTY, pnpm would otherwise abort
+# rather than prompt for confirmation.
+pnpm install --frozen-lockfile --config.confirmModulesPurge=false
 pnpm exec playwright install --with-deps
 cd ..
 
