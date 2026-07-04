@@ -1,28 +1,19 @@
-import { createTheme } from "@mui/material/styles";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 
 // Hoist mock functions so they can be used inside vi.mock factories
 const {
   mockUseChatSetup,
-  mockUseDarkMode,
-  mockToggleDarkMode,
   mockHandleSendMessage,
   mockHandleRegenerateResponse,
 } = vi.hoisted(() => ({
   mockUseChatSetup: vi.fn(),
-  mockUseDarkMode: vi.fn(),
-  mockToggleDarkMode: vi.fn(),
   mockHandleSendMessage: vi.fn().mockResolvedValue(undefined),
   mockHandleRegenerateResponse: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/client/useChatSetup", () => ({
   useChatSetup: mockUseChatSetup,
-}));
-
-vi.mock("@/client/useDarkMode", () => ({
-  useDarkMode: mockUseDarkMode,
 }));
 
 // Mock extracted components so we can test page.tsx logic in isolation
@@ -53,7 +44,6 @@ vi.mock("@/components/ControlPanel", () => ({
     disabled,
     setModel,
     setTemperature,
-    onToggleDarkMode,
     onRegenerate,
     onSendMessage,
   }: {
@@ -63,7 +53,6 @@ vi.mock("@/components/ControlPanel", () => ({
     disabled: boolean;
     setModel: (m: string) => void;
     setTemperature: (t: string) => void;
-    onToggleDarkMode: () => void;
     onRegenerate: () => void;
     onSendMessage: (msg: string) => Promise<void>;
   }) => (
@@ -85,13 +74,6 @@ vi.mock("@/components/ControlPanel", () => ({
         onClick={() => setTemperature("CREATIVE")}
       >
         Set Temp
-      </button>
-      <button
-        type="button"
-        data-testid="cp-toggle-dark"
-        onClick={onToggleDarkMode}
-      >
-        Toggle Dark
       </button>
       <button
         type="button"
@@ -128,7 +110,6 @@ function setupMocks(
     assistantIsLoading: boolean;
     hasUserMessage: boolean;
     error: Error | undefined;
-    darkMode: boolean;
   }> = {},
 ) {
   const {
@@ -136,7 +117,6 @@ function setupMocks(
     assistantIsLoading = false,
     hasUserMessage = false,
     error = undefined,
-    darkMode = false,
   } = overrides;
 
   mockUseChatSetup.mockReturnValue({
@@ -146,12 +126,6 @@ function setupMocks(
     error,
     handleSendMessage: mockHandleSendMessage,
     handleRegenerateResponse: mockHandleRegenerateResponse,
-  });
-
-  mockUseDarkMode.mockReturnValue({
-    darkMode,
-    theme: createTheme({ palette: { mode: darkMode ? "dark" : "light" } }),
-    toggleDarkMode: mockToggleDarkMode,
   });
 }
 
@@ -229,12 +203,6 @@ describe("Home page", () => {
     render(<Home />);
     fireEvent.click(screen.getByTestId("cp-set-temperature"));
     expect(screen.getByTestId("cp-temperature")).toHaveTextContent("CREATIVE");
-  });
-
-  test("toggleDarkMode from useDarkMode is wired to ControlPanel", () => {
-    render(<Home />);
-    fireEvent.click(screen.getByTestId("cp-toggle-dark"));
-    expect(mockToggleDarkMode).toHaveBeenCalledTimes(1);
   });
 
   test("handleRegenerateResponse from useChatSetup is wired to ControlPanel", () => {

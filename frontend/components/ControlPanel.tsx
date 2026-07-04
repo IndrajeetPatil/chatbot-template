@@ -4,38 +4,32 @@ import PsychologyIcon from "@mui/icons-material/Psychology";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import { Box, IconButton, Stack, Tooltip } from "@mui/material";
+import { useColorScheme } from "@mui/material/styles";
 import { getModelDisplay, getTemperatureDisplay } from "@/client/helpers";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 import ChatInput from "@/components/messages/ChatInput";
 import DropdownParameter from "@/components/parameters/DropdownParameter";
 
-const MODEL_OPTIONS = [
-  { value: AssistantModel.FULL, label: "GPT-4o" },
-  { value: AssistantModel.MINI, label: "GPT-4o Mini" },
-];
+const MODEL_OPTIONS = Object.values(AssistantModel).map((value) => ({
+  value,
+  label: getModelDisplay(value),
+}));
 
-const TEMPERATURE_OPTIONS = [
-  {
-    value: AssistantTemperature.DETERMINISTIC,
-    label: "0.2 - More Deterministic",
-  },
-  { value: AssistantTemperature.BALANCED, label: "0.7 - Balanced" },
-  { value: AssistantTemperature.CREATIVE, label: "0.9 - More Creative" },
-];
+const TEMPERATURE_OPTIONS = Object.values(AssistantTemperature).map(
+  (value) => ({ value, label: getTemperatureDisplay(value) }),
+);
 
-interface DarkModeToggleProps {
-  darkMode: boolean;
-  onToggle: () => void;
-}
+function DarkModeToggle() {
+  const { mode, systemMode, setMode } = useColorScheme();
+  const isDark = (mode === "system" ? systemMode : mode) === "dark";
 
-function DarkModeToggle({ darkMode, onToggle }: DarkModeToggleProps) {
   return (
-    <Tooltip title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+    <Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
       <IconButton
-        onClick={onToggle}
-        aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+        onClick={() => setMode(isDark ? "light" : "dark")}
+        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       >
-        {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+        {isDark ? <LightModeIcon /> : <DarkModeIcon />}
       </IconButton>
     </Tooltip>
   );
@@ -74,8 +68,6 @@ interface ToolbarProps {
   setTemperature: (t: AssistantTemperature) => void;
   onRegenerate: () => void;
   canRegenerate: boolean;
-  darkMode: boolean;
-  onToggleDarkMode: () => void;
   disabled: boolean;
 }
 
@@ -86,8 +78,6 @@ function Toolbar({
   setTemperature,
   onRegenerate,
   canRegenerate,
-  darkMode,
-  onToggleDarkMode,
   disabled,
 }: ToolbarProps) {
   return (
@@ -129,10 +119,7 @@ function Toolbar({
         canRegenerate={canRegenerate}
         onRegenerate={onRegenerate}
       />
-      <DarkModeToggle
-        darkMode={darkMode}
-        onToggle={onToggleDarkMode}
-      />
+      <DarkModeToggle />
     </Stack>
   );
 }

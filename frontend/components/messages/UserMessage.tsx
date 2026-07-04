@@ -1,6 +1,5 @@
 import PersonIcon from "@mui/icons-material/Person";
 import { Box, Paper, Typography } from "@mui/material";
-import type React from "react";
 import { useIsDark } from "@/client/hooks";
 
 interface UserMessageProps {
@@ -32,7 +31,7 @@ const USER_MESSAGE_COLORS = {
   },
 } as const;
 
-const UserMessage: React.FC<UserMessageProps> = ({ content }) => {
+function UserMessage({ content }: UserMessageProps) {
   const isDark = useIsDark();
   const colors = isDark ? USER_MESSAGE_COLORS.dark : USER_MESSAGE_COLORS.light;
 
@@ -53,6 +52,6 @@ const UserMessage: React.FC<UserMessageProps> = ({ content }) => {
       </Paper>
     </Box>
   );
-};
+}
 
 export default UserMessage;

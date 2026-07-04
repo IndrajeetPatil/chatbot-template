@@ -1,25 +1,12 @@
-"use client";
-
 import { Box, Container, CssBaseline, Typography } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
+import { visuallyHidden } from "@mui/utils";
 import { useState } from "react";
+import { theme } from "@/client/theme";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
 import { useChatSetup } from "@/client/useChatSetup";
-import { useDarkMode } from "@/client/useDarkMode";
 import ControlPanel from "@/components/ControlPanel";
 import MessageList from "@/components/messages/MessageList";
-
-const VISUALLY_HIDDEN_SX = {
-  border: 0,
-  clip: "rect(0 0 0 0)",
-  height: 1,
-  margin: -1,
-  overflow: "hidden",
-  padding: 0,
-  position: "absolute",
-  whiteSpace: "nowrap",
-  width: 1,
-} as const;
 
 const SKIP_LINK_SX = {
   backgroundColor: "background.paper",
@@ -55,7 +42,6 @@ export default function Home() {
   const [temperature, setTemperature] = useState<AssistantTemperature>(
     AssistantTemperature.BALANCED,
   );
-  const { darkMode, theme, toggleDarkMode } = useDarkMode();
   const {
     messages,
     assistantIsLoading,
@@ -66,8 +52,11 @@ export default function Home() {
   } = useChatSetup(model, temperature);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ThemeProvider
+      theme={theme}
+      noSsr={true}
+    >
+      <CssBaseline enableColorScheme={true} />
       <Box
         href="#message-input"
         component="a"
@@ -83,7 +72,7 @@ export default function Home() {
       >
         <Typography
           component="h1"
-          sx={VISUALLY_HIDDEN_SX}
+          sx={visuallyHidden}
         >
           Chatbot Template
         </Typography>
@@ -99,8 +88,6 @@ export default function Home() {
           setTemperature={setTemperature}
           onRegenerate={handleRegenerateResponse}
           canRegenerate={hasUserMessage}
-          darkMode={darkMode}
-          onToggleDarkMode={toggleDarkMode}
           disabled={assistantIsLoading}
           onSendMessage={handleSendMessage}
         />

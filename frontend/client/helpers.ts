@@ -1,20 +1,19 @@
 import { AssistantModel, AssistantTemperature } from "./types/assistant.ts";
 
-const getModelDisplay = (model: AssistantModel) =>
-  model === AssistantModel.FULL ? "GPT-4o" : "GPT-4o Mini";
-
-const getTemperatureDisplay = (temperature: AssistantTemperature) => {
-  switch (temperature) {
-    case AssistantTemperature.DETERMINISTIC:
-      return "0.2 - More Deterministic";
-    case AssistantTemperature.BALANCED:
-      return "0.7 - Balanced";
-    case AssistantTemperature.CREATIVE:
-      return "0.9 - More Creative";
-    /* v8 ignore next */
-    default:
-      return "";
-  }
+const MODEL_LABELS: Record<AssistantModel, string> = {
+  [AssistantModel.FULL]: "GPT-4o",
+  [AssistantModel.MINI]: "GPT-4o Mini",
 };
+
+const TEMPERATURE_LABELS: Record<AssistantTemperature, string> = {
+  [AssistantTemperature.DETERMINISTIC]: "0.2 - More Deterministic",
+  [AssistantTemperature.BALANCED]: "0.7 - Balanced",
+  [AssistantTemperature.CREATIVE]: "0.9 - More Creative",
+};
+
+const getModelDisplay = (model: AssistantModel) => MODEL_LABELS[model];
+
+const getTemperatureDisplay = (temperature: AssistantTemperature) =>
+  TEMPERATURE_LABELS[temperature];
 
 export { getModelDisplay, getTemperatureDisplay };
