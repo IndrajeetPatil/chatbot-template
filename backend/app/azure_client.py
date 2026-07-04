@@ -1,5 +1,5 @@
 import time
-from functools import lru_cache
+from functools import cache
 from typing import TYPE_CHECKING, cast
 
 import openai
@@ -22,7 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
 type ChatMessage = dict[str, str]
 
 
-@lru_cache(maxsize=1)
+@cache
 def get_azure_openai_client() -> AzureOpenAI:
     settings: Settings = get_settings()
     return AzureOpenAI(
@@ -80,7 +80,7 @@ def stream_azure_openai_response(
     temperature: AssistantTemperature,
 ) -> Iterator[str]:
     client: AzureOpenAI = get_azure_openai_client()
-    start_time: float = time.time()
+    start_time: float = time.perf_counter()
     stream: Stream[ChatCompletionChunk] = _create_openai_stream(
         client,
         messages=messages,
@@ -102,6 +102,6 @@ def stream_azure_openai_response(
 
     logger.info(
         "Azure OpenAI streaming completion took {:.2f}s and returned {} characters",
-        time.time() - start_time,
+        time.perf_counter() - start_time,
         total_length,
     )

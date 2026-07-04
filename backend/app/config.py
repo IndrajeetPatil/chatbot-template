@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import cache
 from typing import TYPE_CHECKING
 
 from limits import parse
@@ -55,6 +55,6 @@ class Settings(BaseSettings):
         return self
 
 
-@lru_cache(maxsize=1)
+@cache
 def get_settings() -> Settings:
     return Settings()
