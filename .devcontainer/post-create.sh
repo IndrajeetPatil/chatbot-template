@@ -8,7 +8,8 @@ set -euo pipefail
 # uv — Python package / project manager (pinned version)
 # ──────────────────────────────────────────────────────────────────────────────
 UV_VERSION="0.11.26"
-curl -LsSf https://astral.sh/uv/install.sh | UV_VERSION="${UV_VERSION}" sh
+curl -LsSf --retry 3 --retry-delay 2 --retry-all-errors \
+  https://astral.sh/uv/install.sh | UV_VERSION="${UV_VERSION}" sh
 export PATH="$HOME/.local/bin:$PATH"
 # Verify the installed version matches the pinned version
 INSTALLED_UV_VERSION=$(uv --version)
@@ -32,7 +33,7 @@ case "$MACHINE" in
   aarch64) ARCH="arm64" ;;
   *) echo "Unsupported architecture: $MACHINE" && exit 1 ;;
 esac
-curl -fsSL \
+curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
   "https://github.com/loeffel-io/ls-lint/releases/download/v2.3.1/ls-lint-${KERNEL}-${ARCH}" \
   -o /tmp/ls-lint
 case "${KERNEL}-${ARCH}" in
