@@ -58,7 +58,7 @@ describe("AssistantMessage", () => {
     ["plain text", "This is a simple text message"],
     ["empty content", ""],
     ["inline code", "Use the `console.log()` function"],
-  ])("renders %s without error", (_label, content) => {
+  ])("renders %s without error", async (_label, content) => {
     render(
       <AssistantMessage
         content={content}
@@ -66,10 +66,10 @@ describe("AssistantMessage", () => {
       />,
       { wrapper: Wrapper },
     );
-    expect(screen.getByTestId("markdown-content")).toBeInTheDocument();
+    expect(await screen.findByTestId("markdown-content")).toBeInTheDocument();
   });
 
-  test("renders code block with block container", () => {
+  test("renders code block with block container", async () => {
     render(
       <AssistantMessage
         content={'```javascript\nconsole.log("hello");\n```'}
@@ -77,8 +77,8 @@ describe("AssistantMessage", () => {
       />,
       { wrapper: Wrapper },
     );
-    expect(screen.getByTestId("markdown-content")).toBeInTheDocument();
-    expect(screen.getByTestId("code-block")).toBeInTheDocument();
+    expect(await screen.findByTestId("markdown-content")).toBeInTheDocument();
+    expect(await screen.findByTestId("code-block")).toBeInTheDocument();
   });
 
   test("does not show copy button when isFirstMessage is true", () => {

@@ -2,9 +2,15 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { Box, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import type React from "react";
-import { useMemo, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { useIsDark } from "@/client/hooks";
+
+// Load the markdown renderer lazily so it stays off the initial critical
+// path. The first paint (including the LCP greeting) renders the message
+// text as-is via the Suspense fallback, then upgrades to rendered markdown
+// once the chunk arrives — visually identical for plain text, so no layout
+// shift.
+const ReactMarkdown = lazy(() => import("react-markdown"));
 
 const DARK_COLORS = {
   codeBlock: "#1e1e1e",
@@ -166,9 +172,11 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({
           variant="body1"
           component="div"
         >
-          <ReactMarkdown components={markdownComponents}>
-            {content}
-          </ReactMarkdown>
+          <Suspense fallback={content}>
+            <ReactMarkdown components={markdownComponents}>
+              {content}
+            </ReactMarkdown>
+          </Suspense>
         </Typography>
         {!isFirstMessage && (
           <CopyButton

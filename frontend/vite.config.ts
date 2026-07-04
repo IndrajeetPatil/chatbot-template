@@ -3,13 +3,16 @@ import { fileURLToPath, URL } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
+// react-markdown is intentionally absent: it is dynamically imported by
+// AssistantMessage, so leaving it out of the manual chunks lets the bundler
+// emit it as an async chunk that stays off the initial critical path (no
+// eager modulepreload in index.html).
 const VENDOR_CHUNKS: [string, string][] = [
   ["react", "/react/"],
   ["react", "/react-dom/"],
   ["mui", "/@emotion/"],
   ["mui", "/@mui/icons-material/"],
   ["mui", "/@mui/material/"],
-  ["markdown", "/react-markdown/"],
 ];
 const CHAT_API_PROXY_TARGET =
   process.env.CHAT_API_PROXY_TARGET ?? "http://localhost:8000";
