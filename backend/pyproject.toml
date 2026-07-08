@@ -23,13 +23,13 @@ dev = [
     "pytest-env>=1.1.5",
     "pytest-random-order>=1.2.0",
     "pytest>=9.0.3",
-    "ruff>=0.15.12",
+    "ruff>=0.15.20",
     "ty>=0.0.47",
     "typecoverage>=1.0.1",
 ]
 
 [tool.uv]
-required-version = "==0.11.26"
+required-version = ">=0.11.26"
 
 [tool.uv.audit]
 ignore = []

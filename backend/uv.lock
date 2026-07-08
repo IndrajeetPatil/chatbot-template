@@ -1951,7 +1951,7 @@ dev = [
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-env", specifier = ">=1.1.5" },
     { name = "pytest-random-order", specifier = ">=1.2.0" },
-    { name = "ruff", specifier = ">=0.15.12" },
+    { name = "ruff", specifier = ">=0.15.20" },
     { name = "ty", specifier = ">=0.0.47" },
     { name = "typecoverage", specifier = ">=1.0.1" },
 ]
