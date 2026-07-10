@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * WCAG AA color-contrast audit for both UI color modes.
  *
@@ -10,8 +11,8 @@
 import { readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
-import axe from "axe-core";
 import { chromium } from "@playwright/test";
+import axe from "axe-core";
 
 const DIST = join(process.cwd(), "dist");
 
@@ -29,7 +30,9 @@ const MIME_TYPES = {
 };
 
 function existingFile(filePath) {
-  return statSync(filePath, { throwIfNoEntry: false })?.isFile() ? filePath : null;
+  return statSync(filePath, { throwIfNoEntry: false })?.isFile()
+    ? filePath
+    : null;
 }
 
 function routePath(pathname) {
@@ -60,7 +63,8 @@ function serveDist() {
     }
 
     res.writeHead(200, {
-      "content-type": MIME_TYPES[extname(filePath)] ?? "application/octet-stream",
+      "content-type":
+        MIME_TYPES[extname(filePath)] ?? "application/octet-stream",
     });
     res.end(readFileSync(filePath));
   });
@@ -74,12 +78,15 @@ async function auditMode(browser, baseUrl, mode) {
   const page = await browser.newPage({ colorScheme: mode });
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   await page.addStyleTag({
-    content: "*,*::before,*::after{transition:none!important;animation:none!important}",
+    content:
+      "*,*::before,*::after{transition:none!important;animation:none!important}",
   });
   await page.addScriptTag({ content: axe.source });
 
   const violations = await page.evaluate(async () => {
-    const result = await window.axe.run(document, { runOnly: ["color-contrast"] });
+    const result = await window.axe.run(document, {
+      runOnly: ["color-contrast"],
+    });
     return result.violations.flatMap((violation) =>
       violation.nodes.map((node) => ({
         target: node.target.join(" "),

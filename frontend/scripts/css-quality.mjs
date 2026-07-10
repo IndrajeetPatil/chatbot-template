@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * CSS code quality checker using @projectwallace/css-code-quality.
  *
@@ -9,10 +10,10 @@
  * fonts are resolved at build time.
  */
 
+import { readFileSync } from "node:fs";
+import { glob } from "node:fs/promises";
+import { relative } from "node:path";
 import { calculate } from "@projectwallace/css-code-quality";
-import { readFileSync } from "fs";
-import { glob } from "fs/promises";
-import { relative } from "path";
 
 const THRESHOLDS = {
   maintainability: 80,

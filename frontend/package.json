@@ -9,7 +9,7 @@
     "build": "rm -rf dist && vite build",
     "start": "vite preview --host 0.0.0.0 --port 3000",
     "check-types": "tsc --noemit",
-    "lint": "biome check --write --unsafe app client components e2e-tests src index.html *.json *.ts",
+    "lint": "biome check --write --unsafe --error-on-warnings biome.json package.json tsconfig.json eslint.config.js playwright.config.ts vite-env.d.ts vite.config.ts vitest.setup.ts .lighthouserc.json .fallowrc.json scripts/ app/ client/ components/ e2e-tests/ src/ index.html",
     "test": "vitest run --coverage",
     "test:update": "vitest run --update",
     "test:e2e": "npx playwright test",
