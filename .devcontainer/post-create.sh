@@ -5,9 +5,27 @@
 set -euo pipefail
 
 # ──────────────────────────────────────────────────────────────────────────────
-# uv — Python package / project manager (pinned version)
+# uv — Python package / project manager (version locked to backend/pyproject.toml)
 # ──────────────────────────────────────────────────────────────────────────────
-UV_VERSION="0.11.26"
+UV_VERSION=$(
+  python3 - <<'PY'
+from pathlib import Path
+import sys
+import tomllib
+
+try:
+    pyproject = tomllib.loads(Path("backend/pyproject.toml").read_text())
+    version = pyproject["tool"]["uv"]["required-version"]
+except (FileNotFoundError, tomllib.TOMLDecodeError, KeyError, TypeError):
+    print(
+        "ERROR: could not read [tool.uv].required-version from backend/pyproject.toml",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+print(str(version).removeprefix("=="))
+PY
+)
 curl -LsSf --retry 3 --retry-delay 2 --retry-all-errors \
   https://astral.sh/uv/install.sh | UV_VERSION="${UV_VERSION}" sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -19,9 +37,39 @@ echo "${INSTALLED_UV_VERSION}" | grep -qF "${UV_VERSION}" || {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# pnpm — Node.js package manager (version locked to match package.json)
+# pnpm — Node.js package manager (version locked to frontend/package.json)
 # ──────────────────────────────────────────────────────────────────────────────
-npm install -g pnpm@11.9.0
+PNPM_VERSION=$(
+  node <<'JS'
+const fs = require("node:fs");
+
+try {
+  const pkg = JSON.parse(fs.readFileSync("./frontend/package.json", "utf8"));
+  const packageManager = pkg.packageManager;
+  const match =
+    typeof packageManager === "string"
+      ? packageManager.match(/^pnpm@([^+]+)/)
+      : null;
+
+  if (!match) {
+    throw new Error("missing or malformed packageManager field");
+  }
+
+  process.stdout.write(match[1]);
+} catch {
+  console.error(
+    "ERROR: could not read pnpm version from frontend/package.json packageManager",
+  );
+  process.exit(1);
+}
+JS
+)
+npm install -g "pnpm@${PNPM_VERSION}"
+INSTALLED_PNPM_VERSION=$(pnpm --version)
+echo "${INSTALLED_PNPM_VERSION}" | grep -qF "${PNPM_VERSION}" || {
+  echo "ERROR: pnpm version mismatch — expected ${PNPM_VERSION}, got ${INSTALLED_PNPM_VERSION}"
+  exit 1
+}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ls-lint — file-naming linter

@@ -18,8 +18,10 @@ search the entire repository for every place that version is declared and fix al
 of them in one go — not just the specific line the reviewer flagged.
 
 For pnpm, the canonical version lives in `frontend/package.json`
-(`packageManager`) and must be mirrored in every `pnpm/action-setup` `version:`
-entry in `.github/workflows/qa.yml` and `.github/workflows/tests.yml`.
+(`packageManager`). The workflows read it via `pnpm/action-setup`'s
+`package_json_file` input, and `.devcontainer/post-create.sh` derives the local
+install version from the same field. Do not mirror pnpm versions into workflow
+files.
 
 For Node.js, the canonical version lives in `frontend/.nvmrc` and must stay in
 sync with the `node:<version>-trixie-slim` builder image in
@@ -27,9 +29,11 @@ sync with the `node:<version>-trixie-slim` builder image in
 "frontend/.nvmrc"`.
 
 For Python, keep `backend/pyproject.toml`, `backend/uv.lock`, and
-`backend/Dockerfile` aligned. For uv, keep the setup version aligned across
-`.github/workflows/qa.yml`, `.github/workflows/tests.yml`, and
-`.github/workflows/security.yml`.
+`backend/Dockerfile` aligned. For uv, the canonical version lives in
+`backend/pyproject.toml` (`[tool.uv]` `required-version`); the workflows read it
+via `astral-sh/setup-uv`'s `working-directory` input, and
+`.devcontainer/post-create.sh` derives the local install version from the same
+field.
 
 When a review asks for validation, choose the narrowest relevant check first,
 then run broader gates before pushing if the change affects shared behaviour,

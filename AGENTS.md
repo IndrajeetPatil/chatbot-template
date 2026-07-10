@@ -1,5 +1,10 @@
 # Chatbot Template
 
+Project-level instructions for AI coding agents working on this repository.
+Codex and other `AGENTS.md`-aware tools read this file directly; GitHub Copilot
+reads it via `.github/copilot-instructions.md`, which should remain a symlink to
+this file.
+
 Full-stack chatbot: React frontend + FastAPI backend,
 streamed via Azure OpenAI GPT-4o.
 
@@ -19,6 +24,7 @@ Azure OpenAI credentials before running.
 make update-deps # refresh backend/frontend deps and prek hook revisions
 make qa          # full suite: format, lint, type-check, test,
                  #   coverage, security — run before every commit
+make tooling-check # verify agent/copilot symlink wiring
 make test        # unit tests only
 make format      # auto-format (Ruff + Biome)
 make lint        # lint (Ruff + Biome + rumdl; ESLint runs via make qa)
