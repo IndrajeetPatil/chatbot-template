@@ -11,8 +11,8 @@ streamed via Azure OpenAI GPT-4o.
 ## Setup
 
 ```bash
-cd backend && uv sync --frozen          # Python 3.14
-cd frontend && pnpm install --frozen-lockfile  # Node.js 24
+cd backend && uv sync --frozen          # Python 3.14, uv 0.11.28
+cd frontend && pnpm install --frozen-lockfile  # Node.js 24, pnpm 11.9.0
 ```
 
 Copy `backend/.env.example` → `backend/.env` and fill in
@@ -22,13 +22,16 @@ Azure OpenAI credentials before running.
 
 ```bash
 make update-deps # refresh backend/frontend deps and prek hook revisions
-make qa          # full suite: format, lint, type-check, test,
-                 #   coverage, security — run before every commit
+make qa          # full suite: format, lint, type-check, tests,
+                 #   coverage, API schema, frontend audits, security
 make tooling-check # verify agent/copilot symlink wiring
 make test        # unit tests only
 make format      # auto-format (Ruff + Biome)
 make lint        # lint (Ruff + Biome + rumdl; ESLint runs via make qa)
 make type-check  # static types (ty + tsc)
+make contrast-audit # built frontend contrast audit in light/dark mode
+make lighthouse  # Lighthouse CI assertions against the built frontend
+make docker-build # build both service images with Docker Compose
 make run         # start both servers
                  #   frontend :3000, backend :8000, Swagger :8000/docs
 docker-compose up
