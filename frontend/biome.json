@@ -1,4 +1,5 @@
 {
+  "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -14,10 +15,13 @@
     "includes": [
       "**",
       "!**/.next",
+      "!**/.fallow",
+      "!**/.lighthouseci",
       "!**/coverage",
       "!**/dist",
       "!**/playwright-report",
       "!**/test-results",
+      "!**/tsconfig.tsbuildinfo",
       "!node_modules"
     ]
   },
@@ -34,10 +38,13 @@
     "includes": [
       "**",
       "!**/.next/**",
+      "!**/.fallow/**",
+      "!**/.lighthouseci/**",
       "!**/coverage/**",
       "!**/dist/**",
       "!**/playwright-report/**",
       "!**/test-results/**",
+      "!**/tsconfig.tsbuildinfo",
       "!node_modules/**"
     ]
   },
@@ -66,10 +73,13 @@
     "includes": [
       "**",
       "!**/.next/**",
+      "!**/.fallow/**",
+      "!**/.lighthouseci/**",
       "!**/coverage/**",
       "!**/dist/**",
       "!**/playwright-report/**",
       "!**/test-results/**",
+      "!**/tsconfig.tsbuildinfo",
       "!node_modules/**"
     ]
   },
