@@ -7,6 +7,9 @@
     "@emotion/react",
     "@emotion/styled",
     "@mui/__mocks__",
+    "@playwright/test",
+    "@projectwallace/css-code-quality",
+    "axe-core",
     "babel-plugin-react-compiler",
     "fast-check"
   ],

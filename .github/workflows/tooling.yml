@@ -1,10 +1,11 @@
-name: Security Scan
+name: Tooling Checks
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,16 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checkov:
+  tooling:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39  # v8.2.0
-        with:
-          working-directory: ./backend
-
-      - name: Run Checkov
-        run: make security-scan
+      - name: Verify repo tooling symlinks
+        run: make tooling-check

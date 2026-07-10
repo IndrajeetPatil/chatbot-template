@@ -5,9 +5,17 @@
 set -euo pipefail
 
 # ──────────────────────────────────────────────────────────────────────────────
-# uv — Python package / project manager (pinned version)
+# uv — Python package / project manager (version locked to backend/pyproject.toml)
 # ──────────────────────────────────────────────────────────────────────────────
-UV_VERSION="0.11.26"
+UV_VERSION=$(
+  python3 - <<'PY'
+from pathlib import Path
+import tomllib
+
+pyproject = tomllib.loads(Path("backend/pyproject.toml").read_text())
+print(pyproject["tool"]["uv"]["required-version"].removeprefix("=="))
+PY
+)
 curl -LsSf --retry 3 --retry-delay 2 --retry-all-errors \
   https://astral.sh/uv/install.sh | UV_VERSION="${UV_VERSION}" sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -19,9 +27,17 @@ echo "${INSTALLED_UV_VERSION}" | grep -qF "${UV_VERSION}" || {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# pnpm — Node.js package manager (version locked to match package.json)
+# pnpm — Node.js package manager (version locked to frontend/package.json)
 # ──────────────────────────────────────────────────────────────────────────────
-npm install -g pnpm@11.9.0
+PNPM_VERSION=$(
+  node -p "require('./frontend/package.json').packageManager.match(/^pnpm@([^+]+)/)[1]"
+)
+npm install -g "pnpm@${PNPM_VERSION}"
+INSTALLED_PNPM_VERSION=$(pnpm --version)
+echo "${INSTALLED_PNPM_VERSION}" | grep -qF "${PNPM_VERSION}" || {
+  echo "ERROR: pnpm version mismatch — expected ${PNPM_VERSION}, got ${INSTALLED_PNPM_VERSION}"
+  exit 1
+}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ls-lint — file-naming linter
