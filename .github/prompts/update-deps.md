@@ -13,6 +13,7 @@ gate passes:
 - `make frontend-build`
 - `make e2e-test`
 - `make lighthouse`
+- `make contrast-audit`
 - `make docker-build`
 
 Fix any breaking API changes, type errors, lockfile drift, Docker build
@@ -55,7 +56,7 @@ into workflow files.
 Do an online search and ensure that the public GitHub Actions used in
 `.github/workflows/` are still on the latest stable release. Actions are pinned
 by full commit SHA with a `# vX.Y.Z` comment; when updating, replace both the SHA
-and the version comment.
+and the version comment with the latest stable release.
 
 Once the dependency update is green, review relevant changelogs and current
 documentation for upgraded libraries. Apply small compatibility simplifications
@@ -63,5 +64,5 @@ only when they reduce local complexity or remove a workaround, and rerun the
 affected checks after each change.
 
 Make a draft PR using the gh CLI, instead of the GitHub MCP server. In the PR
-body, summarise dependency groups changed, compatibility fixes made, and the
-validation commands that passed.
+body, summarise dependency groups changed, compatibility fixes made, validation
+commands that passed, and any key refactorings as list items.
