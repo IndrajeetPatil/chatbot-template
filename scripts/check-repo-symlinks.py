@@ -18,7 +18,7 @@ def fail(message: str) -> None:
     raise SystemExit(1)
 
 
-def store_skills() -> list[str]:
+def list_skill_names() -> list[str]:
     skills = sorted(path.parent.name for path in AGENTS_SKILLS.glob("*/SKILL.md"))
     if not skills:
         fail(f"no skills found under {AGENTS_SKILLS}")
@@ -26,9 +26,11 @@ def store_skills() -> list[str]:
 
 
 def check_claude_skill_symlinks() -> None:
-    skills = set(store_skills())
+    skills = set(list_skill_names())
     if not CLAUDE_SKILLS.exists():
         fail(f"missing Claude skills directory: {CLAUDE_SKILLS}")
+    if not CLAUDE_SKILLS.is_dir():
+        fail(f"Claude skills path is not a directory: {CLAUDE_SKILLS}")
 
     for name in sorted(skills):
         link = CLAUDE_SKILLS / name

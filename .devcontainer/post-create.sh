@@ -10,10 +10,20 @@ set -euo pipefail
 UV_VERSION=$(
   python3 - <<'PY'
 from pathlib import Path
+import sys
 import tomllib
 
-pyproject = tomllib.loads(Path("backend/pyproject.toml").read_text())
-print(pyproject["tool"]["uv"]["required-version"].removeprefix("=="))
+try:
+    pyproject = tomllib.loads(Path("backend/pyproject.toml").read_text())
+    version = pyproject["tool"]["uv"]["required-version"]
+except (FileNotFoundError, tomllib.TOMLDecodeError, KeyError, TypeError):
+    print(
+        "ERROR: could not read [tool.uv].required-version from backend/pyproject.toml",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+print(str(version).removeprefix("=="))
 PY
 )
 curl -LsSf --retry 3 --retry-delay 2 --retry-all-errors \
@@ -30,7 +40,29 @@ echo "${INSTALLED_UV_VERSION}" | grep -qF "${UV_VERSION}" || {
 # pnpm — Node.js package manager (version locked to frontend/package.json)
 # ──────────────────────────────────────────────────────────────────────────────
 PNPM_VERSION=$(
-  node -p "require('./frontend/package.json').packageManager.match(/^pnpm@([^+]+)/)[1]"
+  node <<'JS'
+const fs = require("node:fs");
+
+try {
+  const pkg = JSON.parse(fs.readFileSync("./frontend/package.json", "utf8"));
+  const packageManager = pkg.packageManager;
+  const match =
+    typeof packageManager === "string"
+      ? packageManager.match(/^pnpm@([^+]+)/)
+      : null;
+
+  if (!match) {
+    throw new Error("missing or malformed packageManager field");
+  }
+
+  process.stdout.write(match[1]);
+} catch {
+  console.error(
+    "ERROR: could not read pnpm version from frontend/package.json packageManager",
+  );
+  process.exit(1);
+}
+JS
 )
 npm install -g "pnpm@${PNPM_VERSION}"
 INSTALLED_PNPM_VERSION=$(pnpm --version)
