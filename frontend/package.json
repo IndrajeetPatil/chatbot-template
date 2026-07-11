@@ -71,7 +71,7 @@
     "http-status-codes": "^2.3.0",
     "jsdom": "^29.1.1",
     "type-coverage": "^2.29.7",
-    "typescript": "^7.0.2",
+    "typescript": "^6.0.3",
     "vite": "^8.1.4",
     "vitest": "^4.1.10"
   }
