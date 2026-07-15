@@ -170,6 +170,8 @@ More specifically:
 | Pre-commit hooks          | prek                             | prek                      |
 | Commit message linting    | commitlint                       | commitlint                |
 | IaC / workflow scan       | Checkov                          | Checkov                   |
+| Secret scanning           | Gitleaks                         | Gitleaks                  |
+| GitHub Actions audit      | zizmor                           | zizmor                    |
 | Container vuln scan       | Trivy                            | Trivy                     |
 | Unit testing              | Vitest                           | pytest                    |
 | Property-based testing    | fast-check                       | Hypothesis                |
@@ -197,9 +199,11 @@ and must not be committed:
 make security-scan
 ```
 
-The Checkov scan also runs on every push and pull request through the
-dedicated GitHub Actions security workflow. Commitlint is enforced locally
-through the `commit-msg` prek hook.
+The dedicated GitHub Actions security workflow runs Checkov, a full-history
+Gitleaks secret scan, an online zizmor workflow audit, and production dependency
+audits on every push and pull request. It also runs weekly and supports manual
+dispatch so newly disclosed issues surface even when the repository has not
+changed. Commitlint is enforced locally through the `commit-msg` prek hook.
 
 Trivy scans the built backend and frontend container images for known
 vulnerabilities during CI.

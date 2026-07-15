@@ -29,6 +29,7 @@ make test        # unit tests only
 make format      # auto-format (Ruff + Biome)
 make lint        # lint (Ruff + Biome + rumdl; ESLint runs via make qa)
 make type-check  # static types (ty + tsc)
+make security-scan # Checkov scan of Docker and GitHub Actions configuration
 make contrast-audit # built frontend contrast audit in light/dark mode
 make lighthouse  # Lighthouse CI assertions against the built frontend
 make docker-build # build both service images with Docker Compose
@@ -36,6 +37,10 @@ make run         # start both servers
                  #   frontend :3000, backend :8000, Swagger :8000/docs
 docker-compose up
 ```
+
+The CI-only Security Scan workflow adds full-history Gitleaks, online zizmor,
+and production dependency audits on pushes, pull requests, weekly schedules,
+and manual dispatches.
 
 Unless explicitly requested, do not wait for CI/CD checks to finish after
 pushing. Report that the checks were triggered and include the relevant PR or
