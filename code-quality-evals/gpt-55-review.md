@@ -2,6 +2,9 @@
 
 ## Ratings
 
+These ratings are preserved from the original review; the sections below track
+only findings that remain actionable on the current codebase.
+
 | Dimension | Score |
 | --- | --- |
 | Template quality | 8.2 / 10 |
@@ -25,11 +28,3 @@
 
 1. Add request IDs and structured backend metadata, including token usage,
    finish reasons, and cancellation signals.
-2. Add frontend telemetry for failed submissions, aborted streams, retry rates,
-   and user-perceived latency.
-
-## LLM evaluation coverage
-
-1. Add a minimal LLM eval suite with a golden prompt set, safety probes,
-   jailbreak or prompt-injection checks, hallucination checks, regression
-   prompts, and cost or latency budgets.
