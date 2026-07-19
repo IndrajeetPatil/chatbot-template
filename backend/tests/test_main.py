@@ -18,7 +18,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 @pytest.fixture(autouse=True)
 def _reset_rate_limiter() -> None:
-    limiter._storage.reset()  # noqa: SLF001
+    limiter._storage.reset()  # ruff:ignore[private-member-access]
 
 
 @pytest.fixture
