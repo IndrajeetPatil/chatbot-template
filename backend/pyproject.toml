@@ -29,7 +29,7 @@ dev = [
 ]
 
 [tool.uv]
-required-version = "==0.11.28"
+required-version = "==0.11.29"
 
 [tool.uv.audit]
 ignore = []
@@ -43,7 +43,7 @@ indent-width = 4
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["COM812", "CPY", "D", "DOC"]
+ignore = ["missing-trailing-comma", "CPY", "D", "DOC"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 5
@@ -56,24 +56,24 @@ max-statements = 20
 [tool.ruff.lint.per-file-ignores]
 "app/main.py" = [
     # slowapi requires the endpoint parameter named `request`; it never appears in the body
-    "ARG001",
+    "unused-function-argument",
 ]
 "test_*.py" = [
     # autouse fixtures are intentional for test isolation
-    "RUF076",
+    "pytest-fixture-autouse",
     # tests can have asserts
-    "S101",
+    "assert",
     # magic values in assertions are fine
-    "PLR2004",
+    "magic-value-comparison",
     # parametrized tests naturally have many arguments
-    "PLR0913",
-    "PLR0917",
+    "too-many-arguments",
+    "too-many-positional-arguments",
     # fixtures used for side effects don't need to be referenced
-    "ARG001",
+    "unused-function-argument",
     # `== ""` assertions are intentionally explicit
-    "PLC1901",
+    "compare-to-empty-string",
     # long expected-value strings in parametrize are unavoidable
-    "E501",
+    "line-too-long",
 ]
 
 [tool.ruff.format]

@@ -101,7 +101,7 @@ REST API can be interactively explored using FastAPI's Swagger UI:
 | Runtime / tool | Version source | Current version |
 |----------------|----------------|-----------------|
 | Python         | `backend/.python-version` / `backend/pyproject.toml` | 3.14 |
-| uv             | `backend/pyproject.toml` / `backend/Dockerfile` | 0.11.28 |
+| uv             | `backend/pyproject.toml` / `backend/Dockerfile` | 0.11.29 |
 | Node.js        | `frontend/.nvmrc` / frontend Docker image | 24 |
 | pnpm           | `frontend/package.json` / CI workflows | 11.9.0 |
 

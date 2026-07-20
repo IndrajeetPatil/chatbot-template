@@ -29,9 +29,9 @@ class ChatAPIUser(HttpUser):
 
     @task(1)
     def chat_request(self) -> None:
-        model: str = choice(self.models)  # noqa: S311
-        temperature: str = choice(self.temperatures)  # noqa: S311
-        prompt: str = choice(self.test_prompts)  # noqa: S311
+        model: str = choice(self.models)  # ruff:ignore[suspicious-non-cryptographic-random-usage]
+        temperature: str = choice(self.temperatures)  # ruff:ignore[suspicious-non-cryptographic-random-usage]
+        prompt: str = choice(self.test_prompts)  # ruff:ignore[suspicious-non-cryptographic-random-usage]
         payload: dict[str, object] = {
             "messages": [
                 {
