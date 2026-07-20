@@ -38,7 +38,7 @@ lighthouse: frontend-build frontend-lighthouse
 
 # Project-wide tools
 tooling-check:
-	@echo "$(COLOR_BLUE_BG)Checking repo tooling symlinks...$(COLOR_RESET)"
+	@echo "$(COLOR_BLUE_BG)Checking agent skill symlinks...$(COLOR_RESET)"
 	python3 scripts/check-repo-symlinks.py
 
 commitlint:

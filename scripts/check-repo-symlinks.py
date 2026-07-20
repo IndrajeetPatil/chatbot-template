@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify repo-level symlink wiring for agent tooling."""
+"""Verify shared skill symlink wiring for agent tooling."""
 
 from __future__ import annotations
 
@@ -9,8 +9,6 @@ import sys
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AGENTS_SKILLS = REPO_ROOT / ".agents" / "skills"
 CLAUDE_SKILLS = REPO_ROOT / ".claude" / "skills"
-COPILOT_LINK = REPO_ROOT / ".github" / "copilot-instructions.md"
-AGENTS_FILE = REPO_ROOT / "AGENTS.md"
 
 
 def fail(message: str) -> None:
@@ -51,17 +49,9 @@ def check_claude_skill_symlinks() -> None:
             fail(f".claude/skills/{entry.name} has no matching .agents/skills entry")
 
 
-def check_copilot_instructions_symlink() -> None:
-    if not COPILOT_LINK.is_symlink():
-        fail(".github/copilot-instructions.md must be a symlink to ../AGENTS.md")
-    if COPILOT_LINK.resolve() != AGENTS_FILE.resolve():
-        fail(".github/copilot-instructions.md does not resolve to AGENTS.md")
-
-
 def main() -> None:
     check_claude_skill_symlinks()
-    check_copilot_instructions_symlink()
-    print("Repo tooling symlinks OK.")
+    print("Agent skill symlinks OK.")
 
 
 if __name__ == "__main__":
