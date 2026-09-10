@@ -26,7 +26,8 @@ make qa          # full suite: format, lint, type-check, tests,
 make tooling-check # verify agent skill symlink wiring
 make test        # unit tests only
 make format      # auto-format (Ruff + Biome)
-make lint        # lint (Ruff + Biome + rumdl; ESLint runs via make qa)
+make lint        # lint (ls-lint + Ruff + Biome + rumdl; ESLint runs via make qa)
+make file-naming # repository-wide stack-specific filename checks
 make type-check  # static types (ty + tsc)
 make security-scan # Checkov scan of Docker and GitHub Actions configuration
 make contrast-audit # built frontend contrast audit in light/dark mode
@@ -56,8 +57,12 @@ workflow link instead.
   ≥ 75% branches.
 - **Type coverage**: 100% both sides (`typecoverage` for Python,
   `type-coverage --strict` for TypeScript).
-- **File naming**: enforced by `ls-lint`; rules differ per directory
-  (consult `.ls-lint.yml` before naming new files).
+- **File naming**: enforced by ls-lint 2.3.1 in `make lint`, all QA suites,
+  and the `ls-lint` prek pre-commit hook (`make` and `ls-lint` must be on `PATH`).
+  Use snake_case for Python, PascalCase for React components/pages, camelCase
+  for client modules/hooks, and kebab-case for scripts, docs, and assets.
+  Preserve `main.tsx` and standard tool filenames. Consult `.ls-lint.yml`
+  before naming files; directory overrides replace all inherited rules.
 - **Commit messages**: conventional commits format
   (enforced by `commitlint`).
 - **Pre-commit hooks**: managed by `prek` —

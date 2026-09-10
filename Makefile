@@ -29,7 +29,7 @@ update-deps:
 upgrade-deps: update-deps
 
 # Aggregate targets
-lint: backend-lint frontend-lint markdown-lint
+lint: file-naming backend-lint frontend-lint markdown-lint
 format: backend-format frontend-format
 type-check: backend-type-check frontend-type-check
 test: backend-test frontend-test
@@ -45,7 +45,7 @@ lighthouse: frontend-build frontend-lighthouse
 # Project-wide tools
 tooling-check:
 	@echo "$(COLOR_BLUE_BG)Checking agent skill symlinks...$(COLOR_RESET)"
-	python3 scripts/check-repo-symlinks.py
+	python3 scripts/check_repo_symlinks.py
 
 commitlint:
 	@echo "$(COLOR_BLUE_BG)Running commit message linting with commitlint...$(COLOR_RESET)"
@@ -124,9 +124,9 @@ hooks:
 	prek run --all-files
 
 # Quality assurance suites
-qa-backend: backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
-qa-frontend: frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage
-qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-build frontend-contrast-audit frontend-security-lint type-coverage file-naming security-scan
+qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
+qa-frontend: file-naming frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage
+qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-build frontend-contrast-audit frontend-security-lint type-coverage security-scan
 
 # Run targets
 run: run-backend run-frontend

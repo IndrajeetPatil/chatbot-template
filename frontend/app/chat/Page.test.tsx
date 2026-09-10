@@ -16,7 +16,7 @@ vi.mock("@/client/useChatSetup", () => ({
   useChatSetup: mockUseChatSetup,
 }));
 
-// Mock extracted components so we can test page.tsx logic in isolation
+// Mock extracted components so we can test Page.tsx logic in isolation
 vi.mock("@/components/messages/MessageList", () => ({
   default: ({
     messages,
@@ -95,7 +95,7 @@ vi.mock("@/components/ControlPanel", () => ({
 
 import { makeTextMessage } from "@/client/testUtils";
 import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
-import Home from "./page";
+import Home from "./Page";
 
 const INITIAL_MESSAGES = [
   makeTextMessage("initial-message", "assistant", "Hi, I am a chat bot."),
