@@ -2,14 +2,14 @@
   font-family: "Geist";
   font-style: normal;
   font-weight: 100 900;
-  src: url("./fonts/GeistVF.woff") format("woff");
+  src: url("./fonts/geist-vf.woff") format("woff");
 }
 
 @font-face {
   font-family: "Geist Mono";
   font-style: normal;
   font-weight: 100 900;
-  src: url("./fonts/GeistMonoVF.woff") format("woff");
+  src: url("./fonts/geist-mono-vf.woff") format("woff");
 }
 
 :root {

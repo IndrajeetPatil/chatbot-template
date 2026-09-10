@@ -28,6 +28,14 @@ hooks = [
 repo = "local"
 hooks = [
   {
+    id = "ls-lint",
+    name = "file naming (ls-lint)",
+    language = "system",
+    entry = "make file-naming",
+    pass_filenames = false,
+    always_run = true,
+  },
+  {
     id = "commitlint",
     name = "commitlint",
     language = "node",

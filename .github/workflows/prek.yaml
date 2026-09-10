@@ -26,6 +26,13 @@ jobs:
         with:
           working-directory: ./backend
 
+      - name: Install ls-lint v2.3.1
+        run: |
+          curl -fsSLO "https://github.com/loeffel-io/ls-lint/releases/download/v2.3.1/ls-lint-linux-amd64"
+          echo "b5a0d2e4427ad039fbc574551f17679f38f142b25d15e0e538769f8cf15af397  ls-lint-linux-amd64" | sha256sum -c
+          chmod +x ls-lint-linux-amd64
+          sudo mv ls-lint-linux-amd64 /usr/local/bin/ls-lint
+
       - name: Run prek
         uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece  # v3.0.0
         env:

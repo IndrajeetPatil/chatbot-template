@@ -1,43 +1,108 @@
+# Directory overrides replace all inherited rules; keep each layer explicit.
 ls:
+  .py: snake_case
+  .sh: kebab-case
+  .mk: kebab-case
+  .md: kebab-case | regex:(README|AGENTS|SKILL)
+  .yml: kebab-case
+  .yaml: kebab-case
+  .json: kebab-case
+  .toml: kebab-case
+  .mjs: kebab-case
+  .config.mjs: kebab-case
+  .png: kebab-case
+  .svg: kebab-case
+  .code-workspace: kebab-case
+
   backend:
-    .py: "snakecase | regex:^__[a-z]+__$"
+    .py: snake_case | regex:__init__
+    .sh: kebab-case
+    .toml: kebab-case
+    .lock: kebab-case
+
+  backend/{app,tests}:
+    .dir: snake_case
+    .py: snake_case | regex:__init__
+
+  frontend:
+    .dir: kebab-case
+    .ts: camelCase
+    .config.ts: kebab-case
+    .setup.ts: kebab-case
+    .d.ts: kebab-case
+    .js: kebab-case
+    .config.js: kebab-case
+    .json: kebab-case
+    .yaml: kebab-case
+    .html: kebab-case
+    .nginx.conf: kebab-case
 
   frontend/components:
-    .tsx: pascalcase
-    .test.tsx: pascalcase
+    .dir: kebab-case
+    .tsx: PascalCase
+    .test.tsx: PascalCase
+    .ts: camelCase
+    .test.ts: camelCase
+    .css: kebab-case
+    .module.css: kebab-case
 
   frontend/app:
-    .tsx: camelcase
-    .test.tsx: camelcase
-    .css: camelcase
+    .dir: kebab-case
+    .tsx: PascalCase
+    .test.tsx: PascalCase
+    .ts: camelCase
+    .test.ts: camelCase
+    .css: kebab-case
+    .module.css: kebab-case
+    .ico: kebab-case
+    .png: kebab-case
+    .svg: kebab-case
+    .webmanifest: kebab-case
+    .woff: kebab-case
+    .woff2: kebab-case
 
   frontend/client:
-    .ts: camelcase
-    .test.ts: camelcase
-    .tsx: camelcase
-    .test.tsx: camelcase
+    .dir: kebab-case
+    .ts: camelCase
+    .test.ts: camelCase
+    .tsx: camelCase
+    .test.tsx: camelCase
 
   frontend/src:
-    .tsx: camelcase
+    .dir: kebab-case
+    .ts: camelCase
+    .test.ts: camelCase
+    .tsx: PascalCase | regex:main
+    .test.tsx: PascalCase
 
   frontend/e2e-tests:
-    .spec.ts: kebabcase
+    .dir: kebab-case
+    .ts: kebab-case
+    .spec.ts: kebab-case
 
   frontend/scripts:
-    .mjs: kebabcase
+    .dir: kebab-case
+    .mjs: kebab-case
 
 ignore:
   - .git
-  - node_modules
-  - .venv
-  - backend/.venv
-  - __pycache__
-  - dist
-  - coverage
-  - htmlcov
-  - .lighthouseci
-  - frontend/app/favicon
-  - frontend/app/fonts
-  - frontend/components/messages/__snapshots__
-  - frontend/components/parameters/__snapshots__
-  - frontend/e2e-tests/__snapshots__
+  # Vendored skills and their symlinks follow upstream conventions.
+  - .agents/skills
+  - .claude/skills
+  # Dependency trees, caches, reports, and generated snapshots.
+  - "**/node_modules"
+  - "**/.venv"
+  - "**/__pycache__"
+  - "**/.pytest_cache"
+  - "**/.ruff_cache"
+  - "**/.rumdl_cache"
+  - "**/.cache"
+  - "**/.pnpm-store"
+  - "**/dist"
+  - "**/coverage"
+  - "**/htmlcov"
+  - "**/.lighthouseci"
+  - "**/.fallow"
+  - "**/playwright-report"
+  - "**/test-results"
+  - "**/__snapshots__"

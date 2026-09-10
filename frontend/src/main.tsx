@@ -2,7 +2,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 
-import ChatPage from "@/app/chat/page";
+import ChatPage from "@/app/chat/Page";
 
 import "@/app/styles.css";
 

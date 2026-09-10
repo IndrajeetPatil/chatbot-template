@@ -194,6 +194,40 @@ More specifically:
 | UI toolkit                | Material UI                      | \-                        |
 | Logger                    | \-                               | loguru                    |
 
+### File naming
+
+[ls-lint 2.3.1](https://ls-lint.org/2.3/configuration/the-basics.html) enforces
+`.ls-lint.yml` across the repository:
+
+| Layer | Convention | Example |
+|-------|------------|---------|
+| Python modules, tests, and repository scripts | snake_case; `__init__.py` allowed | `azure_client.py`, `check_repo_symlinks.py` |
+| Python package directories | snake_case | `backend/app/` |
+| React components and page components | PascalCase, including colocated tests | `ChatInput.tsx`, `Page.test.tsx` |
+| Client modules, hooks, and test helpers | camelCase, including test suffixes | `useChatSetup.ts`, `testUtils.tsx` |
+| Vite entry point | `main.tsx` | `frontend/src/main.tsx` |
+| Frontend directories, CSS, fonts, and images | kebab-case | `e2e-tests/`, `geist-mono-vf.woff` |
+| End-to-end tests and JavaScript utility scripts | kebab-case | `chat-page.spec.ts`, `contrast-audit.mjs` |
+| Shell scripts, Make fragments, docs, and config basenames | kebab-case | `post-create.sh`, `backend.mk`, `update-deps.md` |
+
+Standard names such as `README.md`, `AGENTS.md`, `Dockerfile`, and tool dotfiles
+are preserved. Compound extensions such as `.test.tsx`, `.spec.ts`, `.config.ts`,
+and `.d.ts` have explicit rules. Dependencies, generated reports/snapshots, and
+vendored agent skills are excluded; source assets are checked.
+
+Run `make file-naming` for naming checks alone. `make lint`, `make qa`,
+`make qa-backend`, and `make qa-frontend` also check repository-wide naming.
+The `ls-lint` pre-commit hook invokes the same target on the entire tree,
+including when only the rules change. Run `prek install` to install the hooks,
+`prek run ls-lint --all-files` to run this hook alone, or `make hooks` to run all
+pre-commit checks.
+
+The hook requires `make` and `ls-lint` on `PATH`. The development container and
+both QA and prek CI workflows install the pinned ls-lint 2.3.1 binary and verify
+its SHA256 checksum. For other local environments, use the
+[versioned installation instructions](https://ls-lint.org/2.3/getting-started/installation.html)
+and verify the release checksum before installing the binary.
+
 Commit messages are validated by the `commit-msg` prek hook with commitlint.
 The config follows conventional commits and accepts both lowercase and
 uppercase commit types, for example `feat: ...` and `FEAT: ...`.
