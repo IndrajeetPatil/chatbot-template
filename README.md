@@ -272,6 +272,13 @@ its SHA256 checksum. For other local environments, use the
 [versioned installation instructions](https://ls-lint.org/2.3/getting-started/installation.html)
 and verify the release checksum before installing the binary.
 
+The prek CI job uses the action's cached hook environments without a separate
+uv setup step: prek manages Python environments, and the upstream ty hook
+supplies its own compatible uv. CI pins prek 0.4.11, the newest version in
+prek-action v3.0.0's bundled SHA256 table, and runs the pre-commit stage with
+coloured output. Local commit-msg and pre-push hooks remain configured in
+`prek.toml`.
+
 Commit messages are validated by the `commit-msg` prek hook with commitlint.
 The config follows conventional commits and accepts both lowercase and
 uppercase commit types, for example `feat: ...` and `FEAT: ...`.

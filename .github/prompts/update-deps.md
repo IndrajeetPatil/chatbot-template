@@ -106,6 +106,11 @@ its latest tag but records the resolved **commit SHA** in `rev` with a
 same SHA-pinning convention the repo uses for GitHub Actions. Never rewrite a
 frozen `rev` back to a bare mutable tag.
 
+The `prek-version` in `.github/workflows/prek.yaml` is a separate CI pin.
+Before updating it or the prek action, confirm the action's bundled checksum
+table includes that prek version's Linux x86_64 archive. The action silently
+skips SHA256 verification for versions absent from its table.
+
 Review the GitHub Action changes made by pnpm and verify that public actions in
 `.github/workflows/` remain pinned by full commit SHA with a matching `# vX.Y.Z`
 comment. Investigate any action pnpm could not read instead of silently leaving
