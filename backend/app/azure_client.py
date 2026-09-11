@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 
     from app.config import Settings
-    from app.entities import AssistantModel, AssistantTemperature
+    from app.entities import AssistantModel, ReasoningEffort
 
     type OpenAIChatMessages = Sequence[ChatCompletionMessageParam]
 
@@ -38,12 +38,13 @@ def _create_openai_stream(
     *,
     messages: Sequence[ChatMessage],
     model: AssistantModel,
-    temperature: AssistantTemperature,
+    reasoning_effort: ReasoningEffort,
 ) -> Stream[ChatCompletionChunk]:
     try:
+        # Both deployed reasoning models accept effort; GPT-6 Astra rejects temperature.
         return client.chat.completions.create(
             model=model.value,
-            temperature=temperature.openai_value,
+            reasoning_effort=reasoning_effort.value,
             messages=cast("OpenAIChatMessages", messages),
             stream=True,
         )
@@ -77,7 +78,7 @@ def stream_azure_openai_response(
     *,
     messages: Sequence[ChatMessage],
     model: AssistantModel,
-    temperature: AssistantTemperature,
+    reasoning_effort: ReasoningEffort,
 ) -> Iterator[str]:
     client: AzureOpenAI = get_azure_openai_client()
     start_time: float = time.perf_counter()
@@ -85,7 +86,7 @@ def stream_azure_openai_response(
         client,
         messages=messages,
         model=model,
-        temperature=temperature,
+        reasoning_effort=reasoning_effort,
     )
 
     total_length: int = 0

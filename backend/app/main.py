@@ -12,7 +12,7 @@ from slowapi.util import get_remote_address
 
 from app.azure_client import ChatMessage, stream_azure_openai_response
 from app.config import get_settings
-from app.entities import AssistantModel, AssistantTemperature, OpenAIMessageRole
+from app.entities import AssistantModel, OpenAIMessageRole, ReasoningEffort
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -96,8 +96,8 @@ class UIMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: Annotated[list[UIMessage], Field(min_length=1, max_length=_MAX_MESSAGES)]
-    model: AssistantModel = AssistantModel.FULL
-    temperature: AssistantTemperature = AssistantTemperature.BALANCED
+    model: AssistantModel = AssistantModel.ASTRA
+    reasoning_effort: ReasoningEffort = ReasoningEffort.LOW
 
 
 def _typed_limit[**P, R](
@@ -128,17 +128,17 @@ def health() -> dict[str, str]:
 def chat(request: Request, body: ChatRequest) -> StreamingResponse:
     messages: list[ChatMessage] = _to_openai_messages(body.messages)
     logger.debug(
-        "Received chat stream request with {} messages, model={}, temperature={}",
+        "Received chat stream request with {} messages, model={}, reasoning_effort={}",
         len(messages),
         body.model.value,
-        body.temperature.name,
+        body.reasoning_effort.name,
     )
 
     return StreamingResponse(
         _stream_chat(
             messages=messages,
             model=body.model,
-            temperature=body.temperature,
+            reasoning_effort=body.reasoning_effort,
         ),
         media_type="text/plain; charset=utf-8",
     )
@@ -164,13 +164,13 @@ def _stream_chat(
     *,
     messages: list[ChatMessage],
     model: AssistantModel,
-    temperature: AssistantTemperature,
+    reasoning_effort: ReasoningEffort,
 ) -> Iterator[str]:
     try:
         yield from stream_azure_openai_response(
             messages=messages,
             model=model,
-            temperature=temperature,
+            reasoning_effort=reasoning_effort,
         )
     except openai.APIError:
         raise  # all openai.APIError subtypes are logged in azure_client.py

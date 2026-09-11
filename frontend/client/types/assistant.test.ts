@@ -3,27 +3,26 @@ import { fc, test } from "@fast-check/vitest";
 import {
   AssistantModel,
   AssistantModelSchema,
-  AssistantTemperature,
-  AssistantTemperatureSchema,
+  ReasoningEffort,
+  ReasoningEffortSchema,
 } from "./assistant";
 
 describe("assistant type values", () => {
   test("exposes supported assistant models", () => {
-    expect(Object.values(AssistantModel)).toEqual(["gpt-4o", "gpt-4o-mini"]);
+    expect(Object.values(AssistantModel)).toEqual([
+      "gpt-6-astra",
+      "gpt-5.6-sol",
+    ]);
   });
 
-  test("exposes supported assistant temperatures", () => {
-    expect(Object.values(AssistantTemperature)).toEqual([
-      "DETERMINISTIC",
-      "BALANCED",
-      "CREATIVE",
-    ]);
+  test("exposes supported assistant reasoning efforts", () => {
+    expect(Object.values(ReasoningEffort)).toEqual(["low", "medium", "high"]);
   });
 });
 
 describe("assistant schemas", () => {
   const modelValues: string[] = Object.values(AssistantModel);
-  const temperatureValues: string[] = Object.values(AssistantTemperature);
+  const reasoningEffortValues: string[] = Object.values(ReasoningEffort);
 
   test.prop([fc.constantFrom(...modelValues)])(
     "accepts every supported model value",
@@ -35,13 +34,14 @@ describe("assistant schemas", () => {
     (value) => !AssistantModelSchema.safeParse(value).success,
   );
 
-  test.prop([fc.constantFrom(...temperatureValues)])(
-    "accepts every supported temperature value",
-    (temperature) => AssistantTemperatureSchema.safeParse(temperature).success,
+  test.prop([fc.constantFrom(...reasoningEffortValues)])(
+    "accepts every supported reasoning effort value",
+    (reasoningEffort) =>
+      ReasoningEffortSchema.safeParse(reasoningEffort).success,
   );
 
-  test.prop([fc.string().filter((s) => !temperatureValues.includes(s))])(
-    "rejects any value outside the supported temperatures",
-    (value) => !AssistantTemperatureSchema.safeParse(value).success,
+  test.prop([fc.string().filter((s) => !reasoningEffortValues.includes(s))])(
+    "rejects any value outside the supported reasoning efforts",
+    (value) => !ReasoningEffortSchema.safeParse(value).success,
   );
 });

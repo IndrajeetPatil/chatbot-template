@@ -1,7 +1,7 @@
 [project]
 name = "server"
 version = "1.0.0"
-description = "FastAPI backend service for streaming Azure OpenAI GPT-4o responses."
+description = "FastAPI backend service for streaming Azure Foundry GPT-6 Astra and GPT-5.6 Sol responses."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

@@ -6,7 +6,7 @@ import pytest
 from fastapi import status
 
 from app.azure_client import get_azure_openai_client, stream_azure_openai_response
-from app.entities import AssistantModel, AssistantTemperature
+from app.entities import AssistantModel, ReasoningEffort
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -58,21 +58,19 @@ def mock_azure_client(monkeypatch: pytest.MonkeyPatch) -> MockAzureClient:
 
 
 @pytest.mark.parametrize(
-    ("model", "temperature", "expected_model", "expected_temp"),
+    ("model", "expected_model"),
     [
-        (AssistantModel.MINI, AssistantTemperature.CREATIVE, "gpt-4o-mini", 0.9),
-        (AssistantModel.FULL, AssistantTemperature.BALANCED, "gpt-4o", 0.7),
-        (AssistantModel.FULL, AssistantTemperature.DETERMINISTIC, "gpt-4o", 0.2),
-        (AssistantModel.MINI, AssistantTemperature.DETERMINISTIC, "gpt-4o-mini", 0.2),
+        (AssistantModel.ASTRA, "gpt-6-astra"),
+        (AssistantModel.SOL, "gpt-5.6-sol"),
     ],
 )
+@pytest.mark.parametrize("reasoning_effort", list(ReasoningEffort))
 def test_stream_successful_response(
     mock_azure_client: MockAzureClient,
     prompt_messages: list[dict[str, str]],
     model: AssistantModel,
-    temperature: AssistantTemperature,
+    reasoning_effort: ReasoningEffort,
     expected_model: str,
-    expected_temp: float,
 ) -> None:
     mock_azure_client.chat.completions.return_value = [
         create_chunk("Hello"),
@@ -84,7 +82,7 @@ def test_stream_successful_response(
         stream_azure_openai_response(
             messages=prompt_messages,
             model=model,
-            temperature=temperature,
+            reasoning_effort=reasoning_effort,
         ),
     )
 
@@ -92,7 +90,7 @@ def test_stream_successful_response(
     assert mock_azure_client.chat.completions.create_calls == [
         {
             "model": expected_model,
-            "temperature": expected_temp,
+            "reasoning_effort": reasoning_effort.value,
             "messages": prompt_messages,
             "stream": True,
         },
@@ -119,8 +117,8 @@ def test_api_exception(
         list(
             stream_azure_openai_response(
                 messages=prompt_messages,
-                model=AssistantModel.FULL,
-                temperature=AssistantTemperature.BALANCED,
+                model=AssistantModel.ASTRA,
+                reasoning_effort=ReasoningEffort.MEDIUM,
             ),
         )
 
@@ -147,8 +145,8 @@ def test_openai_api_exceptions_are_reraised(
         list(
             stream_azure_openai_response(
                 messages=prompt_messages,
-                model=AssistantModel.FULL,
-                temperature=AssistantTemperature.BALANCED,
+                model=AssistantModel.ASTRA,
+                reasoning_effort=ReasoningEffort.MEDIUM,
             ),
         )
 
@@ -207,8 +205,8 @@ def test_openai_api_error_mid_stream_is_reraised(
                         "content": "Test",
                     },
                 ],
-                model=AssistantModel.FULL,
-                temperature=AssistantTemperature.BALANCED,
+                model=AssistantModel.ASTRA,
+                reasoning_effort=ReasoningEffort.MEDIUM,
             ),
         )
 
@@ -231,8 +229,8 @@ def test_stream_skips_chunks_with_empty_choices(
                     "content": "Test",
                 },
             ],
-            model=AssistantModel.FULL,
-            temperature=AssistantTemperature.BALANCED,
+            model=AssistantModel.ASTRA,
+            reasoning_effort=ReasoningEffort.MEDIUM,
         ),
     )
 

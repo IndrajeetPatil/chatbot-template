@@ -39,41 +39,41 @@ vi.mock("@/components/messages/MessageList", () => ({
 vi.mock("@/components/ControlPanel", () => ({
   default: ({
     model,
-    temperature,
+    reasoningEffort,
     canRegenerate,
     disabled,
     setModel,
-    setTemperature,
+    setReasoningEffort,
     onRegenerate,
     onSendMessage,
   }: {
     model: string;
-    temperature: string;
+    reasoningEffort: string;
     canRegenerate: boolean;
     disabled: boolean;
     setModel: (m: string) => void;
-    setTemperature: (t: string) => void;
+    setReasoningEffort: (t: string) => void;
     onRegenerate: () => void;
     onSendMessage: (msg: string) => Promise<void>;
   }) => (
     <div data-testid="control-panel">
       <span data-testid="cp-model">{model}</span>
-      <span data-testid="cp-temperature">{temperature}</span>
+      <span data-testid="cp-reasoning-effort">{reasoningEffort}</span>
       <span data-testid="cp-can-regenerate">{String(canRegenerate)}</span>
       <span data-testid="cp-disabled">{String(disabled)}</span>
       <button
         type="button"
         data-testid="cp-set-model"
-        onClick={() => setModel("gpt-4o-mini")}
+        onClick={() => setModel("gpt-5.6-sol")}
       >
         Set Model
       </button>
       <button
         type="button"
-        data-testid="cp-set-temperature"
-        onClick={() => setTemperature("CREATIVE")}
+        data-testid="cp-set-reasoning-effort"
+        onClick={() => setReasoningEffort("high")}
       >
-        Set Temp
+        Set Effort
       </button>
       <button
         type="button"
@@ -94,7 +94,7 @@ vi.mock("@/components/ControlPanel", () => ({
 }));
 
 import { makeTextMessage } from "@/client/testUtils";
-import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
+import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 import Home from "./Page";
 
 const INITIAL_MESSAGES = [
@@ -167,14 +167,14 @@ describe("Home page", () => {
   test("passes model to ControlPanel", () => {
     render(<Home />);
     expect(screen.getByTestId("cp-model")).toHaveTextContent(
-      AssistantModel.FULL,
+      AssistantModel.ASTRA,
     );
   });
 
-  test("passes temperature to ControlPanel", () => {
+  test("passes reasoning effort to ControlPanel", () => {
     render(<Home />);
-    expect(screen.getByTestId("cp-temperature")).toHaveTextContent(
-      AssistantTemperature.BALANCED,
+    expect(screen.getByTestId("cp-reasoning-effort")).toHaveTextContent(
+      ReasoningEffort.LOW,
     );
   });
 
@@ -193,13 +193,13 @@ describe("Home page", () => {
   test("model state updates when setModel is called from ControlPanel", () => {
     render(<Home />);
     fireEvent.click(screen.getByTestId("cp-set-model"));
-    expect(screen.getByTestId("cp-model")).toHaveTextContent("gpt-4o-mini");
+    expect(screen.getByTestId("cp-model")).toHaveTextContent("gpt-5.6-sol");
   });
 
-  test("temperature state updates when setTemperature is called from ControlPanel", () => {
+  test("reasoning effort state updates when setReasoningEffort is called from ControlPanel", () => {
     render(<Home />);
-    fireEvent.click(screen.getByTestId("cp-set-temperature"));
-    expect(screen.getByTestId("cp-temperature")).toHaveTextContent("CREATIVE");
+    fireEvent.click(screen.getByTestId("cp-set-reasoning-effort"));
+    expect(screen.getByTestId("cp-reasoning-effort")).toHaveTextContent("high");
   });
 
   test("handleRegenerateResponse from useChatSetup is wired to ControlPanel", () => {

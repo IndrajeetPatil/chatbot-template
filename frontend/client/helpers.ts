@@ -1,19 +1,32 @@
-import { AssistantModel, AssistantTemperature } from "./types/assistant.ts";
+import type { UIMessage } from "@ai-sdk/react";
+import { AssistantModel, ReasoningEffort } from "./types/assistant.ts";
 
 const MODEL_LABELS: Record<AssistantModel, string> = {
-  [AssistantModel.FULL]: "GPT-4o",
-  [AssistantModel.MINI]: "GPT-4o Mini",
+  [AssistantModel.ASTRA]: "GPT-6 Astra",
+  [AssistantModel.SOL]: "GPT-5.6 Sol",
 };
 
-const TEMPERATURE_LABELS: Record<AssistantTemperature, string> = {
-  [AssistantTemperature.DETERMINISTIC]: "0.2 - More Deterministic",
-  [AssistantTemperature.BALANCED]: "0.7 - Balanced",
-  [AssistantTemperature.CREATIVE]: "0.9 - More Creative",
+const REASONING_EFFORT_LABELS: Record<ReasoningEffort, string> = {
+  [ReasoningEffort.LOW]: "Low",
+  [ReasoningEffort.MEDIUM]: "Medium",
+  [ReasoningEffort.HIGH]: "High",
 };
 
 const getModelDisplay = (model: AssistantModel) => MODEL_LABELS[model];
 
-const getTemperatureDisplay = (temperature: AssistantTemperature) =>
-  TEMPERATURE_LABELS[temperature];
+const getReasoningEffortDisplay = (reasoningEffort: ReasoningEffort) =>
+  REASONING_EFFORT_LABELS[reasoningEffort];
 
-export { getModelDisplay, getTemperatureDisplay };
+// The text-only backend must not receive SDK metadata such as step-start parts.
+const toBackendMessages = (messages: UIMessage[]) =>
+  messages.map(({ role, parts }) => ({
+    role,
+    parts: parts
+      .filter((part) => part.type === "text")
+      .map(({ text }) => ({
+        type: "text" as const,
+        text,
+      })),
+  }));
+
+export { getModelDisplay, getReasoningEffortDisplay, toBackendMessages };

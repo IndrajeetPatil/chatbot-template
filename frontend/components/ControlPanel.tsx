@@ -2,11 +2,11 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import ThermostatIcon from "@mui/icons-material/Thermostat";
+import TuneIcon from "@mui/icons-material/Tune";
 import { Box, IconButton, Stack, Tooltip } from "@mui/material";
 import { useColorScheme } from "@mui/material/styles";
-import { getModelDisplay, getTemperatureDisplay } from "@/client/helpers";
-import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
+import { getModelDisplay, getReasoningEffortDisplay } from "@/client/helpers";
+import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 import ChatInput from "@/components/messages/ChatInput";
 import DropdownParameter from "@/components/parameters/DropdownParameter";
 
@@ -15,8 +15,8 @@ const MODEL_OPTIONS = Object.values(AssistantModel).map((value) => ({
   label: getModelDisplay(value),
 }));
 
-const TEMPERATURE_OPTIONS = Object.values(AssistantTemperature).map(
-  (value) => ({ value, label: getTemperatureDisplay(value) }),
+const REASONING_EFFORT_OPTIONS = Object.values(ReasoningEffort).map(
+  (value) => ({ value, label: getReasoningEffortDisplay(value) }),
 );
 
 function DarkModeToggle() {
@@ -64,8 +64,8 @@ function RegenerateButton({
 interface ToolbarProps {
   model: AssistantModel;
   setModel: (m: AssistantModel) => void;
-  temperature: AssistantTemperature;
-  setTemperature: (t: AssistantTemperature) => void;
+  reasoningEffort: ReasoningEffort;
+  setReasoningEffort: (t: ReasoningEffort) => void;
   onRegenerate: () => void;
   canRegenerate: boolean;
   disabled: boolean;
@@ -74,8 +74,8 @@ interface ToolbarProps {
 function Toolbar({
   model,
   setModel,
-  temperature,
-  setTemperature,
+  reasoningEffort,
+  setReasoningEffort,
   onRegenerate,
   canRegenerate,
   disabled,
@@ -101,18 +101,18 @@ function Toolbar({
         options={MODEL_OPTIONS}
       />
       <DropdownParameter
-        value={temperature}
-        onChange={setTemperature}
-        icon={<ThermostatIcon />}
+        value={reasoningEffort}
+        onChange={setReasoningEffort}
+        icon={<TuneIcon />}
         tooltipTitle={
           <>
-            Choose Temperature
+            Choose Reasoning Effort
             <br />
-            (Current: {getTemperatureDisplay(temperature)})
+            (Current: {getReasoningEffortDisplay(reasoningEffort)})
           </>
         }
-        ariaLabel={`Select assistant temperature. Current temperature: ${getTemperatureDisplay(temperature)}`}
-        options={TEMPERATURE_OPTIONS}
+        ariaLabel={`Select reasoning effort. Current effort: ${getReasoningEffortDisplay(reasoningEffort)}`}
+        options={REASONING_EFFORT_OPTIONS}
       />
       <RegenerateButton
         disabled={disabled}

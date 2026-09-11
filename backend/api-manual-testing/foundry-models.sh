@@ -6,8 +6,8 @@ curl -X 'POST' \
   -H 'Content-Type: application/json' \
   -d '{
   "messages": [{"role": "user", "parts": [{"type": "text", "text": "what is AI?"}]}],
-  "model": "gpt-4o",
-  "temperature": "BALANCED"
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium"
 }'
 
 # invalid: wrong model name
@@ -18,18 +18,18 @@ curl -X 'POST' \
   -d '{
   "messages": [{"role": "user", "parts": [{"type": "text", "text": "what is AI?"}]}],
   "model": "gpt-bla",
-  "temperature": "BALANCED"
+  "reasoning_effort": "medium"
 }'
 
-# invalid: wrong temperature
+# invalid: wrong reasoning_effort
 curl -X 'POST' \
   'http://localhost:8000/api/v1/chat' \
   -H 'accept: text/plain' \
   -H 'Content-Type: application/json' \
   -d '{
   "messages": [{"role": "user", "parts": [{"type": "text", "text": "what is AI?"}]}],
-  "model": "gpt-4o",
-  "temperature": "HOT"
+  "model": "gpt-6-astra",
+  "reasoning_effort": "HOT"
 }'
 
 # invalid: missing text message
