@@ -1,59 +1,90 @@
 import { expect, test } from "@playwright/test";
-import { StatusCodes } from "http-status-codes";
+import { openChat, sendMessage } from "./chat-fixture";
 
-const CHAT_API_PATH = "**/api/v1/chat";
+// Use the pinned Linux/amd64 renderer through make e2e-test-docker on macOS.
+test.skip(
+  process.platform !== "linux",
+  "Visual baselines use the CI Linux renderer",
+);
 
-test.describe("Visual regression", () => {
-  test("initial page", async ({ page }) => {
-    await page.goto("/chat");
-    await expect(
-      page.getByText("Hi, I am a chat bot. How can I help you today?"),
-    ).toBeVisible();
-    await expect(page).toHaveScreenshot("initial-page.png");
-  });
+for (const colorScheme of ["light", "dark"] as const) {
+  for (const viewport of [
+    { name: "desktop", width: 1280, height: 800 },
+    { name: "mobile", width: 390, height: 844 },
+  ]) {
+    test.describe(`${colorScheme} ${viewport.name}`, () => {
+      test.use({ colorScheme, viewport });
+      const snapshot = (state: string) =>
+        `${state}-${colorScheme}-${viewport.name}.png`;
 
-  test("chat input error state", async ({ page }) => {
-    await page.goto("/chat");
-    await expect(
-      page.getByText("Hi, I am a chat bot. How can I help you today?"),
-    ).toBeVisible();
-    await page.locator("form").getByRole("button", { name: "Send" }).click();
-    await expect(
-      page.getByText("Enter a message before sending."),
-    ).toBeVisible();
-    await expect(page).toHaveScreenshot("input-error-state.png");
-  });
+      test.beforeEach(async ({ page }) => {
+        await openChat(page);
+      });
 
-  test("after user message and response", async ({ page }) => {
-    const response = "Hello! I am here to help you today.";
-    await page.route(CHAT_API_PATH, async (route) => {
-      await route.fulfill({
-        body: response,
-        contentType: "text/plain; charset=utf-8",
-        status: StatusCodes.OK,
+      test("initial page and validation", async ({ page }) => {
+        await expect(page).toHaveScreenshot(snapshot("initial"));
+        await page.getByRole("button", { name: "Send", exact: true }).click();
+        await expect(page.getByRole("textbox")).toHaveAttribute(
+          "aria-invalid",
+          "true",
+        );
+        await expect(page).toHaveScreenshot(snapshot("validation"));
+      });
+
+      test("model and reasoning menus", async ({ page }) => {
+        await page
+          .getByRole("button", { name: /Select assistant model/ })
+          .click();
+        await expect(page.getByRole("menu")).toBeVisible();
+        await expect(page).toHaveScreenshot(snapshot("models"));
+        await page.keyboard.press("Escape");
+        await page
+          .getByRole("button", { name: /Select reasoning effort/ })
+          .click();
+        await expect(page.getByRole("menu")).toBeVisible();
+        await expect(page).toHaveScreenshot(snapshot("reasoning"));
+      });
+
+      test("markdown conversation", async ({ page }) => {
+        await page.route("**/api/v1/chat", (route) =>
+          route.fulfill({
+            contentType: "text/plain; charset=utf-8",
+            body: "Here is **bold text**, a [link](https://example.com), and `inline code`.\n\n```javascript\nconsole.log('Hello!');\n```",
+          }),
+        );
+        await sendMessage(page, "Show me a short code example.");
+        // The lazy markdown renderer must finish before capturing the page.
+        await expect(page.getByTestId("code-block")).toBeVisible();
+        await expect(page).toHaveScreenshot(snapshot("conversation"));
+      });
+
+      test("pending response", async ({ page }) => {
+        await page.route("**/api/v1/chat", () => {
+          // Keep the request pending; the browser context closes it at teardown.
+        });
+        await page.getByRole("textbox").fill("Take your time.");
+        await page.getByRole("button", { name: "Send", exact: true }).click();
+        await expect(page.getByRole("status")).toBeVisible();
+        await expect(page.getByRole("textbox")).toBeDisabled();
+        await expect(
+          page.getByRole("button", { name: "Regenerate response" }),
+        ).toBeDisabled();
+        await page.mouse.move(0, 0);
+        await expect(page).toHaveScreenshot(snapshot("pending"));
+      });
+
+      test("failed response", async ({ page }) => {
+        await page.route("**/api/v1/chat", (route) =>
+          route.fulfill({
+            status: 503,
+            contentType: "text/plain",
+            body: "Service unavailable",
+          }),
+        );
+        await sendMessage(page, "Hello there!");
+        await expect(page.getByRole("alert")).toBeVisible();
+        await expect(page).toHaveScreenshot(snapshot("error"));
       });
     });
-    await page.goto("/chat");
-    await expect(
-      page.getByText("Hi, I am a chat bot. How can I help you today?"),
-    ).toBeVisible();
-    await page.getByLabel("Message").fill("Hello there!");
-    await page.locator("form").getByRole("button", { name: "Send" }).click();
-    await expect(page.getByText(response)).toBeVisible();
-    await expect(page).toHaveScreenshot("after-conversation.png");
-  });
-
-  test("chat input disabled state", async ({ page }) => {
-    await page.route(CHAT_API_PATH, () => {
-      // Never fulfilled — keeps the UI in loading/disabled state for screenshot
-    });
-    await page.goto("/chat");
-    await expect(
-      page.getByText("Hi, I am a chat bot. How can I help you today?"),
-    ).toBeVisible();
-    await page.getByLabel("Message").fill("Test message");
-    await page.locator("form").getByRole("button", { name: "Send" }).click();
-    await expect(page.getByRole("button", { name: "Send" })).toBeDisabled();
-    await expect(page).toHaveScreenshot("input-disabled-state.png");
-  });
-});
+  }
+}

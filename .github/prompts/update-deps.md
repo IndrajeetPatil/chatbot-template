@@ -11,13 +11,18 @@ until the full local quality gate passes:
 
 - `make qa`
 - `make frontend-build`
-- `make e2e-test`
+- `make e2e-test-docker`
 - `make lighthouse`
 - `make contrast-audit`
 - `make docker-build`
 
 Fix any breaking API changes, type errors, lockfile drift, Docker build
 failures, coverage regressions, or lint failures introduced by the upgrades.
+
+When Playwright changes, synchronize the image tag and SHA256 digest in
+`makefiles/frontend.mk` with the locked `@playwright/test` version. Use
+`make e2e-update` to regenerate baselines in the pinned renderer, review the PNGs,
+then rerun `make e2e-test-docker` without updating.
 
 If the pnpm version changes, update the canonical declaration in:
 

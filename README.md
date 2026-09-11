@@ -158,6 +158,42 @@ Guidelines, because many interaction, content, and layout details require
 manual judgment. The guidelines are an implementation target, not a blanket
 claim that every existing screen is already fully compliant.
 
+### Browser and visual tests
+
+Vitest checks data contracts and interactions with the existing coverage floors.
+Playwright checks presentation with reviewed screenshots of the real app in light
+and dark mode, at desktop and mobile sizes. API responses are mocked; no backend
+or Azure credentials are needed.
+
+``` bash
+make test             # backend and frontend unit tests with coverage
+make e2e-test         # build + local browser behavior; visuals skip off-Linux
+make e2e-test-docker  # build + behavior + visual comparisons in the CI renderer
+make e2e-update       # deliberately regenerate visual baselines
+```
+
+Use the Docker targets for visual comparisons and updates on every host. They
+share a digest-pinned Playwright Linux/amd64 image with CI, including on Apple
+Silicon, and keep Linux dependencies in a dedicated Docker volume. The production
+preview uses port 3000 and refuses to reuse an existing server.
+
+Snapshots cover the greeting, validation, model/reasoning menus, Markdown
+conversation, pending response, and request failure. Screenshot assertions wait
+for stable rendering with bundled fonts and disabled animations; ordinary test
+runs fail on missing baselines and never update them automatically.
+
+After an intentional UI change, run `make e2e-update` and inspect the changed PNGs
+in `frontend/e2e-tests/__snapshots__/`. Run `make e2e-test-docker`, then commit
+the reviewed baselines with the change. To focus a run, pass
+`E2E_ARGS='visual.spec.ts --workers=1'` to either Docker target.
+Failure diffs and traces are in `frontend/test-results/`; the HTML report is in
+`frontend/playwright-report/`. CI uploads both as the `playwright-report` artifact.
+
+`make qa` and `make qa-frontend` keep their unit-test coverage checks; the separate
+browser CI job runs the same `make e2e-test-docker` target. When upgrading
+`@playwright/test`, update the image tag and SHA256 digest in
+`makefiles/frontend.mk` together and regenerate/review the baselines.
+
 To remove all build artifacts and tool caches for a clean slate (useful
 for testing cold-cache behaviour):
 

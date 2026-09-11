@@ -23,28 +23,11 @@ function renderDropdown(onChange = vi.fn()) {
 }
 
 describe("DropdownParameter", () => {
-  test("renders trigger button with correct aria-label", () => {
-    renderDropdown();
-    expect(screen.getByLabelText("Select an option")).toBeInTheDocument();
-  });
-
-  test("menu is closed initially", () => {
-    renderDropdown();
-    expect(screen.queryByText("Option 1")).not.toBeInTheDocument();
-  });
-
-  test("opens menu and shows all options when button is clicked", () => {
-    renderDropdown();
-    fireEvent.click(screen.getByLabelText("Select an option"));
-    for (const { label } of OPTIONS) {
-      expect(screen.getByText(label)).toBeInTheDocument();
-    }
-  });
-
   test("calls onChange with selected value", () => {
     const { onChange } = renderDropdown();
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("Select an option"));
-    fireEvent.click(screen.getByText("Option 2"));
+    fireEvent.click(screen.getAllByRole("menuitem")[1]);
     expect(onChange).toHaveBeenCalledWith("opt2");
   });
 
@@ -55,7 +38,7 @@ describe("DropdownParameter", () => {
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
 
     await waitFor(() => {
-      expect(screen.queryByText("Option 2")).not.toBeInTheDocument();
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     });
     expect(onChange).not.toHaveBeenCalled();
   });

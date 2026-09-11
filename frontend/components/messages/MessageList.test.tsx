@@ -1,137 +1,75 @@
-import { render, screen } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
-
-vi.mock("@/components/messages/AssistantMessage", () => ({
-  default: ({
-    content,
-    isFirstMessage,
-  }: {
-    content: string;
-    isFirstMessage: boolean;
-  }) => (
-    <div
-      data-testid="assistant-message"
-      data-first-message={String(isFirstMessage)}
-    >
-      {content}
-    </div>
-  ),
-}));
-
-vi.mock("@/components/messages/UserMessage", () => ({
-  default: ({ content }: { content: string }) => (
-    <div data-testid="user-message">{content}</div>
-  ),
-}));
-
-import { makeTextMessage } from "@/client/testUtils";
+import { screen } from "@testing-library/react";
+import { vi } from "vitest";
+import { makeTextMessage, renderWithTheme } from "@/client/testUtils";
 import MessageList from "./MessageList";
 
-const INITIAL_MESSAGE = makeTextMessage(
-  "initial-message",
-  "assistant",
-  "Hi, I am a chat bot.",
+const messages = [
+  makeTextMessage("initial-message", "assistant", "Welcome"),
+  makeTextMessage("user-1", "user", "Question"),
+  makeTextMessage("assistant-1", "assistant", "Reply"),
+];
+
+test.each(["light", "dark"] as const)(
+  "only replies expose a copy action in %s mode",
+  (mode) => {
+    renderWithTheme(
+      <MessageList
+        messages={messages}
+        assistantIsLoading={false}
+        error={undefined}
+      />,
+      { mode },
+    );
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  },
 );
 
-describe("MessageList", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+test("announces loading and request failures", () => {
+  const { rerender } = renderWithTheme(
+    <MessageList
+      messages={[]}
+      assistantIsLoading={true}
+      error={undefined}
+    />,
+  );
+  expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
+  rerender(
+    <MessageList
+      messages={[]}
+      assistantIsLoading={false}
+      error={new Error("Network error")}
+    />,
+  );
+  expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  expect(screen.getByRole("alert")).toBeVisible();
+});
 
-  test("renders initial assistant message marked as first message", () => {
-    render(
-      <MessageList
-        messages={[INITIAL_MESSAGE]}
-        assistantIsLoading={false}
-        error={undefined}
-      />,
-    );
-    const msg = screen.getByTestId("assistant-message");
-    expect(msg).toHaveTextContent("Hi, I am a chat bot.");
-    expect(msg).toHaveAttribute("data-first-message", "true");
-  });
-
-  test("non-initial assistant messages have isFirstMessage false", () => {
-    render(
-      <MessageList
-        messages={[
-          INITIAL_MESSAGE,
-          makeTextMessage("a2", "assistant", "Reply"),
-        ]}
-        assistantIsLoading={false}
-        error={undefined}
-      />,
-    );
-    const msgs = screen.getAllByTestId("assistant-message");
-    expect(msgs[0]).toHaveAttribute("data-first-message", "true");
-    expect(msgs[1]).toHaveAttribute("data-first-message", "false");
-  });
-
-  test("renders user messages", () => {
-    render(
-      <MessageList
-        messages={[INITIAL_MESSAGE, makeTextMessage("u1", "user", "Hello bot")]}
-        assistantIsLoading={false}
-        error={undefined}
-      />,
-    );
-    expect(screen.getByTestId("user-message")).toHaveTextContent("Hello bot");
-  });
-
-  test("shows loading indicator when assistantIsLoading is true", () => {
-    render(
-      <MessageList
-        messages={[INITIAL_MESSAGE]}
-        assistantIsLoading={true}
-        error={undefined}
-      />,
-    );
-    expect(screen.getByRole("status")).toHaveTextContent("Generating…");
-  });
-
-  test("hides loading indicator when assistantIsLoading is false", () => {
-    render(
-      <MessageList
-        messages={[INITIAL_MESSAGE]}
-        assistantIsLoading={false}
-        error={undefined}
-      />,
-    );
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
-  });
-
-  test("shows error alert when error is present", () => {
-    render(
-      <MessageList
-        messages={[INITIAL_MESSAGE]}
-        assistantIsLoading={false}
-        error={new Error("Network error")}
-      />,
-    );
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Something went wrong. Try sending your message again. Details: Network error",
-    );
-  });
-
-  test("non-text message parts yield empty string and warn", () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    render(
+test("filters non-text parts and joins text parts in order", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  try {
+    renderWithTheme(
       <MessageList
         messages={[
           {
-            id: "a1",
-            role: "assistant" as const,
-            parts: [{ type: "step-start" }],
+            id: "reply",
+            role: "assistant",
+            parts: [
+              { type: "text", text: "First " },
+              { type: "step-start" },
+              { type: "text", text: "second" },
+            ],
           },
         ]}
         assistantIsLoading={false}
         error={undefined}
       />,
     );
-    const msg = screen.getByTestId("assistant-message");
-    expect(msg).toHaveTextContent("");
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[MessageList] Unexpected non-text message part type: "step-start"',
-    );
-  });
+    // This is a data contract, not a comparison of product copy.
+    expect(await screen.findByText("First second")).toBeVisible();
+    expect(warn).toHaveBeenCalledOnce();
+  } finally {
+    warn.mockRestore();
+  }
 });

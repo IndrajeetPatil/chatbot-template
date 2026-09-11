@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Tests
 
 on:
   push:
@@ -108,30 +108,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
-        with:
-          cache: true
-          cache_dependency_path: frontend/pnpm-lock.yaml
-          package_json_file: frontend/package.json
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y make
-
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm exec playwright install --with-deps
-
-      - name: Run e2e tests
-        run: make e2e-test
+      - name: Run browser behavior and visual snapshots in the pinned renderer
+        run: make e2e-test-docker
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: playwright-report
-          path: frontend/playwright-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results

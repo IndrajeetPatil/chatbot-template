@@ -44,7 +44,8 @@ describe("ChatInput component", () => {
     });
 
     expect(onSendMessageMock).not.toHaveBeenCalled();
-    expect(screen.getByText("Enter a message before sending.")).toBeVisible();
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveFocus();
   });
 
   test("should send message when send button is clicked", () => {
@@ -66,7 +67,7 @@ describe("ChatInput component", () => {
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
     expect(onSendMessageMock).not.toHaveBeenCalled();
-    expect(screen.getByText("Enter a message before sending.")).toBeVisible();
+    expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
   });
 
   test("clears empty-submit validation when the user starts typing", () => {
@@ -74,17 +75,16 @@ describe("ChatInput component", () => {
     render(<ChatInput onSendMessage={onSendMessageMock} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    expect(screen.getByText("Enter a message before sending.")).toBeVisible();
+    expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
 
     fireEvent.change(screen.getByLabelText("Message"), {
       target: { value: "Hello" },
     });
 
-    expect(
-      screen.getByText(
-        "Press Enter for a new line. Press Ctrl+Enter or Cmd+Enter to send.",
-      ),
-    ).toBeVisible();
+    expect(screen.getByRole("textbox")).toHaveAttribute(
+      "aria-invalid",
+      "false",
+    );
   });
 
   test("rejects a message that exceeds the maximum length", () => {
@@ -97,9 +97,7 @@ describe("ChatInput component", () => {
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
     expect(onSendMessageMock).not.toHaveBeenCalled();
-    expect(
-      screen.getByText("Message is too long (max 32,000 characters)."),
-    ).toBeVisible();
+    expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
   });
 
   test("send button is disabled when disabled prop is true", () => {

@@ -88,6 +88,8 @@ export default defineConfig({
     exclude: ["**/node_modules/**", "**/dist/**", "**/e2e-tests/**"],
     globals: true,
     pool: "threads",
+    // Real MUI components are CPU-heavy; avoid oversubscribing CI and laptops.
+    maxWorkers: 2,
     setupFiles: ["./vitest.setup.ts"],
   },
 });
