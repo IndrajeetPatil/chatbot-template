@@ -9,7 +9,7 @@ endif
 include makefiles/backend.mk
 include makefiles/frontend.mk
 
-CHECKOV_VERSION := 3.2.526
+CHECKOV_VERSION := 3.3.17
 # Minimum codex-security CLI the codex-security target was validated against. The
 # scan-id parsing below relies on `scans show --filter-output scanId`, so refuse
 # to run against an older CLI whose flags/output may differ.
@@ -54,7 +54,7 @@ commitlint:
 
 markdown-lint:
 	@echo "$(COLOR_BLUE_BG)Running markdown linting with rumdl...$(COLOR_RESET)"
-	uv tool run --from rumdl==0.1.86 rumdl check .
+	uv tool run --from rumdl==0.2.72 rumdl check .
 
 security-scan:
 	@echo "$(COLOR_BLUE_BG)Running security scanning with Checkov...$(COLOR_RESET)"

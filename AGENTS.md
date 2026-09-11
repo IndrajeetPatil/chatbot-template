@@ -10,8 +10,8 @@ streamed via Azure Foundry GPT-6 Astra and GPT-5.6 Sol.
 ## Setup
 
 ```bash
-cd backend && uv sync --frozen          # Python 3.14, uv 0.12.10
-cd frontend && pnpm install --frozen-lockfile  # Node.js 24, pnpm 12.3.4
+cd backend && uv sync --frozen          # Python 3.14, uv 0.12.13
+cd frontend && pnpm install --frozen-lockfile  # Node.js 24, pnpm 12.4.1
 ```
 
 Copy `backend/.env.example` → `backend/.env` and fill in
