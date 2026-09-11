@@ -4,7 +4,7 @@ default_stages = ["pre-commit"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ruff-pre-commit"
-rev = "321478e58f4938179c6b86e4ddfa923d1547a49b"  # frozen: v0.16.6
+rev = "e8f7d69b957a30acb2c875078d5fd012de24b64c"  # frozen: v0.16.7
 hooks = [
   { id = "ruff-check", args = ["--fix"] },
   { id = "ruff-format", types_or = ["python", "pyi", "jupyter", "markdown"] },
@@ -12,14 +12,14 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/astral-sh/ty-pre-commit"
-rev = "43e9f3c39824fb2ba2a475aa8cbcc2c8f02eef67"  # frozen: v0.0.79
+rev = "166c7027240501d219155fe71ad9817f8d69237b"  # frozen: v0.0.80
 hooks = [
   { id = "ty", args = ["--directory=backend", "--isolated"] },
 ]
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "2fecbf66b37cc6d7a0d1edddbe164e3d516eee2b"  # frozen: v0.2.68
+rev = "5d5d9ecda0a544617f550c84792ea1bd717620e1"  # frozen: v0.2.72
 hooks = [
   { id = "rumdl" },
 ]

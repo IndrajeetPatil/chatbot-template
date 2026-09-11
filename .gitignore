@@ -1,8 +1,5 @@
 backend/.dev/*
 
-# Claude Code session files
-.claude/scheduled_tasks.lock
-
 # PR screenshot assets (hosted via gist, not committed)
 .github/pr-assets/
 
