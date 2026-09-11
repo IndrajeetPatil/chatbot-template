@@ -13,6 +13,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+# Force colour in non-TTY Actions logs; retain warnings and errors.
+env:
+  FORCE_COLOR: "1"
+  CLICOLOR_FORCE: "1"
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -45,12 +50,16 @@ jobs:
         # issues a chat request, so no real Azure credentials are needed. Using
         # dummy placeholders keeps secrets out of PR-controlled build/run steps.
         run: |
-          echo AZURE_OPENAI_ENDPOINT=https://example.invalid/ >> backend/.env
-          echo AZURE_OPENAI_API_KEY=dummy-key >> backend/.env
-          echo AZURE_OPENAI_API_VERSION=2024-09-01-preview >> backend/.env
+          {
+            echo AZURE_OPENAI_ENDPOINT=https://example.invalid/
+            echo AZURE_OPENAI_API_KEY=dummy-key
+            echo AZURE_OPENAI_API_VERSION=2024-09-01-preview
+          } >> backend/.env
 
       - name: Build services
         run: |
+          echo "::group::Container build details"
+          trap 'echo "::endgroup::"' EXIT
           docker compose build --pull --no-cache
 
       - name: Scan built images with Trivy

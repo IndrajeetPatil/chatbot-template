@@ -1,7 +1,7 @@
 BACKEND_DIR=./backend
 
 # Backend tool commands
-PYTEST=uv run pytest app tests --verbose
+PYTEST=uv run pytest app tests
 PYCOVERAGE=uv run coverage run -m pytest app tests && uv run coverage report && uv run coverage html && uv run coverage xml
 PYTYPECHECK=TY_UV=1 uv run ty check
 PYTYPECOVERAGE=uv run python -m typecoverage app tests locustfile.py --recursive --exit-nonzero-on-issues

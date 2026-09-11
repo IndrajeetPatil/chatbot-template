@@ -21,7 +21,7 @@ LHCI=pnpm dlx @lhci/cli@0.15.1
 
 frontend-lint:
 	@echo "$(COLOR_BLUE_BG)Running frontend linting and formatting...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(LINT)
+	cd $(FRONTEND_DIR) && $(LINT) $(BIOME_ARGS)
 
 frontend-format: frontend-lint
 
@@ -70,12 +70,14 @@ frontend-e2e-test: frontend-build
 	cd $(FRONTEND_DIR) && $(PLAYWRIGHT) $(E2E_ARGS)
 
 # Dedicated Linux dependencies never overwrite the host installation.
+# Mirror the repository layout so annotations resolve frontend/ paths from /work.
 frontend-e2e-test-docker:
 	docker run --rm --init --ipc=host --platform linux/amd64 \
 		-e HOST_UID="$$(id -u)" -e HOST_GID="$$(id -g)" \
-		-e CI=1 -v "$(CURDIR)/frontend":/work \
-		-v chatbot-pw-node-modules:/work/node_modules \
-		-w /work $(PLAYWRIGHT_IMAGE) bash scripts/run-e2e-docker.sh $(E2E_ARGS)
+		-e CI=1 -e FORCE_COLOR -e CLICOLOR_FORCE -e GITHUB_ACTIONS \
+		-e GITHUB_WORKSPACE=/work -v "$(CURDIR)/frontend":/work/frontend \
+		-v chatbot-pw-node-modules:/work/frontend/node_modules \
+		-w /work/frontend $(PLAYWRIGHT_IMAGE) bash scripts/run-e2e-docker.sh $(E2E_ARGS)
 
 frontend-clean:
 	@echo "$(COLOR_BLUE_BG)Cleaning frontend build artifacts and caches...$(COLOR_RESET)"

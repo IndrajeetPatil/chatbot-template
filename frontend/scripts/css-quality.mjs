@@ -13,6 +13,7 @@
 import { readFileSync } from "node:fs";
 import { glob } from "node:fs/promises";
 import { relative } from "node:path";
+import { styleText } from "node:util";
 import { calculate } from "@projectwallace/css-code-quality";
 
 const THRESHOLDS = {
@@ -38,7 +39,7 @@ for (const file of files.sort()) {
   const { performance, maintainability, complexity } = result;
 
   const label = relative(process.cwd(), file);
-  console.log(`\n── ${label} ── (scores out of 100, higher is better)`);
+  console.log(`\n${label} (scores out of 100)`);
 
   for (const [dim, data, note] of [
     [
@@ -51,13 +52,16 @@ for (const file of files.sort()) {
   ]) {
     const threshold = THRESHOLDS[dim.trim()];
     const below = threshold !== undefined && data.score < threshold;
-    const marker = below ? "✗" : "✓";
+    const marker =
+      threshold === undefined
+        ? styleText("blue", "ℹ")
+        : styleText(below ? "red" : "green", below ? "✗" : "✓");
     const thresh = threshold !== undefined ? ` (min: ${threshold})` : "";
     console.log(`  ${marker} ${dim}  ${data.score}/100${thresh}${note}`);
-    for (const v of data.violations) {
-      console.log(`      ↳ ${v.id}: −${v.score} pts (value: ${v.value})`);
-    }
     if (below) {
+      for (const v of data.violations) {
+        console.log(`      ↳ ${v.id}: −${v.score} pts (value: ${v.value})`);
+      }
       failed = true;
     }
   }
@@ -69,5 +73,5 @@ if (failed) {
   );
   process.exit(1);
 } else {
-  console.log("\nCSS quality check passed.");
+  console.log(styleText("green", "\nCSS quality check passed."));
 }

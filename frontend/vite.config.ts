@@ -67,6 +67,7 @@ export default defineConfig({
     },
   },
   test: {
+    reporters: process.env.CI ? ["dot", "github-actions"] : ["default"],
     clearMocks: true,
     coverage: {
       provider: "v8",

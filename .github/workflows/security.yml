@@ -16,13 +16,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+# Force colour in non-TTY Actions logs; retain warnings and errors.
+env:
+  FORCE_COLOR: "1"
+  CLICOLOR_FORCE: "1"
+  UV_COLOR: always
+  UV_NO_PROGRESS: "1"
+
 jobs:
   secret-scan:
     name: Secret Scan (Gitleaks)
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -30,11 +34,18 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # The action hard-codes debug logging. Invoke the same scanner version
+      # directly to scan all fetched history, including PRs, without API access.
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e  # v3.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_ENABLE_COMMENTS: "false"
+        run: make secret-scan-ci
+
+      - name: Upload secret scan report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: gitleaks-results
+          path: results.sarif
+          retention-days: 14
 
   workflow-audit:
     name: Workflow Audit (zizmor)
@@ -49,7 +60,7 @@ jobs:
         uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4  # v10.1.0
 
       - name: Run zizmor
-        run: uvx zizmor@1.30.1 .github/workflows/
+        run: uvx zizmor@1.30.1 --color=always .github/workflows/
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

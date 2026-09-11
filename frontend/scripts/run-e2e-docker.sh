@@ -24,6 +24,14 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 corepack enable
-pnpm install --frozen-lockfile
-pnpm build
+pnpm install --frozen-lockfile --loglevel=warn
+if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+    (
+        echo "::group::Production build details"
+        trap 'echo "::endgroup::"' EXIT
+        pnpm build
+    )
+else
+    pnpm build
+fi
 pnpm test:e2e "$@"

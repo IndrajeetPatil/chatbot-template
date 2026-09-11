@@ -13,6 +13,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+# Force colour in non-TTY Actions logs; retain warnings and errors.
+env:
+  FORCE_COLOR: "1"
+  CLICOLOR_FORCE: "1"
+  UV_COLOR: always
+  UV_NO_PROGRESS: "1"
+  PYTEST_ADDOPTS: "-q --color=yes"
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -79,7 +87,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --loglevel=warn
 
       - name: Run frontend unit tests
         run: make frontend-test

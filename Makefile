@@ -10,6 +10,8 @@ include makefiles/backend.mk
 include makefiles/frontend.mk
 
 CHECKOV_VERSION := 3.3.17
+# Match the previous action's scanner, pinned by digest to prevent tag drift.
+GITLEAKS_IMAGE := zricethezav/gitleaks:v8.24.3@sha256:e1b35e12a8c6fa8901f060459cfb6b2fc4c484d3afbe3b029733a3bbfab07055
 # Minimum codex-security CLI the codex-security target was validated against. The
 # scan-id parsing below relies on `scans show --filter-output scanId`, so refuse
 # to run against an older CLI whose flags/output may differ.
@@ -55,6 +57,13 @@ markdown-lint:
 security-scan:
 	@echo "$(COLOR_BLUE_BG)Running security scanning with Checkov...$(COLOR_RESET)"
 	uv tool run --from checkov==$(CHECKOV_VERSION) checkov --config-file .checkov.yaml
+
+# Full fetched history, redacted findings, and a SARIF artifact for CI.
+secret-scan-ci:
+	docker run --rm -v "$(CURDIR)":/repo -w /repo $(GITLEAKS_IMAGE) git \
+		--log-opts="--all" --redact --verbose --no-banner --log-level=warn \
+		--report-format=sarif --report-path=results.sarif .
+	@printf '\033[32mSecret scan passed.\033[0m\n'
 
 # Agentic security review: scan with codex-security, then hand the completed
 # scan to a spawned Claude Code that triages the findings, fixes the worthwhile
@@ -150,7 +159,7 @@ e2e-update:
 .PHONY: update-deps upgrade-deps \
 	lint format type-check test type-coverage clean \
 	fallow css-quality contrast-audit lighthouse \
-	commitlint markdown-lint security-scan codex-security file-naming hooks \
+	commitlint markdown-lint security-scan secret-scan-ci codex-security file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \
 	docker-build docker-up docker-down \
