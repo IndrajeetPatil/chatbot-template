@@ -43,10 +43,6 @@ contrast-audit: frontend-build frontend-contrast-audit
 lighthouse: frontend-build frontend-lighthouse
 
 # Project-wide tools
-tooling-check:
-	@echo "$(COLOR_BLUE_BG)Checking agent skill symlinks...$(COLOR_RESET)"
-	python3 scripts/check_repo_symlinks.py
-
 commitlint:
 	@echo "$(COLOR_BLUE_BG)Running commit message linting with commitlint...$(COLOR_RESET)"
 	@test -n "$(COMMIT_EDITMSG)" || (echo "Set COMMIT_EDITMSG=/path/to/commit-message-file" && exit 2)
@@ -151,7 +147,7 @@ e2e-test:
 .PHONY: update-deps upgrade-deps \
 	lint format type-check test type-coverage clean \
 	fallow css-quality contrast-audit lighthouse \
-	tooling-check commitlint markdown-lint security-scan codex-security file-naming hooks \
+	commitlint markdown-lint security-scan codex-security file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \
 	docker-build docker-up docker-down \

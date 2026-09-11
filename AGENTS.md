@@ -23,7 +23,6 @@ Azure OpenAI credentials before running.
 make update-deps # refresh backend/frontend deps and prek hook revisions
 make qa          # full suite: format, lint, type-check, tests,
                  #   coverage, API schema, frontend audits, security
-make tooling-check # verify agent skill symlink wiring
 make test        # unit tests only
 make format      # auto-format (Ruff + Biome)
 make lint        # lint (ls-lint + Ruff + Biome + rumdl; ESLint runs via make qa)

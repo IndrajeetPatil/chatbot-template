@@ -207,7 +207,7 @@ More specifically:
 
 | Layer                                                     | Convention                            | Example                                          |
 | --------------------------------------------------------- | ------------------------------------- | ------------------------------------------------ |
-| Python modules, tests, and repository scripts             | snake_case; `__init__.py` allowed     | `azure_client.py`, `check_repo_symlinks.py`      |
+| Python modules and tests                                  | snake_case; `__init__.py` allowed     | `azure_client.py`, `test_main.py`                |
 | Python package directories                                | snake_case                            | `backend/app/`                                   |
 | React components and page components                      | PascalCase, including colocated tests | `ChatInput.tsx`, `Page.test.tsx`                 |
 | Client modules, hooks, and test helpers                   | camelCase, including test suffixes    | `useChatSetup.ts`, `testUtils.tsx`               |

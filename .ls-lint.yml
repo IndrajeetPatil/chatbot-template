@@ -86,9 +86,8 @@ ls:
 
 ignore:
   - .git
-  # Vendored skills and their symlinks follow upstream conventions.
+  # Vendored skills follow upstream conventions.
   - .agents/skills
-  - .claude/skills
   # Dependency trees, caches, reports, and generated snapshots.
   - "**/node_modules"
   - "**/.venv"
