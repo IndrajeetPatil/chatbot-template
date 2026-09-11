@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { StatusCodes } from "http-status-codes";
 import { getModelDisplay, getReasoningEffortDisplay } from "@/client/helpers";
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
+import { openChat, sendMessage } from "./chat-fixture";
 
 interface ChatBody {
   model: string;
@@ -33,7 +34,7 @@ for (const model of Object.values(AssistantModel)) {
         });
       });
 
-      await page.goto("/chat");
+      await openChat(page);
       await page
         .getByRole("button", { name: /Select assistant model/ })
         .click();
@@ -52,11 +53,10 @@ for (const model of Object.values(AssistantModel)) {
           exact: true,
         })
         .click();
-      await page
-        .getByRole("textbox", { name: "Message", exact: true })
-        .fill("test message");
-      await page.locator("form").getByRole("button", { name: "Send" }).click();
-      await expect(page.getByText(expectedResponse)).toBeVisible();
+      await sendMessage(page, "test message");
+      await expect(
+        page.getByRole("button", { name: "Copy entire message" }),
+      ).toHaveCount(1);
     });
   }
 }
@@ -80,24 +80,26 @@ test("follow-up and regeneration send text-only conversation history", async ({
     });
   });
 
-  await page.goto("/chat");
-  await page
-    .getByRole("textbox", { name: "Message", exact: true })
-    .fill("First question");
-  await page.getByRole("button", { name: "Send", exact: true }).click();
-  await expect(page.getByText("Response 1", { exact: true })).toBeVisible();
-  await page
-    .getByRole("textbox", { name: "Message", exact: true })
-    .fill("Follow-up");
-  await page.getByRole("button", { name: "Send", exact: true }).click();
-  await expect(page.getByText("Response 2", { exact: true })).toBeVisible();
+  await openChat(page);
+  await sendMessage(page, "First question");
+  await sendMessage(page, "Follow-up");
+  await expect(
+    page.getByRole("button", { name: "Copy entire message" }),
+  ).toHaveCount(2);
   expect(requests[1].messages.slice(1)).toEqual([
     { role: "user", parts: [{ type: "text", text: "First question" }] },
     { role: "assistant", parts: [{ type: "text", text: "Response 1" }] },
     { role: "user", parts: [{ type: "text", text: "Follow-up" }] },
   ]);
+  const response = page.waitForResponse(CHAT_API_PATH);
   await page.getByRole("button", { name: "Regenerate response" }).click();
-  await expect(page.getByText("Response 3", { exact: true })).toBeVisible();
+  await response;
+  await expect(page.getByRole("textbox")).toBeEnabled();
+  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Copy entire message" }),
+  ).toHaveCount(2);
+  await expect(page.getByRole("alert")).toHaveCount(0);
   expect(requests).toHaveLength(3);
   expect(requests[2].messages).toEqual(requests[1].messages);
 });

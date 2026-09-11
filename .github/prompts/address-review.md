@@ -40,7 +40,7 @@ field.
 When a review asks for validation, choose the narrowest relevant check first,
 then run broader gates before pushing if the change affects shared behaviour,
 dependency resolution, or workflow configuration. Common gates are `make qa`,
-`make frontend-build`, `make e2e-test`, `make lighthouse`, and
+`make frontend-build`, `make e2e-test-docker`, `make lighthouse`, and
 `make docker-build`.
 
 When a comment concerns user-facing copy, use clear American English unless the

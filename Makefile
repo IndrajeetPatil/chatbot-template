@@ -140,9 +140,12 @@ docker-down:
 	@echo "$(COLOR_BLUE_BG)Stopping containerized services...$(COLOR_RESET)"
 	docker-compose down
 
-# End-to-end testing (Playwright manages the frontend dev server via webServer config)
-e2e-test:
-	$(MAKE) frontend-e2e-test
+# Browser behavior locally; Linux visual comparisons use the pinned CI image.
+e2e-test: frontend-e2e-test
+e2e-test-docker: frontend-e2e-test-docker
+
+e2e-update:
+	$(MAKE) e2e-test-docker E2E_ARGS="--update-snapshots $(E2E_ARGS)"
 
 .PHONY: update-deps upgrade-deps \
 	lint format type-check test type-coverage clean \
@@ -151,4 +154,4 @@ e2e-test:
 	qa-backend qa-frontend qa \
 	run \
 	docker-build docker-up docker-down \
-	e2e-test
+	e2e-test e2e-test-docker e2e-update

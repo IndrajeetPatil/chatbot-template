@@ -1,5 +1,9 @@
 FRONTEND_DIR=./frontend
 
+# Keep the version aligned with @playwright/test in frontend/pnpm-lock.yaml.
+# Pin both the image digest and architecture so Apple Silicon and CI agree.
+PLAYWRIGHT_IMAGE := mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+
 # Frontend tool commands
 LINT=pnpm run lint
 TSC=pnpm run check-types
@@ -61,9 +65,17 @@ frontend-lighthouse:
 	@echo "$(COLOR_BLUE_BG)Running Lighthouse CI...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(LHCI) autorun
 
-frontend-e2e-test:
+frontend-e2e-test: frontend-build
 	@echo "$(COLOR_BLUE_BG)Running end-to-end tests...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(PLAYWRIGHT)
+	cd $(FRONTEND_DIR) && $(PLAYWRIGHT) $(E2E_ARGS)
+
+# Dedicated Linux dependencies never overwrite the host installation.
+frontend-e2e-test-docker:
+	docker run --rm --init --ipc=host --platform linux/amd64 \
+		-e HOST_UID="$$(id -u)" -e HOST_GID="$$(id -g)" \
+		-e CI=1 -v "$(CURDIR)/frontend":/work \
+		-v chatbot-pw-node-modules:/work/node_modules \
+		-w /work $(PLAYWRIGHT_IMAGE) bash scripts/run-e2e-docker.sh $(E2E_ARGS)
 
 frontend-clean:
 	@echo "$(COLOR_BLUE_BG)Cleaning frontend build artifacts and caches...$(COLOR_RESET)"
@@ -82,4 +94,4 @@ run-frontend:
 .PHONY: frontend-lint frontend-format frontend-type-check \
 	frontend-test frontend-build frontend-audit frontend-fallow \
 	frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage \
-	frontend-lighthouse frontend-e2e-test frontend-clean run-frontend
+	frontend-lighthouse frontend-e2e-test frontend-e2e-test-docker frontend-clean run-frontend

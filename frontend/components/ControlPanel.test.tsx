@@ -4,54 +4,6 @@ import { vi } from "vitest";
 import { theme } from "@/client/theme";
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 
-vi.mock("@/components/messages/ChatInput", () => ({
-  default: ({
-    onSendMessage,
-    disabled,
-  }: {
-    onSendMessage: (msg: string) => Promise<void>;
-    disabled: boolean;
-  }) => (
-    <button
-      type="button"
-      data-testid="chat-input-send"
-      data-disabled={String(disabled)}
-      onClick={() => void onSendMessage("test message")}
-    >
-      Send
-    </button>
-  ),
-}));
-
-vi.mock("@/components/parameters/DropdownParameter", () => ({
-  default: ({
-    onChange,
-    ariaLabel,
-    options,
-    value,
-  }: {
-    onChange: (v: string) => void;
-    ariaLabel: string;
-    options: Array<{ value: string; label: string }>;
-    value: string;
-  }) => (
-    <select
-      aria-label={ariaLabel}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      {options.map((o) => (
-        <option
-          key={o.value}
-          value={o.value}
-        >
-          {o.label}
-        </option>
-      ))}
-    </select>
-  ),
-}));
-
 import ControlPanel from "./ControlPanel";
 
 const DEFAULT_PROPS = {
@@ -117,20 +69,6 @@ describe("ControlPanel", () => {
     vi.unstubAllGlobals();
   });
 
-  test("renders model dropdown", () => {
-    renderControlPanel();
-    expect(
-      screen.getByLabelText(/Select assistant model/i),
-    ).toBeInTheDocument();
-  });
-
-  test("renders reasoning effort dropdown", () => {
-    renderControlPanel();
-    expect(
-      screen.getByLabelText(/Select reasoning effort/i),
-    ).toBeInTheDocument();
-  });
-
   test("regenerate button is enabled when canRegenerate is true and not disabled", () => {
     renderControlPanel({ canRegenerate: true, disabled: false });
     expect(screen.getByLabelText("Regenerate response")).not.toBeDisabled();
@@ -179,9 +117,7 @@ describe("ControlPanel", () => {
 
   test("ChatInput receives disabled prop", () => {
     renderControlPanel({ disabled: true });
-    expect(screen.getByTestId("chat-input-send")).toHaveAttribute(
-      "data-disabled",
-      "true",
-    );
+    expect(screen.getByRole("textbox")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
   });
 });

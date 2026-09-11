@@ -24,6 +24,9 @@ make update-deps # refresh backend/frontend deps and prek hook revisions
 make qa          # full suite: format, lint, type-check, tests,
                  #   coverage, API schema, frontend audits, security
 make test        # unit tests only
+make e2e-test    # browser behavior against a production build (visuals skip off-Linux)
+make e2e-test-docker # behavior + visual snapshots in the pinned CI renderer
+make e2e-update  # regenerate visual baselines in that same renderer
 make format      # auto-format (Ruff + Biome)
 make lint        # lint (ls-lint + Ruff + Biome + rumdl; ESLint runs via make qa)
 make file-naming # repository-wide stack-specific filename checks
