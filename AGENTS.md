@@ -5,7 +5,7 @@ Codex, GitHub Copilot (code review and coding agent), and other
 `AGENTS.md`-aware tools read this file directly.
 
 Full-stack chatbot: React frontend + FastAPI backend,
-streamed via Azure OpenAI GPT-4o.
+streamed via Azure Foundry GPT-6 Astra and GPT-5.6 Sol.
 
 ## Setup
 

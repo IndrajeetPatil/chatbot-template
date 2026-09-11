@@ -1,7 +1,7 @@
 # Chatbot Template
 
 A minimal full-stack chatbot template using React and FastAPI, backed by
-Azure OpenAI GPT-4o and GPT-4o mini deployments.
+Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 
 ## Interface Preview
 
@@ -21,7 +21,7 @@ The project is structured as a monorepo with two services:
 The frontend service is a Vite React application that uses the Vercel AI
 SDK to manage chat state and streamed responses from the backend service.
 The backend service is a FastAPI application that exposes a streaming
-API backed by Azure OpenAI GPT-4o and GPT-4o mini deployments.
+API backed by Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 
 The UI is built with [Material
 UI](https://mui.com/material-ui/getting-started/) components and follows
@@ -56,6 +56,12 @@ where TLS terminates), and shipping fonts as WOFF2.
 
 - Clone the repository
 - Create `backend/.env` file (cf. `backend/.env.example`)
+- Set the Azure Foundry resource endpoint and key. The resource must have
+  deployments named `gpt-6-astra` and `gpt-5.6-sol`.
+- The app defaults to GPT-6 Astra with low reasoning effort. The model picker
+  also offers GPT-5.6 Sol; reasoning effort can be low, medium, or high.
+  Requests use `reasoning_effort` instead of `temperature`, which GPT-6 Astra
+  does not support.
 - Restore needed dependencies:
 
 ``` bash

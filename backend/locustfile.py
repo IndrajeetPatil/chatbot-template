@@ -15,8 +15,8 @@ class ChatAPIUser(HttpUser):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.models = ["gpt-4o", "gpt-4o-mini"]
-        self.temperatures = ["DETERMINISTIC", "BALANCED", "CREATIVE"]
+        self.models = ["gpt-6-astra", "gpt-5.6-sol"]
+        self.reasoning_efforts = ["low", "medium", "high"]
         self.headers = {"Content-Type": "application/json"}
 
         self.test_prompts = [
@@ -30,7 +30,7 @@ class ChatAPIUser(HttpUser):
     @task(1)
     def chat_request(self) -> None:
         model: str = choice(self.models)
-        temperature: str = choice(self.temperatures)
+        reasoning_effort: str = choice(self.reasoning_efforts)
         prompt: str = choice(self.test_prompts)
         payload: dict[str, object] = {
             "messages": [
@@ -40,7 +40,7 @@ class ChatAPIUser(HttpUser):
                 },
             ],
             "model": model,
-            "temperature": temperature,
+            "reasoning_effort": reasoning_effort,
         }
 
         with self.client.post(

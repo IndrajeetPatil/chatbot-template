@@ -1,24 +1,20 @@
 import { z } from "zod";
 
-export const AssistantModelSchema = z.enum(["gpt-4o", "gpt-4o-mini"]);
+export const AssistantModelSchema = z.enum(["gpt-6-astra", "gpt-5.6-sol"]);
 
 export type AssistantModel = z.infer<typeof AssistantModelSchema>;
 
 export const AssistantModel = {
-  FULL: "gpt-4o",
-  MINI: "gpt-4o-mini",
+  ASTRA: "gpt-6-astra",
+  SOL: "gpt-5.6-sol",
 } as const satisfies Record<string, AssistantModel>;
 
-export const AssistantTemperatureSchema = z.enum([
-  "DETERMINISTIC",
-  "BALANCED",
-  "CREATIVE",
-]);
+export const ReasoningEffortSchema = z.enum(["low", "medium", "high"]);
 
-export type AssistantTemperature = z.infer<typeof AssistantTemperatureSchema>;
+export type ReasoningEffort = z.infer<typeof ReasoningEffortSchema>;
 
-export const AssistantTemperature = {
-  DETERMINISTIC: "DETERMINISTIC",
-  BALANCED: "BALANCED",
-  CREATIVE: "CREATIVE",
-} as const satisfies Record<string, AssistantTemperature>;
+export const ReasoningEffort = {
+  LOW: "low",
+  MEDIUM: "medium",
+  HIGH: "high",
+} as const satisfies Record<string, ReasoningEffort>;

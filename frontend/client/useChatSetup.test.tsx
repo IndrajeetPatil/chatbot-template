@@ -16,7 +16,7 @@ vi.mock("ai", () => ({
 }));
 
 import { makeTextMessage } from "@/client/testUtils";
-import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
+import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 import { useChatSetup } from "./useChatSetup";
 
 const INITIAL_MESSAGES = [
@@ -59,7 +59,7 @@ describe("useChatSetup", () => {
 
   test("returns messages from useChat", () => {
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     expect(result.current.messages).toEqual(INITIAL_MESSAGES);
   });
@@ -67,7 +67,7 @@ describe("useChatSetup", () => {
   test("assistantIsLoading is true when status is submitted", () => {
     setupMockChat({ status: "submitted" });
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     expect(result.current.assistantIsLoading).toBe(true);
   });
@@ -75,21 +75,21 @@ describe("useChatSetup", () => {
   test("assistantIsLoading is true when status is streaming", () => {
     setupMockChat({ status: "streaming" });
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     expect(result.current.assistantIsLoading).toBe(true);
   });
 
   test("assistantIsLoading is false when status is idle", () => {
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     expect(result.current.assistantIsLoading).toBe(false);
   });
 
   test("hasUserMessage is false with only the initial assistant message", () => {
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     expect(result.current.hasUserMessage).toBe(false);
   });
@@ -97,22 +97,22 @@ describe("useChatSetup", () => {
   test("hasUserMessage is true when a user message is present", () => {
     setupMockChat({ messages: WITH_USER_MESSAGE });
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     expect(result.current.hasUserMessage).toBe(true);
   });
 
-  test("handleSendMessage calls sendMessage with text and model/temperature body", async () => {
+  test("handleSendMessage calls sendMessage with text and model/reasoningEffort body", async () => {
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     await result.current.handleSendMessage("hello");
     expect(mockSendMessage).toHaveBeenCalledWith(
       { text: "hello" },
       {
         body: {
-          model: AssistantModel.FULL,
-          temperature: AssistantTemperature.BALANCED,
+          model: AssistantModel.ASTRA,
+          reasoning_effort: ReasoningEffort.MEDIUM,
         },
       },
     );
@@ -121,20 +121,20 @@ describe("useChatSetup", () => {
   test("handleRegenerateResponse calls regenerate when user message exists", async () => {
     setupMockChat({ messages: WITH_USER_MESSAGE });
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     await result.current.handleRegenerateResponse();
     expect(mockRegenerate).toHaveBeenCalledWith({
       body: {
-        model: AssistantModel.FULL,
-        temperature: AssistantTemperature.BALANCED,
+        model: AssistantModel.ASTRA,
+        reasoning_effort: ReasoningEffort.MEDIUM,
       },
     });
   });
 
   test("handleRegenerateResponse does not call regenerate without user messages", async () => {
     const { result } = renderHook(() =>
-      useChatSetup(AssistantModel.FULL, AssistantTemperature.BALANCED),
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     await result.current.handleRegenerateResponse();
     expect(mockRegenerate).not.toHaveBeenCalled();

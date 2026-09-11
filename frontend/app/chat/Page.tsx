@@ -3,7 +3,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { visuallyHidden } from "@mui/utils";
 import { useState } from "react";
 import { theme } from "@/client/theme";
-import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
+import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 import { useChatSetup } from "@/client/useChatSetup";
 import ControlPanel from "@/components/ControlPanel";
 import MessageList from "@/components/messages/MessageList";
@@ -38,9 +38,9 @@ const CHAT_MAIN_SX = {
 } as const;
 
 export default function Home() {
-  const [model, setModel] = useState<AssistantModel>(AssistantModel.FULL);
-  const [temperature, setTemperature] = useState<AssistantTemperature>(
-    AssistantTemperature.BALANCED,
+  const [model, setModel] = useState<AssistantModel>(AssistantModel.ASTRA);
+  const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>(
+    ReasoningEffort.LOW,
   );
   const {
     messages,
@@ -49,7 +49,7 @@ export default function Home() {
     error,
     handleSendMessage,
     handleRegenerateResponse,
-  } = useChatSetup(model, temperature);
+  } = useChatSetup(model, reasoningEffort);
 
   return (
     <ThemeProvider
@@ -84,8 +84,8 @@ export default function Home() {
         <ControlPanel
           model={model}
           setModel={setModel}
-          temperature={temperature}
-          setTemperature={setTemperature}
+          reasoningEffort={reasoningEffort}
+          setReasoningEffort={setReasoningEffort}
           onRegenerate={handleRegenerateResponse}
           canRegenerate={hasUserMessage}
           disabled={assistantIsLoading}

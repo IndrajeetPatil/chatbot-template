@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from app.config import Settings
-from app.entities import AssistantModel, AssistantTemperature, OpenAIMessageRole
+from app.entities import AssistantModel, OpenAIMessageRole, ReasoningEffort
 from app.main import TextPart, UIMessage, app, limiter
 
 if TYPE_CHECKING:
@@ -62,8 +62,8 @@ def test_post_chat_stream_success(
         "/api/v1/chat",
         json={
             "messages": [hi_message],
-            "model": "gpt-4o-mini",
-            "temperature": "BALANCED",
+            "model": "gpt-5.6-sol",
+            "reasoning_effort": "medium",
         },
     )
 
@@ -73,8 +73,8 @@ def test_post_chat_stream_success(
     assert calls == [
         {
             "messages": [{"role": "user", "content": "Hi"}],
-            "model": AssistantModel.MINI,
-            "temperature": AssistantTemperature.BALANCED,
+            "model": AssistantModel.SOL,
+            "reasoning_effort": ReasoningEffort.MEDIUM,
         },
     ]
 
@@ -102,25 +102,25 @@ def test_post_chat_rejects_empty_messages(client: TestClient) -> None:
 
 
 @pytest.mark.parametrize(
-    ("model", "temperature"),
+    ("model", "reasoning_effort"),
     [
-        ("invalid_model", "BALANCED"),
-        ("gpt-4o", "HOT"),
+        ("invalid_model", "medium"),
+        ("gpt-6-astra", "HOT"),
         ("invalid_model", "HOT"),
     ],
 )
-def test_post_chat_rejects_invalid_model_or_temperature(
+def test_post_chat_rejects_invalid_model_or_reasoning_effort(
     client: TestClient,
     hi_message: dict[str, object],
     model: str,
-    temperature: str,
+    reasoning_effort: str,
 ) -> None:
     response: TestClientResponse = client.post(
         "/api/v1/chat",
         json={
             "messages": [hi_message],
             "model": model,
-            "temperature": temperature,
+            "reasoning_effort": reasoning_effort,
         },
     )
 

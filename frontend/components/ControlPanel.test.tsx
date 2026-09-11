@@ -2,7 +2,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { theme } from "@/client/theme";
-import { AssistantModel, AssistantTemperature } from "@/client/types/assistant";
+import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 
 vi.mock("@/components/messages/ChatInput", () => ({
   default: ({
@@ -55,10 +55,10 @@ vi.mock("@/components/parameters/DropdownParameter", () => ({
 import ControlPanel from "./ControlPanel";
 
 const DEFAULT_PROPS = {
-  model: AssistantModel.FULL,
+  model: AssistantModel.ASTRA,
   setModel: vi.fn(),
-  temperature: AssistantTemperature.BALANCED,
-  setTemperature: vi.fn(),
+  reasoningEffort: ReasoningEffort.MEDIUM,
+  setReasoningEffort: vi.fn(),
   onRegenerate: vi.fn(),
   canRegenerate: true,
   disabled: false,
@@ -124,10 +124,10 @@ describe("ControlPanel", () => {
     ).toBeInTheDocument();
   });
 
-  test("renders temperature dropdown", () => {
+  test("renders reasoning effort dropdown", () => {
     renderControlPanel();
     expect(
-      screen.getByLabelText(/Select assistant temperature/i),
+      screen.getByLabelText(/Select reasoning effort/i),
     ).toBeInTheDocument();
   });
 
