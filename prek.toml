@@ -11,6 +11,13 @@ hooks = [
 ]
 
 [[repos]]
+repo = "https://github.com/astral-sh/ty-pre-commit"
+rev = "166c7027240501d219155fe71ad9817f8d69237b"  # frozen: v0.0.80
+hooks = [
+  { id = "ty", args = ["--directory=backend", "--isolated"] },
+]
+
+[[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
 rev = "5d5d9ecda0a544617f550c84792ea1bd717620e1"  # frozen: v0.2.72
 hooks = [
@@ -20,16 +27,6 @@ hooks = [
 [[repos]]
 repo = "local"
 hooks = [
-  {
-    id = "ty",
-    name = "ty",
-    # Use the locked project toolchain; ty-pre-commit bundles a separate uv pin.
-    language = "system",
-    entry = "make backend-type-check",
-    pass_filenames = false,
-    always_run = true,
-    require_serial = true,
-  },
   {
     id = "ls-lint",
     name = "file naming (ls-lint)",

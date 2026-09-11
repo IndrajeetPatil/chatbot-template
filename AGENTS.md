@@ -10,7 +10,7 @@ streamed via Azure Foundry GPT-6 Astra and GPT-5.6 Sol.
 ## Setup
 
 ```bash
-cd backend && uv sync --frozen          # Python 3.14, uv 0.12.13
+cd backend && uv sync --frozen          # Python 3.14, uv 0.12.12
 cd frontend && pnpm install --frozen-lockfile  # Node.js 24, pnpm 12.4.1
 ```
 
@@ -67,4 +67,9 @@ workflow link instead.
   (enforced by `commitlint`).
 - **Pre-commit hooks**: managed by `prek` —
   run `make hooks` to verify all files pass.
+- **ty hook compatibility**: retain the upstream `ty-pre-commit` hook pinned to
+  a full commit SHA. If its bundled uv version conflicts with the project's
+  required uv version, downgrade the project uv pin to the compatible version
+  and synchronize its Docker image, installer checksum, and documentation.
+  Do not replace the upstream hook with a local hook to avoid this conflict.
 - **No `dangerouslySetInnerHTML`** — blocked by ESLint security rules.
