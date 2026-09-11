@@ -5,9 +5,9 @@
 These ratings are preserved from the original review; the sections below track
 only findings that remain actionable on the current codebase.
 
-| Dimension | Score |
-| --- | --- |
-| Template quality | 8.2 / 10 |
+| Dimension                                          | Score    |
+| -------------------------------------------------- | -------- |
+| Template quality                                   | 8.2 / 10 |
 | Production readiness (without additional controls) | 6.7 / 10 |
 
 ## Production boundary controls

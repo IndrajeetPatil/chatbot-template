@@ -5,8 +5,8 @@ Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 
 ## Interface Preview
 
-| Light mode | Dark mode |
-|------------|-----------|
+| Light mode                                                                | Dark mode                                                               |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | ![Chatbot Template light mode UI](docs/images/chatbot-template-light.png) | ![Chatbot Template dark mode UI](docs/images/chatbot-template-dark.png) |
 
 ## Architecture/Design
@@ -112,12 +112,12 @@ REST API can be interactively explored using FastAPI's Swagger UI:
 
 ## Runtime Versions
 
-| Runtime / tool | Version source | Current version |
-|----------------|----------------|-----------------|
-| Python         | `backend/.python-version` / `backend/pyproject.toml` | 3.14 |
-| uv             | `backend/pyproject.toml` / `backend/Dockerfile` | 0.12.12 |
-| Node.js        | `frontend/package.json` / `frontend/.nvmrc` / frontend Docker image | 24 |
-| pnpm           | `frontend/package.json` / CI workflows | 12.4.1 |
+| Runtime / tool | Version source                                                      | Current version |
+| -------------- | ------------------------------------------------------------------- | --------------- |
+| Python         | `backend/.python-version` / `backend/pyproject.toml`                | 3.14            |
+| uv             | `backend/pyproject.toml` / `backend/Dockerfile`                     | 0.12.12         |
+| Node.js        | `frontend/package.json` / `frontend/.nvmrc` / frontend Docker image | 24              |
+| pnpm           | `frontend/package.json` / CI workflows                              | 12.4.1          |
 
 ## Quality Assurance
 
@@ -167,54 +167,54 @@ make clean
 
 More specifically:
 
-| Step                      | Frontend                         | Backend                   |
-|---------------------------|----------------------------------|---------------------------|
-| Package manager           | pnpm                             | uv                        |
-| Formatter                 | Biome                            | Ruff                      |
-| Linter                    | Biome                            | Ruff                      |
-| Import sorter             | Biome                            | Ruff                      |
-| Type checker              | TypeScript                       | ty                        |
-| Type annotation coverage  | type-coverage                    | typecoverage              |
-| Security linting          | ESLint (`no-unsanitized`, `react-dom`) | \-                  |
-| Dead-code / complexity    | fallow                           | \-                        |
-| CSS code quality          | @projectwallace/css-code-quality | \-                        |
-| Contrast audit            | axe-core (`color-contrast`) in light and dark mode | \- |
-| Markdown linting          | rumdl                            | rumdl                     |
-| File naming               | ls-lint                          | ls-lint                   |
-| Pre-commit hooks          | prek                             | prek                      |
-| Commit message linting    | commitlint                       | commitlint                |
-| IaC / workflow scan       | Checkov                          | Checkov                   |
-| Secret scanning           | Gitleaks                         | Gitleaks                  |
-| GitHub Actions audit      | zizmor                           | zizmor                    |
-| Container vuln scan       | Trivy                            | Trivy                     |
-| Unit testing              | Vitest                           | pytest                    |
-| Property-based testing    | fast-check                       | Hypothesis                |
-| Code coverage             | Vitest                           | coverage.py               |
-| Coverage floor            | 90% statements/functions/lines; 75% branches | 100% |
-| Load testing              | \-                               | locust                    |
-| End-to-end testing        | Playwright                       | \-                        |
-| Dependency audit          | pnpm audit                       | uv audit                  |
-| Performance / a11y        | Lighthouse CI, axe-core          | \-                        |
-| API client                | Vercel AI SDK                    | openai                    |
-| API server                | \-                               | FastAPI                   |
-| UI toolkit                | Material UI                      | \-                        |
-| Logger                    | \-                               | loguru                    |
+| Step                     | Frontend                                           | Backend      |
+| ------------------------ | -------------------------------------------------- | ------------ |
+| Package manager          | pnpm                                               | uv           |
+| Formatter                | Biome                                              | Ruff         |
+| Linter                   | Biome                                              | Ruff         |
+| Import sorter            | Biome                                              | Ruff         |
+| Type checker             | TypeScript                                         | ty           |
+| Type annotation coverage | type-coverage                                      | typecoverage |
+| Security linting         | ESLint (`no-unsanitized`, `react-dom`)             | \-           |
+| Dead-code / complexity   | fallow                                             | \-           |
+| CSS code quality         | @projectwallace/css-code-quality                   | \-           |
+| Contrast audit           | axe-core (`color-contrast`) in light and dark mode | \-           |
+| Markdown linting         | rumdl                                              | rumdl        |
+| File naming              | ls-lint                                            | ls-lint      |
+| Pre-commit hooks         | prek                                               | prek         |
+| Commit message linting   | commitlint                                         | commitlint   |
+| IaC / workflow scan      | Checkov                                            | Checkov      |
+| Secret scanning          | Gitleaks                                           | Gitleaks     |
+| GitHub Actions audit     | zizmor                                             | zizmor       |
+| Container vuln scan      | Trivy                                              | Trivy        |
+| Unit testing             | Vitest                                             | pytest       |
+| Property-based testing   | fast-check                                         | Hypothesis   |
+| Code coverage            | Vitest                                             | coverage.py  |
+| Coverage floor           | 90% statements/functions/lines; 75% branches       | 100%         |
+| Load testing             | \-                                                 | locust       |
+| End-to-end testing       | Playwright                                         | \-           |
+| Dependency audit         | pnpm audit                                         | uv audit     |
+| Performance / a11y       | Lighthouse CI, axe-core                            | \-           |
+| API client               | Vercel AI SDK                                      | openai       |
+| API server               | \-                                                 | FastAPI      |
+| UI toolkit               | Material UI                                        | \-           |
+| Logger                   | \-                                                 | loguru       |
 
 ### File naming
 
 [ls-lint 2.3.1](https://ls-lint.org/2.3/configuration/the-basics.html) enforces
 `.ls-lint.yml` across the repository:
 
-| Layer | Convention | Example |
-|-------|------------|---------|
-| Python modules, tests, and repository scripts | snake_case; `__init__.py` allowed | `azure_client.py`, `check_repo_symlinks.py` |
-| Python package directories | snake_case | `backend/app/` |
-| React components and page components | PascalCase, including colocated tests | `ChatInput.tsx`, `Page.test.tsx` |
-| Client modules, hooks, and test helpers | camelCase, including test suffixes | `useChatSetup.ts`, `testUtils.tsx` |
-| Vite entry point | `main.tsx` | `frontend/src/main.tsx` |
-| Frontend directories, CSS, fonts, and images | kebab-case | `e2e-tests/`, `geist-mono-vf.woff` |
-| End-to-end tests and JavaScript utility scripts | kebab-case | `chat-page.spec.ts`, `contrast-audit.mjs` |
-| Shell scripts, Make fragments, docs, and config basenames | kebab-case | `post-create.sh`, `backend.mk`, `update-deps.md` |
+| Layer                                                     | Convention                            | Example                                          |
+| --------------------------------------------------------- | ------------------------------------- | ------------------------------------------------ |
+| Python modules, tests, and repository scripts             | snake_case; `__init__.py` allowed     | `azure_client.py`, `check_repo_symlinks.py`      |
+| Python package directories                                | snake_case                            | `backend/app/`                                   |
+| React components and page components                      | PascalCase, including colocated tests | `ChatInput.tsx`, `Page.test.tsx`                 |
+| Client modules, hooks, and test helpers                   | camelCase, including test suffixes    | `useChatSetup.ts`, `testUtils.tsx`               |
+| Vite entry point                                          | `main.tsx`                            | `frontend/src/main.tsx`                          |
+| Frontend directories, CSS, fonts, and images              | kebab-case                            | `e2e-tests/`, `geist-mono-vf.woff`               |
+| End-to-end tests and JavaScript utility scripts           | kebab-case                            | `chat-page.spec.ts`, `contrast-audit.mjs`        |
+| Shell scripts, Make fragments, docs, and config basenames | kebab-case                            | `post-create.sh`, `backend.mk`, `update-deps.md` |
 
 Standard names such as `README.md`, `AGENTS.md`, `Dockerfile`, and tool dotfiles
 are preserved. Compound extensions such as `.test.tsx`, `.spec.ts`, `.config.ts`,
