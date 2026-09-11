@@ -21,11 +21,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4  # v10.1.0
-        with:
-          working-directory: ./backend
-
       - name: Install ls-lint v2.3.1
         run: |
           curl -fsSLO "https://github.com/loeffel-io/ls-lint/releases/download/v2.3.1/ls-lint-linux-amd64"
@@ -33,7 +28,14 @@ jobs:
           chmod +x ls-lint-linux-amd64
           sudo mv ls-lint-linux-amd64 /usr/local/bin/ls-lint
 
-      - name: Run prek
+      # prek manages Python hook environments; ty's hook supplies its own uv.
+      # The action caches those environments and forces coloured output.
+      - name: Run pre-commit hooks
         uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece  # v3.0.0
+        with:
+          # Latest version covered by this action revision's SHA256 table.
+          prek-version: "0.4.11"
+          extra-args: --all-files --stage pre-commit
         env:
+          # CI checks main too; this guard is for local commits only.
           SKIP: no-commit-to-branch
