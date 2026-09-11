@@ -176,6 +176,8 @@ Use the Docker targets for visual comparisons and updates on every host. They
 share a digest-pinned Playwright Linux/amd64 image with CI, including on Apple
 Silicon, and keep Linux dependencies in a dedicated Docker volume. The production
 preview uses port 3000 and refuses to reuse an existing server.
+The container restores generated output ownership to your UID/GID on exit,
+including after test failures, so native Linux builds and edits stay writable.
 
 Snapshots cover the greeting, validation, model/reasoning menus, Markdown
 conversation, pending response, and request failure. Screenshot assertions wait

@@ -72,10 +72,10 @@ frontend-e2e-test: frontend-build
 # Dedicated Linux dependencies never overwrite the host installation.
 frontend-e2e-test-docker:
 	docker run --rm --init --ipc=host --platform linux/amd64 \
+		-e HOST_UID="$$(id -u)" -e HOST_GID="$$(id -g)" \
 		-e CI=1 -v "$(CURDIR)/frontend":/work \
 		-v chatbot-pw-node-modules:/work/node_modules \
-		-w /work $(PLAYWRIGHT_IMAGE) bash -c \
-		'corepack enable && pnpm install --frozen-lockfile && pnpm build && pnpm test:e2e "$$@"' -- $(E2E_ARGS)
+		-w /work $(PLAYWRIGHT_IMAGE) bash scripts/run-e2e-docker.sh $(E2E_ARGS)
 
 frontend-clean:
 	@echo "$(COLOR_BLUE_BG)Cleaning frontend build artifacts and caches...$(COLOR_RESET)"
