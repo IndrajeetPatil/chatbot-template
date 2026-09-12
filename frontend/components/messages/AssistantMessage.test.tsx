@@ -9,7 +9,7 @@ test.each(["light", "dark"] as const)(
   "copies the original markdown in %s mode",
   async (mode) => {
     const content =
-      "A **formatted** reply with `inline code`.\n\n```javascript\nconsole.log('hello');\n```\n\n```\nplain block\n```";
+      "A **formatted** reply with `inline code`.\n\n```javascript\nconsole.log('hello');\n```\n\n```\nplain block\n```\n\n$E = mc^2$";
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", { clipboard: { writeText } });
     renderWithTheme(

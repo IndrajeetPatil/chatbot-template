@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { openChat, sendMessage } from "./chat-fixture";
+import { MARKDOWN_REPLY } from "./markdown-fixture";
 
 // Use the pinned Linux/amd64 renderer through make e2e-test-docker on macOS.
 test.skip(
@@ -49,12 +50,14 @@ for (const colorScheme of ["light", "dark"] as const) {
         await page.route("**/api/v1/chat", (route) =>
           route.fulfill({
             contentType: "text/plain; charset=utf-8",
-            body: "Here is **bold text**, a [link](https://example.com), and `inline code`.\n\n```javascript\nconsole.log('Hello!');\n```",
+            body: MARKDOWN_REPLY,
           }),
         );
         await sendMessage(page, "Show me a short code example.");
         // The lazy markdown renderer must finish before capturing the page.
         await expect(page.getByTestId("code-block")).toBeVisible();
+        await expect(page.locator(".katex-display")).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
         await expect(page).toHaveScreenshot(snapshot("conversation"));
       });
 

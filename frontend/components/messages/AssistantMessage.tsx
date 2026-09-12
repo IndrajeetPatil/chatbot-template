@@ -1,57 +1,14 @@
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import type React from "react";
 import { lazy, Suspense, useRef, useState } from "react";
-import { useIsDark } from "@/client/hooks";
 
-// Load the markdown renderer lazily so it stays off the initial critical
-// path. The first paint (including the LCP greeting) renders the message
-// text as-is via the Suspense fallback, then upgrades to rendered markdown
-// once the chunk arrives — visually identical for plain text, so no layout
-// shift.
-const ReactMarkdown = lazy(() => import("react-markdown"));
-
-const DARK_COLORS = {
-  codeBlock: "#1e1e1e",
-  inlineBg: "#2d2d2d",
-  inlineFg: "#e0e0e0",
-} as const;
-
-const LIGHT_COLORS = {
-  codeBlock: "#f6f8fa",
-  inlineBg: "#f5f5f5",
-  inlineFg: "inherit",
-} as const;
-
-const BLOCK_CODE_SX = {
-  fontFamily: '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
-  fontSize: "0.875rem",
-  whiteSpace: "pre",
-} as const;
+// Keep Markdown, highlighting, KaTeX and their styles off the initial path.
+const RichMarkdown = lazy(() => import("./RichMarkdown"));
 
 const COPY_BUTTON_SX = {
   mt: 1,
   ml: -1,
   color: "text.secondary",
-} as const;
-
-const CODE_BLOCK_PRE_SX = {
-  borderRadius: 2,
-  border: 1,
-  borderColor: "divider",
-  mt: 2,
-  overflowX: "auto",
-  p: 2,
-} as const;
-
-// Paragraphs get spacing between them, but the outer edges collapse so a
-// single-paragraph message (e.g. the greeting) renders with no vertical
-// margin — matching the raw-text Suspense fallback exactly, so upgrading to
-// rendered markdown causes no layout shift.
-const MARKDOWN_P_SX = {
-  my: 2,
-  "&:first-of-type": { mt: 0 },
-  "&:last-of-type": { mb: 0 },
 } as const;
 
 const ASSISTANT_MESSAGE_CONTAINER_SX = {
@@ -65,17 +22,6 @@ const ASSISTANT_MESSAGE_PAPER_SX = {
   overflowWrap: "anywhere",
   wordWrap: "break-word",
 } as const;
-
-function BlockCode({ text }: { text: string }) {
-  return (
-    <Typography
-      component="code"
-      sx={BLOCK_CODE_SX}
-    >
-      {text.replace(/\n$/, "")}
-    </Typography>
-  );
-}
 
 interface CopyButtonProps {
   content: string;
@@ -105,59 +51,12 @@ function CopyButton({ content }: CopyButtonProps) {
   );
 }
 
-type ThemeColors = typeof DARK_COLORS | typeof LIGHT_COLORS;
-
-// The React Compiler memoizes this object by its `colors` dependency, so no
-// manual useMemo is needed to keep the reference stable across renders.
-function useMarkdownComponents(colors: ThemeColors) {
-  return {
-    p: ({ children }: React.ComponentPropsWithoutRef<"p">) => (
-      <Box
-        component="p"
-        sx={MARKDOWN_P_SX}
-      >
-        {children}
-      </Box>
-    ),
-    pre: ({ children }: React.ComponentPropsWithoutRef<"pre">) => (
-      <Box
-        component="pre"
-        data-testid="code-block"
-        sx={[CODE_BLOCK_PRE_SX, { backgroundColor: colors.codeBlock }]}
-      >
-        {children}
-      </Box>
-    ),
-    code: ({
-      className = "",
-      children,
-    }: React.ComponentPropsWithoutRef<"code">) => {
-      const language = className.match(/language-(\w+)/)?.[1];
-      const text = String(children ?? "");
-      if (language || text.includes("\n")) {
-        return <BlockCode text={text} />;
-      }
-      return (
-        <code
-          style={{ backgroundColor: colors.inlineBg, color: colors.inlineFg }}
-        >
-          {children}
-        </code>
-      );
-    },
-  };
-}
-
 interface AssistantMessageProps {
   content: string;
   isFirstMessage: boolean;
 }
 
 function AssistantMessage({ content, isFirstMessage }: AssistantMessageProps) {
-  const isDark = useIsDark();
-  const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
-  const markdownComponents = useMarkdownComponents(colors);
-
   return (
     <Box sx={ASSISTANT_MESSAGE_CONTAINER_SX}>
       <Box sx={ASSISTANT_MESSAGE_PAPER_SX}>
@@ -173,9 +72,7 @@ function AssistantMessage({ content, isFirstMessage }: AssistantMessageProps) {
           component="div"
         >
           <Suspense fallback={content}>
-            <ReactMarkdown components={markdownComponents}>
-              {content}
-            </ReactMarkdown>
+            <RichMarkdown content={content} />
           </Suspense>
         </Typography>
         {!isFirstMessage && <CopyButton content={content} />}

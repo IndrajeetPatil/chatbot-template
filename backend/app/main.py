@@ -22,6 +22,11 @@ if TYPE_CHECKING:
 _MAX_MESSAGES = 50
 _MAX_MESSAGE_CHARS = 32_000
 _MAX_PARTS = 50
+RESPONSE_FORMAT_INSTRUCTIONS: str = (
+    "Format replies in Markdown. Use language-tagged fenced blocks for code. "
+    "For LaTeX math, use $...$ inline and $$ on separate lines for display math, "
+    r"not \(...\) or \[...\]. Escape literal currency dollar signs as \$."
+)
 
 settings: Settings = get_settings()
 
@@ -157,7 +162,10 @@ def _to_openai_messages(messages: list[UIMessage]) -> list[ChatMessage]:
             detail="At least one text message is required.",
         )
 
-    return openai_messages
+    return [
+        {"role": "system", "content": RESPONSE_FORMAT_INSTRUCTIONS},
+        *openai_messages,
+    ]
 
 
 def _stream_chat(
