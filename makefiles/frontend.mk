@@ -90,8 +90,13 @@ frontend-clean:
 	       $(FRONTEND_DIR)/coverage \
 	       $(FRONTEND_DIR)/playwright-report \
 	       $(FRONTEND_DIR)/test-results \
+	       $(FRONTEND_DIR)/blob-report \
+	       $(FRONTEND_DIR)/playwright/.cache \
+	       $(FRONTEND_DIR)/.cache \
+	       $(FRONTEND_DIR)/.pnpm-store \
 	       $(FRONTEND_DIR)/.fallow \
 	       $(FRONTEND_DIR)/.lighthouseci
+	rm -f $(FRONTEND_DIR)/*.tsbuildinfo $(FRONTEND_DIR)/.eslintcache
 
 run-frontend:
 	@echo "$(COLOR_BLUE_BG)Running frontend server...$(COLOR_RESET)"

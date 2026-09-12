@@ -49,7 +49,20 @@ format: backend-format frontend-format markdown-format
 type-check: backend-type-check frontend-type-check
 test: backend-test frontend-test
 type-coverage: backend-type-coverage frontend-type-coverage
+
+# Prune shared package caches only after removing this project's installations.
 clean: backend-clean frontend-clean
+	rm -rf .cache .ruff_cache .rumdl_cache .lighthouseci .pnpm-store node_modules
+	rm -f results.sarif backend.pid
+	$(MAKE) cache-clean docker-clean
+
+cache-clean:
+	@echo "$(COLOR_BLUE_BG)Cleaning shared uv and unused pnpm caches...$(COLOR_RESET)"
+	uv cache clean
+	cd $(FRONTEND_DIR) && bash ../scripts/clean-pnpm-caches.sh
+
+docker-clean:
+	@bash scripts/clean-docker-caches.sh
 
 # Convenience aliases for frontend-only tools
 fallow: frontend-fallow
@@ -174,7 +187,7 @@ e2e-update:
 	$(MAKE) e2e-test-docker E2E_ARGS="--update-snapshots $(E2E_ARGS)"
 
 .PHONY: setup service update-deps upgrade-deps \
-	lint format type-check test type-coverage clean \
+	lint format type-check test type-coverage clean cache-clean docker-clean \
 	fallow css-quality contrast-audit lighthouse \
 	commitlint markdown-lint markdown-format security-scan secret-scan-ci codex-security file-naming hooks \
 	qa-backend qa-frontend qa \

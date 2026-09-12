@@ -29,11 +29,46 @@ see [getting started](getting-started.md) for service selection and configuratio
 | `make frontend-preview`                      | Build and preview the frontend                                  |
 | `make docker-up` / `make docker-down`        | Build/start / stop Compose services                             |
 | `make markdown-format`                       | Format Markdown and align tables                                |
-| `make clean`                                 | Remove local dependencies, build output, and tool caches        |
+| `make clean`                                 | Remove generated output and local / unused shared caches        |
 
 Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
 [frontend.mk](../makefiles/frontend.mk). `make format` includes Markdown formatting;
 rumdl enforces aligned table columns in lint, QA, and hooks.
+
+## Cleaning and rebuilding
+
+Stop development servers and test runs, then run:
+
+```bash
+make clean
+make setup
+make qa
+```
+
+| Removed by `make clean`                                                 | Recreated by                                 |
+| ----------------------------------------------------------------------- | -------------------------------------------- |
+| Backend `.venv`, frontend and root `node_modules`                       | `make setup`                                 |
+| Python bytecode, pytest / Hypothesis caches, coverage data and XML      | `make backend-test`                          |
+| Ruff, rumdl, Fallow, TypeScript, ESLint, and local `.cache` directories | `make qa`                                    |
+| Frontend build and coverage output                                      | `make frontend-build` / `make frontend-test` |
+| Playwright reports, traces, blob reports, and local cache               | `make e2e-test` / `make e2e-test-docker`     |
+| Lighthouse reports                                                      | `make lighthouse`                            |
+| Gitleaks `results.sarif`                                                | `make secret-scan-ci`                        |
+| uv download/tool cache; unused pnpm packages, metadata and dlx cache    | `make setup` and the relevant tool targets   |
+| Local pnpm stores and Docker's `chatbot-pw-*` dependency volumes        | `make setup` / `make e2e-test-docker`        |
+
+- `backend/.env`, source files, lockfiles, and visual baselines are preserved.
+- uv and pnpm caches are shared with other projects: their next runs may download
+  packages again. pnpm pruning preserves packages still referenced by other
+  projects, so it does not guarantee a completely empty shared store.
+- Docker cleanup removes only `chatbot-pw-node-modules` and the legacy
+  `chatbot-pw-pnpm-store` volume. If Docker is unavailable, cleanup reports the
+  skip; rerun `make docker-clean` after starting it. In-use volumes fail cleanup.
+- Installed runtimes, browser binaries, hook environments, Docker images, and
+  shared Docker build layers remain. `make docker-build` already uses `--no-cache`
+  to rebuild service layers; `make e2e-test-docker` repopulates its dependency volume.
+- `make backend-clean` / `make frontend-clean` remove only that service's local
+  artifacts. `make cache-clean` separately repeats shared package-cache cleanup.
 
 ## Automated checks
 

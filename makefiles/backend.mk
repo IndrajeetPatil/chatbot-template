@@ -51,9 +51,13 @@ backend-clean:
 	rm -rf $(BACKEND_DIR)/.venv \
 	       $(BACKEND_DIR)/htmlcov \
 	       $(BACKEND_DIR)/.coverage \
+	       $(BACKEND_DIR)/.coverage.* \
+	       $(BACKEND_DIR)/coverage.xml \
+	       $(BACKEND_DIR)/.cache \
+	       $(BACKEND_DIR)/.hypothesis \
 	       $(BACKEND_DIR)/.pytest_cache \
 	       $(BACKEND_DIR)/.ruff_cache
-	find $(BACKEND_DIR) -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find $(BACKEND_DIR) -type d -name __pycache__ -prune -exec rm -rf {} +
 
 run-backend:
 	@echo "$(COLOR_BLUE_BG)Running backend server...$(COLOR_RESET)"
