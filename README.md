@@ -12,7 +12,9 @@ streaming replies from Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 A local conversation turns projectile-motion equations into a typed Python
 function, showing LaTeX and syntax highlighting in dark and light mode.
 
-[Watch the local demo](docs/demo.md)
+<!-- GitHub needs a bare attachment URL to render the video player. -->
+<!-- rumdl-disable-next-line MD034 -->
+https://github.com/user-attachments/assets/e12a4e90-5ed6-48d3-ad84-51b56a604dba
 
 [Demo transcript and recording notes](docs/demo.md) ·
 [Interface screenshots](docs/frontend.md#interface)
