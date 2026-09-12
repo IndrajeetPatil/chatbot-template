@@ -11,6 +11,7 @@ AUDIT=pnpm audit --audit-level=moderate
 BUILD=pnpm run build
 VITEST=pnpm run test
 VITE_START=pnpm run start
+VITE_DEV=pnpm run dev --host 127.0.0.1 --strictPort
 PLAYWRIGHT=pnpm run test:e2e
 FALLOW=pnpm run fallow
 CSS_QUALITY=pnpm run css-quality
@@ -18,6 +19,9 @@ CONTRAST_AUDIT=pnpm run contrast-audit
 SECURITY_LINT=pnpm run lint:security
 TSCOVERAGE=pnpm run type-coverage
 LHCI=pnpm dlx @lhci/cli@0.15.1
+
+frontend-setup:
+	cd $(FRONTEND_DIR) && pnpm install --frozen-lockfile
 
 frontend-lint:
 	@echo "$(COLOR_BLUE_BG)Running frontend linting and formatting...$(COLOR_RESET)"
@@ -91,9 +95,12 @@ frontend-clean:
 
 run-frontend:
 	@echo "$(COLOR_BLUE_BG)Running frontend server...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VITE_START) & echo $$! > frontend.pid
+	cd $(FRONTEND_DIR) && $(VITE_DEV)
 
-.PHONY: frontend-lint frontend-format frontend-type-check \
+frontend-preview: frontend-build
+	cd $(FRONTEND_DIR) && $(VITE_START) --host 127.0.0.1 --strictPort
+
+.PHONY: frontend-setup frontend-lint frontend-format frontend-type-check \
 	frontend-test frontend-build frontend-audit frontend-fallow \
 	frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage \
-	frontend-lighthouse frontend-e2e-test frontend-e2e-test-docker frontend-clean run-frontend
+	frontend-lighthouse frontend-e2e-test frontend-e2e-test-docker frontend-clean run-frontend frontend-preview

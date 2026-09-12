@@ -17,6 +17,19 @@ GITLEAKS_IMAGE := zricethezav/gitleaks:v8.24.3@sha256:e1b35e12a8c6fa8901f060459c
 # to run against an older CLI whose flags/output may differ.
 CODEX_SECURITY_MIN_VERSION := 0.1.23
 
+# Local development
+SERVICE ?= both
+
+setup: backend/.env backend-setup frontend-setup
+	@echo "Dependencies ready. Configure backend/.env before running make service."
+
+# An existing environment file is never overwritten, even after template changes.
+backend/.env:
+	cp backend/.env.example backend/.env
+
+service:
+	+bash scripts/run-services.sh "$(SERVICE)" "$(MAKE)"
+
 # Dependency updates
 update-deps:
 	@echo "$(COLOR_BLUE_BG)Updating backend Python dependencies...$(COLOR_RESET)"
@@ -32,7 +45,7 @@ upgrade-deps: update-deps
 
 # Aggregate targets
 lint: file-naming backend-lint frontend-lint markdown-lint
-format: backend-format frontend-format
+format: backend-format frontend-format markdown-format
 type-check: backend-type-check frontend-type-check
 test: backend-test frontend-test
 type-coverage: backend-type-coverage frontend-type-coverage
@@ -53,6 +66,10 @@ commitlint:
 markdown-lint:
 	@echo "$(COLOR_BLUE_BG)Running markdown linting with rumdl...$(COLOR_RESET)"
 	uv tool run --from rumdl==0.2.72 rumdl check .
+
+markdown-format:
+	@echo "$(COLOR_BLUE_BG)Formatting Markdown with rumdl...$(COLOR_RESET)"
+	uv tool run --from rumdl==0.2.72 rumdl fmt .
 
 security-scan:
 	@echo "$(COLOR_BLUE_BG)Running security scanning with Checkov...$(COLOR_RESET)"
@@ -134,7 +151,7 @@ qa-frontend: file-naming frontend-lint frontend-format frontend-type-check front
 qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-build frontend-contrast-audit frontend-security-lint type-coverage security-scan
 
 # Run targets
-run: run-backend run-frontend
+run: service
 
 # Docker targets
 docker-build:
@@ -156,10 +173,10 @@ e2e-test-docker: frontend-e2e-test-docker
 e2e-update:
 	$(MAKE) e2e-test-docker E2E_ARGS="--update-snapshots $(E2E_ARGS)"
 
-.PHONY: update-deps upgrade-deps \
+.PHONY: setup service update-deps upgrade-deps \
 	lint format type-check test type-coverage clean \
 	fallow css-quality contrast-audit lighthouse \
-	commitlint markdown-lint security-scan secret-scan-ci codex-security file-naming hooks \
+	commitlint markdown-lint markdown-format security-scan secret-scan-ci codex-security file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \
 	docker-build docker-up docker-down \

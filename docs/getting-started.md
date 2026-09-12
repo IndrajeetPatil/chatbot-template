@@ -4,95 +4,98 @@
 
 ## Prerequisites
 
-Clone the repository and use the pinned runtime and package manager versions:
+Clone the repository and install the pinned tools, or use the development
+container, which installs the toolchain for you.
 
-| Runtime / tool | Version source | Current version |
-| --- | --- | --- |
-| Python | `backend/.python-version` / `backend/pyproject.toml` | 3.14 |
-| uv | `backend/pyproject.toml` / `backend/Dockerfile` | 0.12.12 |
-| Node.js | `frontend/package.json` / `frontend/.nvmrc` / frontend Docker image | 24 |
-| pnpm | `frontend/package.json` / CI workflows | 12.4.1 |
+| Runtime / tool | Current version | Source of truth                                                        |
+| -------------- | --------------- | ---------------------------------------------------------------------- |
+| Python         | 3.14            | `backend/.python-version`, `backend/pyproject.toml`                    |
+| uv             | 0.12.12         | `backend/pyproject.toml`; Docker and installer pins must match         |
+| Node.js        | 24              | `frontend/package.json`; `.nvmrc`, Docker, and devcontainer must match |
+| pnpm           | 12.4.1          | `frontend/package.json`; CI reads this declaration                     |
+| Make and Bash  | System tools    | Required by the development commands                                   |
 
-pnpm 12 reads the Node.js 24 runtime declaration from `package.json`. Package
-scripts use the project runtime automatically, even when a different Node.js
-version is installed globally. The development container installs the pinned
-toolchain; see [local tooling requirements](development.md#file-naming) for hooks.
+- pnpm runs scripts with the declared Node.js runtime, even if the global version
+  differs.
+- Contributor hooks also need the pinned `ls-lint` binary on `PATH`; see
+  [tooling requirements](development.md#file-naming).
 
-## Configure Azure
+## Setup and configuration
 
-Copy `backend/.env.example` to `backend/.env` and set the Azure Foundry resource
-endpoint, API key, and API version. The resource must have deployments named
-`gpt-6-astra` and `gpt-5.6-sol`. Never commit credentials.
+1. Run `make setup` from the repository root.
+2. Set the Azure endpoint, API key, and API version in `backend/.env`.
+3. Run `make service`, then open [the chatbot](http://localhost:3000/chat).
 
-The app defaults to GPT-6 Astra with low reasoning effort. The model picker also
-offers GPT-5.6 Sol; reasoning effort can be low, medium, or high. Requests use
-`reasoning_effort` instead of `temperature`, which GPT-6 Astra does not support.
-See [backend configuration](backend.md#configuration) for the supported settings.
+| Setup action          | Behavior                                                         |
+| --------------------- | ---------------------------------------------------------------- |
+| Environment file      | Copies `backend/.env.example` only when `backend/.env` is absent |
+| Backend dependencies  | Restores the frozen uv lockfile                                  |
+| Frontend dependencies | Restores the frozen pnpm lockfile                                |
+| Repeated setup        | Preserves the existing environment file and credentials          |
 
-## Local development
+| Azure choice     | Supported values                                               |
+| ---------------- | -------------------------------------------------------------- |
+| Deployment names | `gpt-6-astra`, `gpt-5.6-sol`                                   |
+| Default model    | GPT-6 Astra                                                    |
+| Reasoning effort | Low (default), medium, high                                    |
+| Sampling option  | `reasoning_effort`; GPT-6 Astra does not support `temperature` |
 
-Restore dependencies from the repository root:
+See [backend configuration](backend.md#configuration) for settings. Credentials
+stay in the backend; never commit `backend/.env`.
 
-```bash
-(cd backend && uv sync --frozen)
-(cd frontend && pnpm install --frozen-lockfile)
+## Run services
+
+| Task                        | Command                                       | Address                                           |
+| --------------------------- | --------------------------------------------- | ------------------------------------------------- |
+| Both services               | `make service` or `make service SERVICE=both` | Frontend and backend below                        |
+| Backend only                | `make service SERVICE=backend`                | [localhost:8000](http://localhost:8000)           |
+| Frontend only               | `make service SERVICE=frontend`               | [localhost:3000/chat](http://localhost:3000/chat) |
+| API explorer                | Start the backend                             | [Swagger UI](http://localhost:8000/docs)          |
+| Production frontend preview | `make frontend-preview`                       | [localhost:3000/chat](http://localhost:3000/chat) |
+
+- Development servers support hot reload and bind to loopback by default.
+- Logs remain in the terminal. Ctrl+C stops the selected services and reload
+  workers; if either service exits in both-service mode, its sibling stops too.
+- `make run` remains an alias for `make service`; `make run-backend` and
+  `make run-frontend` also remain available, now in the foreground.
+- Production preview builds first. It still needs a running backend for chat.
+
+## Request routing
+
+```mermaid
+flowchart LR
+    Browser[Browser] -->|same-origin /api/v1/chat| Frontend[Vite or nginx]
+    Frontend -->|proxy /api| Backend[FastAPI]
+    Backend -->|server-side credentials| Azure[Azure OpenAI]
 ```
 
-Start the backend in one terminal:
-
-```bash
-cd backend
-uv run fastapi dev app/main.py --host 127.0.0.1 --port 8000
-```
-
-Start the frontend in another terminal:
-
-```bash
-cd frontend
-pnpm run dev
-```
-
-Open [the chatbot](http://localhost:3000/chat). The backend is available at
-`http://localhost:8000`, with [Swagger UI](http://localhost:8000/docs) for
-interactive API exploration. Frontend development binds to all interfaces;
-append `--host 127.0.0.1` when access should stay on your machine.
-
-For a production frontend preview, run `make frontend-build`, then
-`pnpm run start` from `frontend/`. Alternatively, after building, `make run`
-starts both servers in the background and writes `backend.pid` and `frontend.pid`.
-
-The browser talks to `/api/v1/chat` on the frontend origin. Vite proxies `/api`
-to `http://localhost:8000` by default. To use a different backend, set the
-server-side target before starting Vite from `frontend/`:
-
-```bash
-CHAT_API_PROXY_TARGET=https://example.com pnpm run dev
-```
-
-The same proxy configuration is used by the production preview.
+| Mode                        | Proxy target            | Configuration                                                             |
+| --------------------------- | ----------------------- | ------------------------------------------------------------------------- |
+| Local development / preview | `http://localhost:8000` | `frontend/vite.config.ts`                                                 |
+| Custom local backend        | Your backend URL        | `CHAT_API_PROXY_TARGET=https://example.com make service SERVICE=frontend` |
+| Docker Compose              | Backend container       | `frontend/frontend.nginx.conf`                                            |
 
 ## Docker Compose
 
-After configuring `backend/.env`, build and run both services:
+| Task                            | Command             |
+| ------------------------------- | ------------------- |
+| Build and start both containers | `make docker-up`    |
+| Stop both containers            | `make docker-down`  |
+| Build images only               | `make docker-build` |
 
-```bash
-docker-compose up --build
-```
-
-The frontend container proxies `/api` to the backend container. The backend
-hostname is not exposed in browser requests, although Compose publishes port
-8000 on the host. Review the [deployment security guidance](security.md) before
-exposing either service.
-
-The frontend build is multi-stage: its builder installs `devDependencies` to
-run `vite build`, while the final nginx runtime has no `node_modules` or dev
-tooling. See [frontend.nginx.conf](../frontend/frontend.nginx.conf) for proxying,
-SPA fallback, response headers, caching, and compression.
+- Configure `backend/.env` first; Docker setup does not need host dependencies.
+- Compose publishes frontend port 3000 and backend port 8000. Review
+  [deployment security](security.md) before exposing either service.
+- The frontend builder installs development dependencies; the final nginx image
+  contains no `node_modules` or development tooling.
+- [nginx configuration](../frontend/frontend.nginx.conf) controls proxying, SPA
+  fallback, response headers, caching, and compression.
 
 ## Next steps
 
-- Read the [frontend](frontend.md) and [backend](backend.md) guides.
-- Run `make qa` and follow the [development guide](development.md) before a PR.
-- Use `make update-deps` to refresh dependencies and hook revisions. It also
-  checks registry revisions of locked packages so patched artifacts can be
-  adopted without changing the declared dependency version.
+| Task                               | Guide / command                                        |
+| ---------------------------------- | ------------------------------------------------------ |
+| Understand the app                 | [Frontend](frontend.md), [backend](backend.md)         |
+| Validate a change                  | `make qa`, then [development guidance](development.md) |
+| Refresh dependencies and hook pins | `make update-deps`                                     |
+| Format Markdown and align tables   | `make markdown-format`                                 |

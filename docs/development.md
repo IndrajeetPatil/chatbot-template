@@ -2,90 +2,50 @@
 
 [Documentation](README.md) · [Project overview](../README.md)
 
+## Command reference
+
+Run commands from the repository root. Start with `make setup` and `make service`;
+see [getting started](getting-started.md) for service selection and configuration.
+
+| Command                                      | Purpose                                                         |
+| -------------------------------------------- | --------------------------------------------------------------- |
+| `make qa`                                    | Format, lint, types, schema, coverage, frontend audits, Checkov |
+| `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit          |
+| `make format` / `make lint`                  | Formatting / ls-lint, Ruff, Biome, rumdl                        |
+| `make type-check` / `make type-coverage`     | Static types / 100% type coverage                               |
+| `make test`                                  | Backend and frontend unit tests with coverage                   |
+| `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials               |
+| `make backend-load-test`                     | Start the backend and Locust against it                         |
+| `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                                |
+| `make contrast-audit` / `make lighthouse`    | Build and audit the frontend                                    |
+| `make e2e-test` / `make e2e-test-docker`     | Local browser behavior / pinned visual renderer                 |
+| `make e2e-update`                            | Regenerate visual baselines for review                          |
+| `make file-naming` / `make markdown-lint`    | Repository naming / Markdown checks                             |
+| `make hooks`                                 | All pre-commit hooks across tracked files                       |
+| `make update-deps`                           | Refresh dependencies, package revisions, and hook pins          |
+| `make security-scan` / `make secret-scan-ci` | Checkov / full-history Gitleaks with Docker                     |
+| `make docker-build`                          | Build both service images                                       |
+| `make setup` / `make service`                | Restore dependencies / run selected development services        |
+| `make frontend-preview`                      | Build and preview the frontend                                  |
+| `make docker-up` / `make docker-down`        | Build/start / stop Compose services                             |
+| `make markdown-format`                       | Format Markdown and align tables                                |
+| `make clean`                                 | Remove local dependencies, build output, and tool caches        |
+
+Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
+[frontend.mk](../makefiles/frontend.mk). `make format` includes Markdown formatting;
+rumdl enforces aligned table columns in lint, QA, and hooks.
+
 ## Automated checks
 
-The frontend and backend services have their own quality checks.
-All checks can be run locally with:
-
-``` bash
-make qa
-```
-
-To refresh backend/frontend dependencies and `prek` hook revisions locally:
-
-``` bash
-make update-deps
-```
-
-To validate Lighthouse scores against thresholds locally:
-
-``` bash
-make lighthouse
-```
-
-Lighthouse runs three mobile-throttled samples and asserts the median result.
-Performance, accessibility, best-practices, SEO, LCP, CLS, and TBT are all hard
-failures. Lighthouse reports must not contain unresolved `runWarnings` or
-warn-only assertions.
-
-To validate WCAG AA colour contrast in both UI themes:
-
-``` bash
-make contrast-audit
-```
-
-New UI changes should still be reviewed against the
-[Vercel Web Interface Guidelines](https://vercel.com/design/guidelines), because
-many interaction, content, and layout details require
-manual judgment. The guidelines are an implementation target, not a blanket
-claim that every existing screen is already fully compliant.
-
-## Browser and visual tests
-
-Vitest checks data contracts and interactions with the existing coverage floors.
-Playwright checks presentation with reviewed screenshots of the real app in light
-and dark mode, at desktop and mobile sizes. API responses are mocked; no backend
-or Azure credentials are needed.
-
-``` bash
-make test             # backend and frontend unit tests with coverage
-make e2e-test         # build + local browser behavior; visuals skip off-Linux
-make e2e-test-docker  # build + behavior + visual comparisons in the CI renderer
-make e2e-update       # deliberately regenerate visual baselines
-```
-
-Use the Docker targets for visual comparisons and updates on every host. They
-share a digest-pinned Playwright Linux/amd64 image with CI, including on Apple
-Silicon, and keep Linux dependencies in a dedicated Docker volume. The production
-preview uses port 3000 and refuses to reuse an existing server.
-The container restores generated output ownership to your UID/GID on exit,
-including after test failures, so native Linux builds and edits stay writable.
-
-Snapshots cover the greeting, validation, model/reasoning menus, Markdown
-conversation, pending response, and request failure. Screenshot assertions wait
-for stable rendering with bundled fonts and disabled animations; ordinary test
-runs fail on missing baselines and never update them automatically.
-
-After an intentional UI change, run `make e2e-update` and inspect the changed PNGs
-in `frontend/e2e-tests/__snapshots__/`. Run `make e2e-test-docker`, then commit
-the reviewed baselines with the change. To focus a run, pass
-`E2E_ARGS='visual.spec.ts --workers=1'` to either Docker target.
-Failure diffs and traces are in `frontend/test-results/`; the HTML report is in
-`frontend/playwright-report/`. CI uploads both as the `playwright-report` artifact.
-
-`make qa` and `make qa-frontend` keep their unit-test coverage checks; the separate
-browser CI job runs the same `make e2e-test-docker` target. When upgrading
-`@playwright/test`, update the image tag and SHA256 digest in
-`makefiles/frontend.mk` together and regenerate/review the baselines.
-
-To remove all build artifacts and tool caches for a clean slate (useful
-for testing cold-cache behaviour):
-
-``` bash
-make clean
-```
-
-More specifically:
+| Gate                     | Required threshold / behavior                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Backend coverage         | 100% lines and branches                                                                                                |
+| Frontend coverage        | ≥90% statements/functions/lines; ≥75% branches                                                                         |
+| Type annotation coverage | 100% on both sides                                                                                                     |
+| Lighthouse               | Three mobile-throttled samples; assert the median                                                                      |
+| Lighthouse failures      | Performance, accessibility, best practices, SEO, LCP, CLS, TBT; no unresolved `runWarnings` or warn-only assertions    |
+| Contrast                 | WCAG AA in both themes                                                                                                 |
+| Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance |
 
 | Step                     | Frontend                                           | Backend      |
 | ------------------------ | -------------------------------------------------- | ------------ |
@@ -120,57 +80,94 @@ More specifically:
 | UI toolkit               | Material UI                                        | \-           |
 | Logger                   | \-                                                 | loguru       |
 
+## Browser and visual tests
+
+| Layer                     | Purpose                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| Vitest                    | Data contracts, interactions, unit coverage                                         |
+| Playwright                | Real app at desktop/mobile sizes, light/dark themes; API responses mocked           |
+| Local browser tests       | `make e2e-test`; visual comparisons skip off Linux                                  |
+| Canonical visual renderer | `make e2e-test-docker`; digest-pinned Linux/amd64 image, including on Apple Silicon |
+| Baseline updates          | `make e2e-update`; review every changed PNG                                         |
+
+```mermaid
+flowchart LR
+    Change[Intentional UI change] --> Update[make e2e-update]
+    Update --> Review[Inspect changed PNGs]
+    Review --> Verify[make e2e-test-docker]
+    Verify --> Commit[Commit reviewed baselines]
+```
+
+- The container uses a dedicated dependency volume and restores host UID/GID
+  ownership of generated files, including after failures.
+- Production preview requires port 3000 to be free; it never reuses a server.
+- Snapshots cover greeting, validation, model/reasoning menus, Markdown replies,
+  pending responses, and request failures.
+- Assertions wait for bundled fonts and stable rendering with animations disabled.
+  Ordinary runs fail on missing baselines and never update them automatically.
+- `make qa` / `make qa-frontend` retain unit coverage; the separate browser CI job
+  runs `make e2e-test-docker`.
+- When upgrading Playwright, update the image tag and SHA256 digest in
+  `makefiles/frontend.mk` together, then regenerate and review baselines.
+
+| Artifact / option        | Location / usage                                                                         |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| Baselines                | `frontend/e2e-tests/__snapshots__/`                                                      |
+| Failure diffs and traces | `frontend/test-results/`                                                                 |
+| HTML report              | `frontend/playwright-report/`; CI uploads both report directories as `playwright-report` |
+| Focus a Docker run       | Append `E2E_ARGS='visual.spec.ts --workers=1'`                                           |
+
 ## Frontend code quality with Fallow
 
 [Fallow](https://docs.fallow.tools/) complements Biome, ESLint, TypeScript, and
-the test suite with dead-code, dependency, duplication, and complexity checks.
-Run it independently with `make fallow` or as part of `make qa` and
-`make qa-frontend`. Each run validates the configuration with `fallow doctor`
-before running all three analyses with `--fail-on-issues`.
+unit tests. Its [configuration](../frontend/.fallowrc.json) uses the installed
+package schema to match the lockfile.
 
-The [frontend configuration](../frontend/.fallowrc.json) enforces a strict policy:
+| Analysis                 | Policy                                                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Dead code / dependencies | All configured rules are errors, including unresolved imports, unused exports/types/packages, and cycles    |
+| Duplication              | Strict mode; minimum 50 tokens and 4 lines; built-in generated/test/mock exclusions retained                |
+| Complexity               | Cyclomatic and cognitive complexity each ≤5, including application code, scripts, and tests                 |
+| Execution                | `doctor` first, then all analyses with `--fail-on-issues`; standalone `make fallow`, also in both QA suites |
+| CSS                      | Separate CSS quality and contrast gates                                                                     |
 
-- All explicitly configured dead-code and dependency rules fail as errors,
-  including unresolved imports, unused exports/types/packages, and cycles.
-- Duplicate detection uses `strict` mode, starting at 50 tokens and 4 lines.
-  Fallow's built-in generated-output, test, and mock exclusions remain enabled.
-- Function cyclomatic and cognitive complexity must each stay at or below 5.
-  Application code, scripts, and tests are checked without blanket test ignores.
-
-The schema comes from the installed package to keep configuration validation
-aligned with the lockfile. The app starts at `src/main.tsx`; Fallow discovers
-package scripts and test/tool entry points automatically. Only MUI's Emotion
-peers and the indirectly loaded React Compiler need dependency exceptions.
-CSS is checked by the separate CSS quality and contrast audits.
-Keep QA scripts out of the runtime entry list so dev dependencies are classified
-correctly. Limit dependency exceptions to `@emotion/react`, `@emotion/styled`
-(MUI peers), and `babel-plugin-react-compiler` (loaded by `reactCompilerPreset()`).
-Recheck exceptions after upgrades; directly imported QA packages and deleted
-mock paths need no exemptions. Do not disable unresolved-import checks.
+- Keep `src/main.tsx` as the runtime entry; discover package scripts and test/tool
+  entry points through built-in plugins. Do not add QA scripts as runtime entries.
+- Limit dependency exceptions to `@emotion/react`, `@emotion/styled` (MUI peers),
+  and `babel-plugin-react-compiler` (loaded by `reactCompilerPreset()`).
+- Recheck exceptions after upgrades. Directly imported QA packages and deleted
+  mock paths need no exemptions.
+- No blanket test exclusions or disabling unresolved-import checks.
 
 ## CI output
 
-The QA workflow runs the `make qa` gates as separate steps, with coloured output
-and the same failure thresholds. Fallow findings appear as GitHub annotations
-and a compact report on the run's **Summary** page; `make fallow` retains the full
-local report. CSS quality reports distinguish advisory scores and show penalty
-details when an enforced threshold fails. Dependency installs retain warnings
-and errors, build/Lighthouse details are collapsible, and compact test progress
-retains failure diagnostics, annotations, and coverage/HTML artifacts.
-Keep all checks and thresholds intact when changing reporting. Fallow validates
-configuration with `doctor` and retains `--fail-on-issues --quiet --summary` as
-the enforcement gate; do not rely on CI reporter exit codes alone. Health scores
-and template statistics are advisory.
+Keep every check and threshold intact when changing reporting.
 
-Workflows force colour with `FORCE_COLOR`, `CLICOLOR_FORCE`, `UV_COLOR`,
-`PREK_COLOR`, Biome's `--colors=force`, zizmor's `--color=always`, and pytest's
-`--color=yes`. Pass colour settings into Docker explicitly and mirror the
-repository layout so browser annotations include the `frontend/` prefix.
+| Report                  | Required behavior                                                                                          |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| QA workflow             | Separate steps for the same `make qa` gates                                                                |
+| Fallow                  | `doctor`, GitHub annotations, compact job summary; retain `--fail-on-issues --quiet --summary` enforcement |
+| Local Fallow            | Full report; health scores and template statistics remain advisory                                         |
+| CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                     |
+| Dependency installation | Retain warnings and errors                                                                                 |
+| Build / Lighthouse      | Collapsible measurement details                                                                            |
+| Tests                   | Compact progress plus failure diagnostics, annotations, coverage/HTML artifacts                            |
+| Docker                  | Pass color variables explicitly; mirror the repository layout so annotations retain `frontend/` paths      |
+
+Never rely on CI reporter exit codes alone.
+
+| Color control | Setting / flag                  |
+| ------------- | ------------------------------- |
+| General       | `FORCE_COLOR`, `CLICOLOR_FORCE` |
+| uv / prek     | `UV_COLOR`, `PREK_COLOR`        |
+| Biome         | `--colors=force`                |
+| zizmor        | `--color=always`                |
+| pytest        | `--color=yes`                   |
 
 ## File naming
 
 [ls-lint 2.3.1](https://ls-lint.org/2.3/configuration/the-basics.html) enforces
-`.ls-lint.yml` across the repository:
+[.ls-lint.yml](../.ls-lint.yml). Directory overrides replace inherited rules.
 
 | Layer                                                     | Convention                            | Example                                          |
 | --------------------------------------------------------- | ------------------------------------- | ------------------------------------------------ |
@@ -183,73 +180,36 @@ repository layout so browser annotations include the `frontend/` prefix.
 | End-to-end tests and JavaScript utility scripts           | kebab-case                            | `chat-page.spec.ts`, `contrast-audit.mjs`        |
 | Shell scripts, Make fragments, docs, and config basenames | kebab-case                            | `post-create.sh`, `backend.mk`, `update-deps.md` |
 
-Standard names such as `README.md`, `AGENTS.md`, `Dockerfile`, and tool dotfiles
-are preserved. Compound extensions such as `.test.tsx`, `.spec.ts`, `.config.ts`,
-and `.d.ts` have explicit rules. Dependencies, generated reports/snapshots, and
-vendored agent skills are excluded; source assets are checked.
+- Preserve standard names: `README.md`, `AGENTS.md`, `Dockerfile`, tool dotfiles.
+- Compound extensions have explicit rules: `.test.tsx`, `.spec.ts`, `.config.ts`,
+  `.d.ts`.
+- Dependencies, generated reports/snapshots, and vendored agent skills are
+  excluded; source assets remain checked.
+- Naming runs across the whole repository in `make lint`, all QA suites, and the
+  pre-commit hook, including when only naming rules change.
 
-Run `make file-naming` for naming checks alone. `make lint`, `make qa`,
-`make qa-backend`, and `make qa-frontend` also check repository-wide naming.
-The `ls-lint` pre-commit hook invokes the same target on the entire tree,
-including when only the rules change. Run `prek install` to install the hooks,
-`prek run ls-lint --all-files` to run this hook alone, or `make hooks` to run all
-pre-commit checks.
-
-The hook requires `make` and `ls-lint` on `PATH`. The development container and
-both QA and prek CI workflows install the pinned ls-lint 2.3.1 binary and verify
-its SHA256 checksum. For other local environments, use the
-[versioned installation instructions](https://ls-lint.org/2.3/getting-started/installation.html)
-and verify the release checksum before installing the binary.
-
-The prek CI job uses the action's cached hook environments without a separate
-uv setup step: prek manages Python environments, and the upstream ty hook
-supplies its own compatible uv. CI pins prek 0.4.11, the newest version in
-prek-action v3.0.0's bundled SHA256 table, and runs the pre-commit stage with
-coloured output. Local commit-msg and pre-push hooks remain configured in
-`prek.toml`.
-
-Commit messages are validated by the `commit-msg` prek hook with commitlint.
-The config follows conventional commits and accepts both lowercase and
-uppercase commit types, for example `feat: ...` and `FEAT: ...`.
+| Hook task            | Command / requirement                                                                                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Install hooks        | `prek install`                                                                                                                                                                      |
+| Naming only          | `make file-naming` or `prek run ls-lint --all-files`                                                                                                                                |
+| All pre-commit hooks | `make hooks`                                                                                                                                                                        |
+| PATH                 | Both `make` and `ls-lint` must be available                                                                                                                                         |
+| Installing ls-lint   | Devcontainer and QA/prek CI use checksum-verified 2.3.1; elsewhere follow the [versioned instructions](https://ls-lint.org/2.3/getting-started/installation.html) and verify SHA256 |
+| Commit messages      | Conventional commits; lowercase or uppercase types accepted (`feat`, `FEAT`)                                                                                                        |
 
 ## Maintenance constraints
 
-Type coverage must remain 100% on both sides (`typecoverage` for Python and
-`type-coverage --strict` for TypeScript). Backend coverage is 100% lines and
-branches; frontend coverage is at least 90% statements/functions/lines and
-75% branches. Do not lower these gates to make a change pass.
-
-Retain the upstream `ty-pre-commit` hook pinned to a full commit SHA. If its
-bundled uv conflicts with the project requirement, downgrade the project uv pin
-to the compatible version and synchronize the Docker image, installer checksum,
-and documentation. Do not substitute a local hook.
-
-Pin and SHA256-verify downloaded tools; see [security](security.md).
-Unless explicitly requested, do not wait for hosted CI/CD after pushing; report
-that checks were triggered and provide the PR or workflow link.
-
-## Command reference
-
-Run these from the repository root; service-specific targets live in
-[backend.mk](../makefiles/backend.mk) and [frontend.mk](../makefiles/frontend.mk).
-
-| Command | Purpose |
-| --- | --- |
-| `make qa` | Format, lint, types, schema, coverage, frontend audits, Checkov |
-| `make qa-backend` / `make qa-frontend` | Checks for one service, including its dependency audit |
-| `make format` / `make lint` | Formatting / ls-lint, Ruff, Biome, rumdl |
-| `make type-check` / `make type-coverage` | Static types / 100% type coverage |
-| `make test` | Backend and frontend unit tests with coverage |
-| `make backend-validate-api-schema` | Generate and validate OpenAPI without credentials |
-| `make backend-load-test` | Start the backend and Locust against it |
-| `make fallow` / `make css-quality` | Frontend codebase / CSS analysis |
-| `make contrast-audit` / `make lighthouse` | Build and audit the frontend |
-| `make e2e-test` / `make e2e-test-docker` | Local browser behavior / pinned visual renderer |
-| `make e2e-update` | Regenerate visual baselines for review |
-| `make file-naming` / `make markdown-lint` | Repository naming / Markdown checks |
-| `make hooks` | All pre-commit hooks across tracked files |
-| `make update-deps` | Refresh dependencies, package revisions, and hook pins |
-| `make security-scan` / `make secret-scan-ci` | Checkov / full-history Gitleaks with Docker |
-| `make docker-build` | Build both service images |
-| `make frontend-build` then `make run` | Build frontend, then start both services |
-| `make clean` | Remove local dependencies, build output, and tool caches |
+- `make update-deps` refreshes dependencies and frozen hook pins;
+  it also adopts registry revisions of already locked package versions.
+- Keep every coverage and quality threshold intact; do not lower gates to pass.
+- Retain the upstream `ty-pre-commit` hook at a full commit SHA.
+  If its bundled uv conflicts, downgrade the project uv pin.
+  Synchronize Docker, installer checksum, and documentation.
+  Do not substitute a local hook.
+- prek CI uses cached hook environments and the upstream hook's uv, with no
+  separate uv setup. prek 0.4.11 is the newest version covered by prek-action
+  v3.0.0's SHA256 table; CI runs pre-commit, while local commit-msg and pre-push
+  stages remain configured.
+- Pin and SHA256-verify downloaded tools; see [security](security.md).
+- Unless requested, do not wait for hosted CI after pushing; provide the PR or
+  workflow link and distinguish local results from live checks.

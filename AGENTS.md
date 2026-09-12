@@ -7,6 +7,8 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
 
 - Setup and pinned runtime versions: [getting started](docs/getting-started.md).
 - Commands, tests, naming, hooks, and CI: [development](docs/development.md).
+- Document the Make commands; use lists, tables, and diagrams for scannability.
+  Run `make markdown-format` to keep table columns aligned.
 - Before UI work, read [frontend](docs/frontend.md) and the development guide's
   [Fallow policy](docs/development.md#frontend-code-quality-with-fallow) and
   [visual testing workflow](docs/development.md#browser-and-visual-tests).
