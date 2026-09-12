@@ -1,17 +1,11 @@
 {
-  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "entry": ["src/main.tsx", "scripts/css-quality.mjs"],
+  "$schema": "./node_modules/fallow/schema.json",
+  "entry": ["src/main.tsx"],
   "ignorePatterns": ["**/*.css"],
   "ignoreDependencies": [
-    "@ai-sdk/__mocks__",
     "@emotion/react",
     "@emotion/styled",
-    "@mui/__mocks__",
-    "@playwright/test",
-    "@projectwallace/css-code-quality",
-    "axe-core",
-    "babel-plugin-react-compiler",
-    "fast-check"
+    "babel-plugin-react-compiler"
   ],
   "rules": {
     "unused-files": "error",
@@ -22,7 +16,7 @@
     "unused-optional-dependencies": "error",
     "unused-enum-members": "error",
     "unused-class-members": "error",
-    "unresolved-imports": "off",
+    "unresolved-imports": "error",
     "unlisted-dependencies": "error",
     "duplicate-exports": "error",
     "circular-dependencies": "error",
@@ -32,12 +26,10 @@
   "duplicates": {
     "mode": "strict",
     "minTokens": 50,
-    "minLines": 4,
-    "ignore": ["**/*.test.*"]
+    "minLines": 4
   },
   "health": {
     "maxCyclomatic": 5,
-    "maxCognitive": 5,
-    "ignore": ["**/*.test.*"]
+    "maxCognitive": 5
   }
 }
