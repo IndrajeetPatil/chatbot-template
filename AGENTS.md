@@ -31,6 +31,7 @@ make format      # auto-format (Ruff + Biome)
 make lint        # lint (ls-lint + Ruff + Biome + rumdl; ESLint runs via make qa)
 make file-naming # repository-wide stack-specific filename checks
 make type-check  # static types (ty + tsc)
+make fallow      # frontend dead code, dependency hygiene, duplication, complexity
 make security-scan # Checkov scan of Docker and GitHub Actions configuration
 make contrast-audit # built frontend contrast audit in light/dark mode
 make lighthouse  # Lighthouse CI assertions against the built frontend
@@ -47,6 +48,30 @@ weekly schedules, and manual dispatches.
 Unless explicitly requested, do not wait for CI/CD checks to finish after
 pushing. Report that the checks were triggered and include the relevant PR or
 workflow link instead.
+
+## Frontend Fallow checks
+
+`frontend/.fallowrc.json` uses the installed Fallow schema and a strict policy:
+all explicitly configured dead-code and dependency
+rules are errors, including unresolved imports; duplicate detection uses
+`strict` mode with a minimum of 50 tokens and 4 lines; function cyclomatic and
+cognitive complexity are each capped at 5, including unit tests. Do not add
+blanket test exclusions to health checks or disable unresolved-import checks.
+
+The explicit runtime entry is `src/main.tsx`. Fallow discovers scripts from
+`package.json` and tests/configuration through its built-in plugins. Keep QA
+scripts out of the runtime entry list so their dev dependencies are classified
+correctly. CSS has its own quality and contrast gates. Duplication retains
+Fallow's built-in generated-output, test, and mock exclusions.
+
+Keep dependency exceptions limited to indirectly consumed packages:
+`@emotion/react` and `@emotion/styled` (MUI peers), and
+`babel-plugin-react-compiler` (loaded by `reactCompilerPreset()`). Recheck
+exceptions after upgrades; directly imported QA packages and deleted mock paths
+need no exemptions.
+
+Run `make fallow` for the standalone check. Both `make qa` and `make qa-frontend`
+include it, and the QA workflow validates configuration before enforcing findings.
 
 ## CI output
 

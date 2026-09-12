@@ -214,7 +214,7 @@ More specifically:
 | Type checker             | TypeScript                                         | ty           |
 | Type annotation coverage | type-coverage                                      | typecoverage |
 | Security linting         | ESLint (`no-unsanitized`, `react-dom`)             | \-           |
-| Dead-code / complexity   | fallow                                             | \-           |
+| Codebase analysis        | Fallow                                             | \-           |
 | CSS code quality         | @projectwallace/css-code-quality                   | \-           |
 | Contrast audit           | axe-core (`color-contrast`) in light and dark mode | \-           |
 | Markdown linting         | rumdl                                              | rumdl        |
@@ -237,6 +237,31 @@ More specifically:
 | API server               | \-                                                 | FastAPI      |
 | UI toolkit               | Material UI                                        | \-           |
 | Logger                   | \-                                                 | loguru       |
+
+### Frontend code quality with Fallow
+
+[Fallow](https://docs.fallow.tools/) complements Biome, ESLint, TypeScript, and
+the test suite with dead-code, dependency, duplication, and complexity checks.
+Run it independently with `make fallow` or as part of `make qa` and
+`make qa-frontend`. Each run validates the configuration with `fallow doctor`
+before running all three analyses with `--fail-on-issues`.
+
+The [frontend configuration](frontend/.fallowrc.json) enforces a strict policy:
+
+- All explicitly configured dead-code and dependency rules fail as errors,
+  including unresolved imports, unused exports/types/packages, and cycles.
+- Duplicate detection uses `strict` mode, starting at 50 tokens and 4 lines.
+  Fallow's built-in generated-output, test, and mock exclusions remain enabled.
+- Function cyclomatic and cognitive complexity must each stay at or below 5.
+  Application code, scripts, and tests are checked without blanket test ignores.
+
+The schema comes from the installed package to keep configuration validation
+aligned with the lockfile. The app starts at `src/main.tsx`; Fallow discovers
+package scripts and test/tool entry points automatically. Only MUI's Emotion
+peers and the indirectly loaded React Compiler need dependency exceptions.
+CSS is checked by the separate CSS quality and contrast audits.
+See the [Fallow maintenance guidance](AGENTS.md#frontend-fallow-checks)
+before changing the scope, thresholds, or exceptions.
 
 ### CI output
 
