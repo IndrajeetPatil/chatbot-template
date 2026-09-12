@@ -1,119 +1,49 @@
 # Chatbot Template
 
-Project-level instructions for AI coding agents working on this repository.
-Codex, GitHub Copilot (code review and coding agent), and other
-`AGENTS.md`-aware tools read this file directly.
+React/Vite frontend + FastAPI backend, streaming Azure OpenAI replies.
+Start with [README.md](README.md) and the [documentation index](docs/README.md).
 
-Full-stack chatbot: React frontend + FastAPI backend,
-streamed via Azure Foundry GPT-6 Astra and GPT-5.6 Sol.
+## Working here
 
-## Setup
+- Setup and pinned runtime versions: [getting started](docs/getting-started.md).
+- Commands, tests, naming, hooks, and CI: [development](docs/development.md).
+- Document the Make commands; use lists, tables, and diagrams for scannability.
+  Run `make markdown-format` to keep table columns aligned.
+- Before UI work, read [frontend](docs/frontend.md) and the development guide's
+  [Fallow policy](docs/development.md#frontend-code-quality-with-fallow) and
+  [visual testing workflow](docs/development.md#browser-and-visual-tests).
+- Before API or deployment work, read [backend](docs/backend.md) and
+  [security](docs/security.md). Preserve validation before streaming starts.
+- Before changing CI reporters, read and preserve the
+  [CI output policy](docs/development.md#ci-output).
 
-```bash
-cd backend && uv sync --frozen          # Python 3.14, uv 0.12.12
-cd frontend && pnpm install --frozen-lockfile  # Node.js 24, pnpm 12.4.1
-```
+## Required checks and constraints
 
-Copy `backend/.env.example` → `backend/.env` and fill in
-Azure OpenAI credentials before running.
+- Run `make qa` and `make hooks` for implementation changes; use the relevant
+  checks for documentation-only changes. Hooks are managed by prek.
+- Keep every check and threshold intact: backend coverage is 100% lines and
+  branches; frontend is ≥90% statements/functions/lines and ≥75% branches;
+  type coverage is 100% on both sides.
+- Fallow: configured dead-code/dependency rules are errors, including unresolved
+  imports; strict duplication starts at 50 tokens / 4 lines; cyclomatic and
+  cognitive complexity are each ≤5, including tests. No blanket test exclusions.
+  Preserve the entry-point and dependency-exception policy in the linked guide.
+- Pin all downloaded third-party tools, scripts, and binaries to specific
+  versions and validate SHA256 checksums. Never download latest/untagged tools.
+- Retain the upstream `ty-pre-commit` hook at a full commit SHA. If its bundled
+  uv conflicts with the project pin, downgrade the project uv to the compatible
+  version and synchronize the Docker image, installer checksum, and docs.
+  Do not replace the upstream hook with a local hook.
+- Consult `.ls-lint.yml`: Python snake_case, React components/pages PascalCase,
+  client modules/hooks camelCase, scripts/docs/assets kebab-case. Preserve
+  `main.tsx` and standard tool filenames; directory overrides replace inherited
+  rules. The naming hook requires `make` and `ls-lint` on `PATH`.
+- Use conventional commit messages (enforced by commitlint).
+- Never commit credentials from `backend/.env`; no `dangerouslySetInnerHTML`.
 
-## Commands
+## Pull requests
 
-```bash
-make update-deps # refresh backend/frontend deps and prek hook revisions
-make qa          # full suite: format, lint, type-check, tests,
-                 #   coverage, API schema, frontend audits, security
-make test        # unit tests only
-make e2e-test    # browser behavior against a production build (visuals skip off-Linux)
-make e2e-test-docker # behavior + visual snapshots in the pinned CI renderer
-make e2e-update  # regenerate visual baselines in that same renderer
-make format      # auto-format (Ruff + Biome)
-make lint        # lint (ls-lint + Ruff + Biome + rumdl; ESLint runs via make qa)
-make file-naming # repository-wide stack-specific filename checks
-make type-check  # static types (ty + tsc)
-make fallow      # frontend dead code, dependency hygiene, duplication, complexity
-make security-scan # Checkov scan of Docker and GitHub Actions configuration
-make contrast-audit # built frontend contrast audit in light/dark mode
-make lighthouse  # Lighthouse CI assertions against the built frontend
-make docker-build # build both service images with Docker Compose
-make run         # start both servers
-                 #   frontend :3000, backend :8000, Swagger :8000/docs
-docker-compose up
-```
-
-The CI-only Security Scan workflow adds full-history Gitleaks with redacted SARIF
-reports, online zizmor, and production dependency audits on pushes, pull requests,
-weekly schedules, and manual dispatches.
-
-Unless explicitly requested, do not wait for CI/CD checks to finish after
-pushing. Report that the checks were triggered and include the relevant PR or
-workflow link instead.
-
-## Frontend Fallow checks
-
-`frontend/.fallowrc.json` uses the installed Fallow schema and a strict policy:
-all explicitly configured dead-code and dependency
-rules are errors, including unresolved imports; duplicate detection uses
-`strict` mode with a minimum of 50 tokens and 4 lines; function cyclomatic and
-cognitive complexity are each capped at 5, including unit tests. Do not add
-blanket test exclusions to health checks or disable unresolved-import checks.
-
-The explicit runtime entry is `src/main.tsx`. Fallow discovers scripts from
-`package.json` and tests/configuration through its built-in plugins. Keep QA
-scripts out of the runtime entry list so their dev dependencies are classified
-correctly. CSS has its own quality and contrast gates. Duplication retains
-Fallow's built-in generated-output, test, and mock exclusions.
-
-Keep dependency exceptions limited to indirectly consumed packages:
-`@emotion/react` and `@emotion/styled` (MUI peers), and
-`babel-plugin-react-compiler` (loaded by `reactCompilerPreset()`). Recheck
-exceptions after upgrades; directly imported QA packages and deleted mock paths
-need no exemptions.
-
-Run `make fallow` for the standalone check. Both `make qa` and `make qa-frontend`
-include it, and the QA workflow validates configuration before enforcing findings.
-
-## CI output
-
-Keep all checks and thresholds intact when changing reporting. The QA workflow
-runs the `make qa` gates as separate steps in the same job. Fallow validates its
-configuration with `doctor`, emits GitHub annotations and a compact job summary,
-and retains `--fail-on-issues --quiet --summary` as the enforcement gate. Do not
-rely on CI reporter exit codes alone. `make fallow` keeps the full local report;
-health scores and template statistics are advisory.
-
-Workflows force colour with `FORCE_COLOR`, `CLICOLOR_FORCE`, and tool-specific
-controls (`UV_COLOR`, `PREK_COLOR`, Biome's `--colors=force`, zizmor's
-`--color=always`, and pytest's `--color=yes`). Dependency installs retain warnings
-and errors. Build and Lighthouse measurement details are collapsible; test
-reporters retain failure details, annotations, and coverage/HTML artifacts.
-Pass colour settings into Docker explicitly and mirror the repository layout
-so browser annotations include the `frontend/` prefix.
-
-## Hard constraints
-
-- **Third-party tools**: All downloaded third-party tools, scripts,
-  and binaries must be pinned to specific versions and validated using
-  SHA256 checksums. Never download the latest or untagged versions.
-- **Backend coverage**: 100% lines + branches
-  (`fail_under = 100` in `pyproject.toml`).
-- **Frontend coverage**: ≥ 90% statements/functions/lines,
-  ≥ 75% branches.
-- **Type coverage**: 100% both sides (`typecoverage` for Python,
-  `type-coverage --strict` for TypeScript).
-- **File naming**: enforced by ls-lint 2.3.1 in `make lint`, all QA suites,
-  and the `ls-lint` prek pre-commit hook (`make` and `ls-lint` must be on `PATH`).
-  Use snake_case for Python, PascalCase for React components/pages, camelCase
-  for client modules/hooks, and kebab-case for scripts, docs, and assets.
-  Preserve `main.tsx` and standard tool filenames. Consult `.ls-lint.yml`
-  before naming files; directory overrides replace all inherited rules.
-- **Commit messages**: conventional commits format
-  (enforced by `commitlint`).
-- **Pre-commit hooks**: managed by `prek` —
-  run `make hooks` to verify all files pass.
-- **ty hook compatibility**: retain the upstream `ty-pre-commit` hook pinned to
-  a full commit SHA. If its bundled uv version conflicts with the project's
-  required uv version, downgrade the project uv pin to the compatible version
-  and synchronize its Docker image, installer checksum, and documentation.
-  Do not replace the upstream hook with a local hook to avoid this conflict.
-- **No `dangerouslySetInnerHTML`** — blocked by ESLint security rules.
+Keep the title and body synchronized with the current net diff, update stale
+metadata without asking, and verify the live values after editing.
+Unless explicitly requested, do not wait for CI/CD after pushing; report that
+checks were triggered and include the PR or workflow link.

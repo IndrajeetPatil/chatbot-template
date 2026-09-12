@@ -36,3 +36,7 @@ style = "asterisk"
 
 [MD050]
 style = "asterisk"
+
+[MD060]
+enabled = true
+style = "aligned"
