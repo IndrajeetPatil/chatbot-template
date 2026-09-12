@@ -10,7 +10,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: [["list"], ["html", { open: "never" }]],
+  reporter: process.env.CI
+    ? [["dot"], ["github"], ["html", { open: "never" }]]
+    : [["list"], ["html", { open: "never" }]],
   expect: {
     timeout: 10_000,
     toHaveScreenshot: { animations: "disabled", maxDiffPixels: 0 },

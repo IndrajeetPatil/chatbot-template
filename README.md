@@ -238,6 +238,17 @@ More specifically:
 | UI toolkit               | Material UI                                        | \-           |
 | Logger                   | \-                                                 | loguru       |
 
+### CI output
+
+The QA workflow runs the `make qa` gates as separate steps, with coloured output
+and the same failure thresholds. Fallow findings appear as GitHub annotations
+and a compact report on the run's **Summary** page; `make fallow` retains the full
+local report. CSS quality reports distinguish advisory scores and show penalty
+details when an enforced threshold fails. Dependency installs retain warnings
+and errors, build/Lighthouse details are collapsible, and compact test progress
+retains failure diagnostics, annotations, and coverage/HTML artifacts.
+See [CI output guidance](AGENTS.md#ci-output) before changing reporter settings.
+
 ### File naming
 
 [ls-lint 2.3.1](https://ls-lint.org/2.3/configuration/the-basics.html) enforces
@@ -294,9 +305,12 @@ make security-scan
 
 The dedicated GitHub Actions security workflow runs Checkov, a full-history
 Gitleaks secret scan, an online zizmor workflow audit, and production dependency
-audits on every push and pull request. It also runs weekly and supports manual
-dispatch so newly disclosed issues surface even when the repository has not
-changed. Commitlint is enforced locally through the `commit-msg` prek hook.
+audits on every push and pull request. Gitleaks scans all fetched history,
+including on PRs, using a digest-pinned scanner and uploads a redacted SARIF
+artifact. Its `make secret-scan-ci` target also runs locally with Docker. The
+workflow also runs weekly and supports manual dispatch so newly disclosed issues
+surface even when the repository has not changed. Commitlint is enforced locally
+through the `commit-msg` prek hook.
 
 Trivy scans the built backend and frontend container images for known
 vulnerabilities during CI.

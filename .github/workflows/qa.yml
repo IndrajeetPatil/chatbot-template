@@ -14,6 +14,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+# Force colour in non-TTY Actions logs; retain warnings and errors.
+env:
+  FORCE_COLOR: "1"
+  CLICOLOR_FORCE: "1"
+  UV_COLOR: always
+  UV_NO_PROGRESS: "1"
+  PYTEST_ADDOPTS: "-q --color=yes"
+
 jobs:
   qa:
     runs-on: ubuntu-latest
@@ -57,19 +65,76 @@ jobs:
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --loglevel=warn
           pnpm exec playwright install --with-deps
 
-      - name: Run QA checks
-        run: make qa
+      # Keep the same gates as make qa, with independently readable step logs.
+      - name: File naming
+        run: make file-naming
+
+      - name: Backend lint and format
+        run: make backend-format backend-lint
+
+      - name: Frontend lint and format
+        run: make frontend-format BIOME_ARGS=--colors=force
+
+      - name: Markdown lint
+        run: make markdown-lint
+
+      - name: Python and TypeScript types
+        run: make type-check
+
+      - name: API schema
+        run: make backend-validate-api-schema
+
+      - name: Backend tests and coverage
+        run: make backend-test
+
+      - name: Frontend tests and coverage
+        run: make frontend-test
+
+      - name: Fallow findings
+        id: fallow
+        working-directory: ./frontend
+        # Keep config validation and the human reporter as the enforcement gate.
+        # CI formats are for presentation; do not rely on their exit status.
+        run: |
+          pnpm exec fallow doctor --quiet
+          pnpm exec fallow --quiet --format github-annotations
+          pnpm exec fallow --fail-on-issues --quiet --summary
+
+      - name: Fallow summary
+        if: ${{ !cancelled() && steps.fallow.outcome != 'skipped' }}
+        working-directory: ./frontend
+        run: pnpm exec fallow --quiet --format github-summary >> "$GITHUB_STEP_SUMMARY"
+
+      - name: CSS quality
+        run: make css-quality
 
       - name: Build frontend
-        working-directory: ./frontend
-        run: pnpm run build
+        run: |
+          echo "::group::Production build details"
+          trap 'echo "::endgroup::"' EXIT
+          make frontend-build
+
+      - name: Contrast in light and dark mode
+        run: make frontend-contrast-audit
+
+      - name: Frontend security lint
+        run: make frontend-security-lint
+
+      - name: Python and TypeScript type coverage
+        run: make type-coverage
+
+      - name: Infrastructure security
+        run: make security-scan
 
       - name: Lighthouse CI (collect)
         working-directory: ./frontend
-        run: pnpm dlx @lhci/cli@0.15.1 collect
+        run: |
+          echo "::group::Lighthouse measurement details"
+          trap 'echo "::endgroup::"' EXIT
+          pnpm dlx @lhci/cli@0.15.1 collect
 
       - name: Lighthouse CI (scores)
         working-directory: ./frontend

@@ -40,13 +40,30 @@ make run         # start both servers
 docker-compose up
 ```
 
-The CI-only Security Scan workflow adds full-history Gitleaks, online zizmor,
-and production dependency audits on pushes, pull requests, weekly schedules,
-and manual dispatches.
+The CI-only Security Scan workflow adds full-history Gitleaks with redacted SARIF
+reports, online zizmor, and production dependency audits on pushes, pull requests,
+weekly schedules, and manual dispatches.
 
 Unless explicitly requested, do not wait for CI/CD checks to finish after
 pushing. Report that the checks were triggered and include the relevant PR or
 workflow link instead.
+
+## CI output
+
+Keep all checks and thresholds intact when changing reporting. The QA workflow
+runs the `make qa` gates as separate steps in the same job. Fallow validates its
+configuration with `doctor`, emits GitHub annotations and a compact job summary,
+and retains `--fail-on-issues --quiet --summary` as the enforcement gate. Do not
+rely on CI reporter exit codes alone. `make fallow` keeps the full local report;
+health scores and template statistics are advisory.
+
+Workflows force colour with `FORCE_COLOR`, `CLICOLOR_FORCE`, and tool-specific
+controls (`UV_COLOR`, `PREK_COLOR`, Biome's `--colors=force`, zizmor's
+`--color=always`, and pytest's `--color=yes`). Dependency installs retain warnings
+and errors. Build and Lighthouse measurement details are collapsible; test
+reporters retain failure details, annotations, and coverage/HTML artifacts.
+Pass colour settings into Docker explicitly and mirror the repository layout
+so browser annotations include the `frontend/` prefix.
 
 ## Hard constraints
 

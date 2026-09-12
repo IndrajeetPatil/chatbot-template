@@ -12,6 +12,7 @@
 
 import { statSync } from "node:fs";
 import { join } from "node:path";
+import { styleText } from "node:util";
 import { chromium } from "@playwright/test";
 import axe from "axe-core";
 import { preview } from "vite";
@@ -64,12 +65,14 @@ try {
     const violations = await auditMode(browser, baseUrl, mode);
 
     if (violations.length === 0) {
-      console.log(`  ✓ ${mode.padEnd(5)} /`);
+      if (!process.env.CI) {
+        console.log(`  ${styleText("green", "✓")} ${mode.padEnd(5)} /`);
+      }
       continue;
     }
 
     failed = true;
-    console.log(`  ✗ ${mode.padEnd(5)} /`);
+    console.log(`  ${styleText("red", "✗")} ${mode.padEnd(5)} /`);
     for (const violation of violations) {
       console.log(`      ↳ ${violation.target}\n        ${violation.summary}`);
     }
@@ -84,4 +87,6 @@ if (failed) {
   process.exit(1);
 }
 
-console.log("\nContrast audit passed in light and dark mode.");
+console.log(
+  styleText("green", "\nContrast audit passed in light and dark mode."),
+);
