@@ -1,11 +1,14 @@
 import { renderHook } from "@testing-library/react";
 import { vi } from "vitest";
 
-const { mockSendMessage, mockRegenerate, mockUseChat } = vi.hoisted(() => ({
-  mockSendMessage: vi.fn().mockResolvedValue(undefined),
-  mockRegenerate: vi.fn().mockResolvedValue(undefined),
-  mockUseChat: vi.fn(),
-}));
+const { mockSendMessage, mockRegenerate, mockUseChat, mockStop } = vi.hoisted(
+  () => ({
+    mockSendMessage: vi.fn().mockResolvedValue(undefined),
+    mockRegenerate: vi.fn().mockResolvedValue(undefined),
+    mockUseChat: vi.fn(),
+    mockStop: vi.fn(),
+  }),
+);
 
 vi.mock("@ai-sdk/react", () => ({
   useChat: mockUseChat,
@@ -44,6 +47,7 @@ function setupMockChat(
     regenerate: mockRegenerate,
     error: undefined,
     status: "idle",
+    stop: mockStop,
     ...overrides,
   });
 }
@@ -62,6 +66,14 @@ describe("useChatSetup", () => {
       useChatSetup(AssistantModel.ASTRA, ReasoningEffort.MEDIUM),
     );
     expect(result.current.messages).toEqual(INITIAL_MESSAGES);
+  });
+
+  test("stops the AI SDK request", () => {
+    const { result } = renderHook(() =>
+      useChatSetup(AssistantModel.ASTRA, ReasoningEffort.LOW),
+    );
+    result.current.stop();
+    expect(mockStop).toHaveBeenCalledOnce();
   });
 
   test("assistantIsLoading is true when status is submitted", () => {

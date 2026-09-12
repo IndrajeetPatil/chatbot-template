@@ -1,5 +1,6 @@
 @font-face {
   font-family: "Geist";
+  font-display: swap;
   font-style: normal;
   font-weight: 100 900;
   src: url("./fonts/geist-vf.woff") format("woff");
@@ -7,6 +8,7 @@
 
 @font-face {
   font-family: "Geist Mono";
+  font-display: swap;
   font-style: normal;
   font-weight: 100 900;
   src: url("./fonts/geist-mono-vf.woff") format("woff");
@@ -30,4 +32,25 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* Override component classes and inline transitions while retaining end events. */
+    /* biome-ignore lint/complexity/noImportantStyles: Respect the user's motion preference over component animations. */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: Stop repeated component animations for reduced motion. */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: Override inline component transition durations. */
+    transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: User motion preferences take precedence over smooth scrolling. */
+    scroll-behavior: auto !important;
+  }
 }

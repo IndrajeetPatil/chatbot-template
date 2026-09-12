@@ -1,5 +1,5 @@
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { Box, IconButton, Menu, MenuItem, Tooltip } from "@mui/material";
+import { Button, Menu, MenuItem, Tooltip } from "@mui/material";
 import type React from "react";
 import { useId, useState } from "react";
 
@@ -12,52 +12,64 @@ interface DropdownParameterProps<T extends string | number> {
   value: T;
   onChange: (value: T) => void;
   icon: React.ReactNode;
-  tooltipTitle: React.ReactNode;
   ariaLabel: string;
   options: DropdownOption<T>[];
+  label: string;
 }
 
 function DropdownParameter<T extends string | number>({
   value,
   onChange,
   icon,
-  tooltipTitle,
   ariaLabel,
   options,
+  label,
 }: DropdownParameterProps<T>) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuId = useId();
+  const isOpen = anchorEl !== null;
+  const controlledMenuId = isOpen ? menuId : undefined;
+  const selectOption = (selected: T) => {
+    onChange(selected);
+    setAnchorEl(null);
+  };
 
   return (
     <>
-      <Tooltip title={tooltipTitle}>
-        <IconButton
+      <Tooltip title={ariaLabel}>
+        <Button
           onClick={(e) => setAnchorEl(e.currentTarget)}
           aria-label={ariaLabel}
-          aria-haspopup="true"
-          aria-controls={anchorEl !== null ? menuId : undefined}
-          aria-expanded={anchorEl !== null}
+          aria-haspopup="menu"
+          aria-controls={controlledMenuId}
+          aria-expanded={isOpen}
+          startIcon={icon}
+          endIcon={<ArrowDropDownIcon fontSize="small" />}
+          sx={{
+            color: "text.secondary",
+            minHeight: 44,
+            px: 1,
+            fontSize: "0.75rem",
+            whiteSpace: "nowrap",
+            "& .MuiButton-startIcon": {
+              display: { xs: "none", sm: "inherit" },
+            },
+          }}
         >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {icon}
-            <ArrowDropDownIcon fontSize="small" />
-          </Box>
-        </IconButton>
+          {label}
+        </Button>
       </Tooltip>
       <Menu
         id={menuId}
         anchorEl={anchorEl}
-        open={anchorEl !== null}
+        open={isOpen}
         onClose={() => setAnchorEl(null)}
       >
         {options.map((option) => (
           <MenuItem
             key={String(option.value)}
             selected={option.value === value}
-            onClick={() => {
-              onChange(option.value);
-              setAnchorEl(null);
-            }}
+            onClick={() => selectOption(option.value)}
           >
             {option.label}
           </MenuItem>

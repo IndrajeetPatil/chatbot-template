@@ -24,8 +24,30 @@ The backend service is a FastAPI application that exposes a streaming
 API backed by Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 
 The UI is built with [Material
-UI](https://mui.com/material-ui/getting-started/) components and follows
-Google's Material Design.
+UI](https://mui.com/material-ui/getting-started/) components, with a restrained
+light/dark palette, locally bundled Geist typography, and responsive layouts.
+It takes interaction cues from Vercel's [AI Elements](https://elements.ai-sdk.dev/)
+while keeping one UI toolkit. Suggested prompts start a conversation; the
+composer exposes model and reasoning choices, message validation, and a stop
+action backed by the AI SDK. Enter inserts a new line; Ctrl+Enter or Cmd+Enter
+sends. Replies follow the scroll position until the reader scrolls up, with a
+"Jump to latest" action to resume following. Copy actions sit below replies so
+they do not obscure the text.
+
+Assistant replies use `react-markdown` with `rehype-highlight` (highlight.js)
+for language-tagged code fences and `remark-math` / `rehype-katex` for LaTeX.
+The backend asks the model to use these supported Markdown delimiters.
+Syntax colors adapt to the selected light/dark theme. Common languages such as
+JavaScript, TypeScript, Python, SQL, and CSS are supported; unknown or unlabelled
+fences remain readable plain code. Use `$E = mc^2$` for inline math and `$$` on
+separate lines for display equations (or a `math` code fence). KaTeX supports a
+[documented subset of LaTeX](https://katex.org/docs/supported); `\(...\)` and
+`\[...\]` delimiters are not parsed. Escape literal currency dollars as `\$`.
+Code contents stay literal, and copying a reply preserves its original Markdown.
+KaTeX styles/fonts are bundled locally, raw HTML is not enabled, and trusted
+KaTeX commands are disabled. Incomplete or invalid math remains readable while
+streaming and renders once valid. Wide code and display equations scroll
+horizontally within the reply.
 
 Frontend interface work uses Vercel's [Web Interface
 Guidelines](https://vercel.com/design/guidelines) as the review baseline for

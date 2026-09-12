@@ -58,3 +58,17 @@ test("exposes navigation landmarks and connects the skip link to the composer", 
     `#${screen.getByRole("textbox").id}`,
   );
 });
+
+test("starts a conversation from a suggested prompt", () => {
+  mockUseChatSetup.mockReturnValue({
+    messages: [],
+    assistantIsLoading: false,
+    hasUserMessage: false,
+    handleSendMessage: send,
+  });
+  render(<Home />);
+  fireEvent.click(
+    screen.getByRole("button", { name: /Explain a complex idea/ }),
+  );
+  expect(send).toHaveBeenCalledWith("Explain a complex idea in simple terms.");
+});

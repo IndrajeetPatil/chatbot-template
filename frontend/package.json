@@ -31,11 +31,14 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
-    "@mui/utils": "^9.4.0",
     "ai": "^7.0.97",
+    "katex": "0.16.47",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-markdown": "^10.1.0",
+    "rehype-highlight": "7.0.2",
+    "rehype-katex": "7.0.1",
+    "remark-math": "6.0.0",
     "zod": "^4.6.2"
   },
   "browserslist": {

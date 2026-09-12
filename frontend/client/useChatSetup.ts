@@ -12,7 +12,7 @@ const CHAT_TRANSPORT = new TextStreamChatTransport({
 });
 
 function useChatSetup(model: AssistantModel, reasoningEffort: ReasoningEffort) {
-  const { messages, sendMessage, regenerate, error, status } = useChat({
+  const { messages, sendMessage, regenerate, error, status, stop } = useChat({
     messages: INITIAL_MESSAGES,
     transport: CHAT_TRANSPORT,
     experimental_throttle: 50,
@@ -40,6 +40,7 @@ function useChatSetup(model: AssistantModel, reasoningEffort: ReasoningEffort) {
     error,
     handleSendMessage,
     handleRegenerateResponse,
+    stop,
   };
 }
 

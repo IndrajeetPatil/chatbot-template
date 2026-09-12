@@ -5,10 +5,9 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import type { PluginOption } from "vite";
 import { defineConfig } from "vitest/config";
 
-// react-markdown is intentionally absent: it is dynamically imported by
-// AssistantMessage, so leaving it out of the manual chunks lets the bundler
-// emit it as an async chunk that stays off the initial critical path (no
-// eager modulepreload in index.html).
+// Markdown and its plugins stay in RichMarkdown's lazy-loaded chunk. Leaving
+// them out of the manual chunks keeps them off the initial critical path,
+// with no eager modulepreload in index.html.
 const VENDOR_CHUNKS: [string, string][] = [
   ["react", "/react/"],
   ["react", "/react-dom/"],

@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from app.config import Settings
 from app.entities import AssistantModel, OpenAIMessageRole, ReasoningEffort
-from app.main import TextPart, UIMessage, app, limiter
+from app.main import RESPONSE_FORMAT_INSTRUCTIONS, TextPart, UIMessage, app, limiter
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -72,7 +72,10 @@ def test_post_chat_stream_success(
     assert response.headers["content-type"].startswith("text/plain")
     assert calls == [
         {
-            "messages": [{"role": "user", "content": "Hi"}],
+            "messages": [
+                {"role": "system", "content": RESPONSE_FORMAT_INSTRUCTIONS},
+                {"role": "user", "content": "Hi"},
+            ],
             "model": AssistantModel.SOL,
             "reasoning_effort": ReasoningEffort.MEDIUM,
         },

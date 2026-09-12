@@ -14,9 +14,9 @@ function renderDropdown(onChange = vi.fn()) {
       value="opt1"
       onChange={onChange}
       icon={<span>icon</span>}
-      tooltipTitle="Select"
       ariaLabel="Select an option"
       options={OPTIONS}
+      label="Option 1"
     />,
   );
   return { onChange };
