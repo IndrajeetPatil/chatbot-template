@@ -31,7 +31,6 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
-    "@mui/utils": "^9.4.0",
     "ai": "^7.0.97",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

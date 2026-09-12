@@ -15,6 +15,7 @@ const DEFAULT_PROPS = {
   canRegenerate: true,
   disabled: false,
   onSendMessage: vi.fn().mockResolvedValue(undefined),
+  onStop: vi.fn(),
 };
 
 class MockMediaQueryList extends EventTarget implements MediaQueryList {
@@ -118,6 +119,8 @@ describe("ControlPanel", () => {
   test("ChatInput receives disabled prop", () => {
     renderControlPanel({ disabled: true });
     expect(screen.getByRole("textbox")).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Stop generating" }),
+    ).toBeEnabled();
   });
 });

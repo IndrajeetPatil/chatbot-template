@@ -181,9 +181,6 @@ importers:
       '@mui/material':
         specifier: ^9.4.0
         version: 9.4.0(@emotion/react@11.14.0(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@mui/utils':
-        specifier: ^9.4.0
-        version: 9.4.0(@types/react@19.3.0)(react@19.3.0)
       ai:
         specifier: ^7.0.97
         version: 7.0.97(zod@4.6.2)

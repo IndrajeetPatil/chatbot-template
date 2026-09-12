@@ -24,8 +24,15 @@ The backend service is a FastAPI application that exposes a streaming
 API backed by Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 
 The UI is built with [Material
-UI](https://mui.com/material-ui/getting-started/) components and follows
-Google's Material Design.
+UI](https://mui.com/material-ui/getting-started/) components, with a restrained
+light/dark palette, locally bundled Geist typography, and responsive layouts.
+It takes interaction cues from Vercel's [AI Elements](https://elements.ai-sdk.dev/)
+while keeping one UI toolkit. Suggested prompts start a conversation; the
+composer exposes model and reasoning choices, message validation, and a stop
+action backed by the AI SDK. Enter inserts a new line; Ctrl+Enter or Cmd+Enter
+sends. Replies follow the scroll position until the reader scrolls up, with a
+"Jump to latest" action to resume following. Copy actions sit below replies so
+they do not obscure the text.
 
 Frontend interface work uses Vercel's [Web Interface
 Guidelines](https://vercel.com/design/guidelines) as the review baseline for

@@ -3,7 +3,7 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import TuneIcon from "@mui/icons-material/Tune";
-import { Box, IconButton, Stack, Tooltip } from "@mui/material";
+import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { useColorScheme } from "@mui/material/styles";
 import { getModelDisplay, getReasoningEffortDisplay } from "@/client/helpers";
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
@@ -47,7 +47,10 @@ function RegenerateButton({
   onRegenerate,
 }: RegenerateButtonProps) {
   return (
-    <Tooltip title="Regenerate Response">
+    <Tooltip
+      title="Regenerate Response"
+      describeChild={true}
+    >
       <span>
         <IconButton
           disabled={disabled || !canRegenerate}
@@ -83,66 +86,84 @@ function Toolbar({
   return (
     <Stack
       direction="row"
-      spacing={2}
-      sx={{ mb: 2 }}
+      sx={{
+        gap: 0.5,
+        flexWrap: "wrap",
+        alignItems: "center",
+        borderTop: 1,
+        borderColor: "divider",
+        px: 1,
+        py: 0.5,
+      }}
     >
       <DropdownParameter
         value={model}
         onChange={setModel}
         icon={<PsychologyIcon />}
-        tooltipTitle={
-          <>
-            Choose Assistant Model
-            <br />
-            (Current: {getModelDisplay(model)})
-          </>
-        }
         ariaLabel={`Select assistant model. Current model: ${getModelDisplay(model)}`}
         options={MODEL_OPTIONS}
+        label={getModelDisplay(model)}
       />
       <DropdownParameter
         value={reasoningEffort}
         onChange={setReasoningEffort}
         icon={<TuneIcon />}
-        tooltipTitle={
-          <>
-            Choose Reasoning Effort
-            <br />
-            (Current: {getReasoningEffortDisplay(reasoningEffort)})
-          </>
-        }
-        ariaLabel={`Select reasoning effort. Current effort: ${getReasoningEffortDisplay(reasoningEffort)}`}
+        ariaLabel={`Select reasoning effort. Current effort: ${getReasoningEffortDisplay(reasoningEffort)} reasoning`}
         options={REASONING_EFFORT_OPTIONS}
+        label={`${getReasoningEffortDisplay(reasoningEffort)} reasoning`}
       />
-      <RegenerateButton
-        disabled={disabled}
-        canRegenerate={canRegenerate}
-        onRegenerate={onRegenerate}
-      />
-      <DarkModeToggle />
+      <Box sx={{ display: "flex", ml: "auto" }}>
+        <RegenerateButton
+          disabled={disabled}
+          canRegenerate={canRegenerate}
+          onRegenerate={onRegenerate}
+        />
+        <DarkModeToggle />
+      </Box>
     </Stack>
   );
 }
 
 interface ControlPanelProps extends ToolbarProps {
   onSendMessage: (message: string) => Promise<void>;
+  onStop: () => void;
 }
 
 function ControlPanel({
   onSendMessage,
   disabled,
+  onStop,
   ...toolbarProps
 }: ControlPanelProps) {
   return (
-    <Box sx={{ p: 2 }}>
-      <Toolbar
-        {...toolbarProps}
-        disabled={disabled}
-      />
-      <ChatInput
-        onSendMessage={onSendMessage}
-        disabled={disabled}
-      />
+    <Box sx={{ pt: 2, pb: "max(16px, env(safe-area-inset-bottom))" }}>
+      <Box
+        sx={{
+          border: 1,
+          borderColor: "divider",
+          borderRadius: 2,
+          bgcolor: "background.paper",
+          boxShadow: "0 8px 32px rgb(0 0 0 / 4%)",
+          "&:focus-within": { borderColor: "primary.main" },
+        }}
+      >
+        <ChatInput
+          onSendMessage={onSendMessage}
+          disabled={disabled}
+          onStop={onStop}
+        />
+        <Toolbar
+          {...toolbarProps}
+          disabled={disabled}
+        />
+      </Box>
+      <Typography
+        component="p"
+        variant="caption"
+        sx={{ color: "text.secondary", textAlign: "center", mt: 1.5 }}
+      >
+        AI can make mistakes. Double-check important details.
+      </Typography>
     </Box>
   );
 }

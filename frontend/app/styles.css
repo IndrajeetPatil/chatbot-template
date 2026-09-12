@@ -1,5 +1,6 @@
 @font-face {
   font-family: "Geist";
+  font-display: swap;
   font-style: normal;
   font-weight: 100 900;
   src: url("./fonts/geist-vf.woff") format("woff");
@@ -7,6 +8,7 @@
 
 @font-face {
   font-family: "Geist Mono";
+  font-display: swap;
   font-style: normal;
   font-weight: 100 900;
   src: url("./fonts/geist-mono-vf.woff") format("woff");
@@ -30,4 +32,19 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
+  }
 }

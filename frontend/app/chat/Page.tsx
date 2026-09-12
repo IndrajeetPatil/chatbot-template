@@ -1,12 +1,12 @@
 import { Box, Container, CssBaseline, Typography } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import { visuallyHidden } from "@mui/utils";
 import { useState } from "react";
 import { theme } from "@/client/theme";
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 import { useChatSetup } from "@/client/useChatSetup";
 import ControlPanel from "@/components/ControlPanel";
 import MessageList from "@/components/messages/MessageList";
+import Welcome from "@/components/Welcome";
 
 const SKIP_LINK_SX = {
   backgroundColor: "background.paper",
@@ -35,6 +35,8 @@ const CHAT_MAIN_SX = {
   flexDirection: "column",
   height: "100dvh",
   minHeight: 0,
+  maxWidth: "920px",
+  px: { xs: 2, sm: 4 },
 } as const;
 
 export default function Home() {
@@ -49,6 +51,7 @@ export default function Home() {
     error,
     handleSendMessage,
     handleRegenerateResponse,
+    stop,
   } = useChatSetup(model, reasoningEffort);
 
   return (
@@ -67,19 +70,54 @@ export default function Home() {
       <Container
         id="chat-main"
         component="main"
-        maxWidth="md"
+        maxWidth={false}
         sx={CHAT_MAIN_SX}
       >
-        <Typography
-          component="h1"
-          sx={visuallyHidden}
+        <Box
+          component="header"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            py: 3,
+            borderBottom: 1,
+            borderColor: "divider",
+          }}
         >
-          Chatbot Template
-        </Typography>
+          <Typography
+            component="h1"
+            sx={{
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              letterSpacing: "-0.025em",
+            }}
+          >
+            Chatbot Template
+            <Box
+              component="span"
+              aria-hidden={true}
+              sx={{ color: "primary.main", ml: 0.5 }}
+            >
+              ↗
+            </Box>
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{ color: "text.secondary" }}
+          >
+            Space to think.
+          </Typography>
+        </Box>
         <MessageList
           messages={messages}
           assistantIsLoading={assistantIsLoading}
           error={error}
+          welcome={
+            !hasUserMessage ? (
+              <Welcome onSendMessage={handleSendMessage} />
+            ) : undefined
+          }
         />
         <ControlPanel
           model={model}
@@ -90,6 +128,7 @@ export default function Home() {
           canRegenerate={hasUserMessage}
           disabled={assistantIsLoading}
           onSendMessage={handleSendMessage}
+          onStop={stop}
         />
       </Container>
     </ThemeProvider>

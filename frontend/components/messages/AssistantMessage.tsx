@@ -1,6 +1,5 @@
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import SmartToyIcon from "@mui/icons-material/SmartToy";
-import { Box, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import type React from "react";
 import { lazy, Suspense, useRef, useState } from "react";
 import { useIsDark } from "@/client/hooks";
@@ -16,21 +15,12 @@ const DARK_COLORS = {
   codeBlock: "#1e1e1e",
   inlineBg: "#2d2d2d",
   inlineFg: "#e0e0e0",
-  paper: "#2d2d2d",
-  icon: "#4caf50",
 } as const;
 
 const LIGHT_COLORS = {
   codeBlock: "#f6f8fa",
   inlineBg: "#f5f5f5",
   inlineFg: "inherit",
-  paper: "#fff3e0",
-  icon: "#ff9800",
-} as const;
-
-const COPY_BTN_COLORS = {
-  dark: { bg: "#4caf50", hover: "#45a049" },
-  light: { bg: "#ff9800", hover: "#e65100" },
 } as const;
 
 const BLOCK_CODE_SX = {
@@ -40,13 +30,15 @@ const BLOCK_CODE_SX = {
 } as const;
 
 const COPY_BUTTON_SX = {
-  position: "absolute",
-  right: 4,
-  top: 4,
+  mt: 1,
+  ml: -1,
+  color: "text.secondary",
 } as const;
 
 const CODE_BLOCK_PRE_SX = {
-  borderRadius: 1,
+  borderRadius: 2,
+  border: 1,
+  borderColor: "divider",
   mt: 2,
   overflowX: "auto",
   p: 2,
@@ -68,10 +60,9 @@ const ASSISTANT_MESSAGE_CONTAINER_SX = {
 } as const;
 
 const ASSISTANT_MESSAGE_PAPER_SX = {
-  maxWidth: "80%",
+  width: "100%",
+  minWidth: 0,
   overflowWrap: "anywhere",
-  p: 2,
-  position: "relative",
   wordWrap: "break-word",
 } as const;
 
@@ -88,13 +79,11 @@ function BlockCode({ text }: { text: string }) {
 
 interface CopyButtonProps {
   content: string;
-  isDark: boolean;
 }
 
-function CopyButton({ content, isDark }: CopyButtonProps) {
+function CopyButton({ content }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const btnColors = isDark ? COPY_BTN_COLORS.dark : COPY_BTN_COLORS.light;
 
   const handleCopy = () => {
     /* v8 ignore next */
@@ -108,13 +97,7 @@ function CopyButton({ content, isDark }: CopyButtonProps) {
     <Tooltip title={copied ? "Copied!" : "Copy entire message"}>
       <IconButton
         onClick={handleCopy}
-        sx={[
-          COPY_BUTTON_SX,
-          {
-            "&:hover": { backgroundColor: btnColors.hover },
-            backgroundColor: btnColors.bg,
-          },
-        ]}
+        sx={COPY_BUTTON_SX}
       >
         <ContentCopyIcon fontSize="small" />
       </IconButton>
@@ -177,11 +160,14 @@ function AssistantMessage({ content, isFirstMessage }: AssistantMessageProps) {
 
   return (
     <Box sx={ASSISTANT_MESSAGE_CONTAINER_SX}>
-      <Paper
-        elevation={2}
-        sx={[ASSISTANT_MESSAGE_PAPER_SX, { backgroundColor: colors.paper }]}
-      >
-        <SmartToyIcon sx={{ color: colors.icon }} />
+      <Box sx={ASSISTANT_MESSAGE_PAPER_SX}>
+        <Typography
+          component="div"
+          variant="caption"
+          sx={{ color: "primary.main", fontWeight: 600, mb: 1.5 }}
+        >
+          Assistant
+        </Typography>
         <Typography
           variant="body1"
           component="div"
@@ -192,13 +178,8 @@ function AssistantMessage({ content, isFirstMessage }: AssistantMessageProps) {
             </ReactMarkdown>
           </Suspense>
         </Typography>
-        {!isFirstMessage && (
-          <CopyButton
-            content={content}
-            isDark={isDark}
-          />
-        )}
-      </Paper>
+        {!isFirstMessage && <CopyButton content={content} />}
+      </Box>
     </Box>
   );
 }

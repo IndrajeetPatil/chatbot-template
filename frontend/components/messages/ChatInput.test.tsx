@@ -111,4 +111,47 @@ describe("ChatInput component", () => {
 
     expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
   });
+
+  test("stops generation without submitting another message", () => {
+    const onStop = vi.fn();
+    const onSendMessage = vi.fn();
+    render(
+      <ChatInput
+        disabled={true}
+        onSendMessage={onSendMessage}
+        onStop={onStop}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Stop generating" }));
+    expect(onStop).toHaveBeenCalledOnce();
+    expect(onSendMessage).not.toHaveBeenCalled();
+  });
+
+  test("does not submit a disabled composer through its form", () => {
+    const onSendMessage = vi.fn();
+    const { container } = render(
+      <ChatInput
+        disabled={true}
+        onSendMessage={onSendMessage}
+      />,
+    );
+    const form = container.querySelector("form");
+    if (!form) throw new Error("Expected the composer form");
+    fireEvent.submit(form);
+    expect(onSendMessage).not.toHaveBeenCalled();
+  });
+
+  test("does not send while composing with an input method editor", () => {
+    const onSendMessage = vi.fn();
+    render(<ChatInput onSendMessage={onSendMessage} />);
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "こんにちは" },
+    });
+    fireEvent.keyDown(screen.getByRole("textbox"), {
+      key: "Enter",
+      ctrlKey: true,
+      isComposing: true,
+    });
+    expect(onSendMessage).not.toHaveBeenCalled();
+  });
 });
