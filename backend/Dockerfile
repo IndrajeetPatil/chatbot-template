@@ -15,6 +15,10 @@ RUN uv sync --frozen --no-dev
 
 FROM python:3.14-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6 AS runtime
 
+# Remove this upgrade once the pinned base includes Debian's Perl security fixes.
+RUN apt-get update && apt-get install -y --no-install-recommends --only-upgrade perl-base \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
