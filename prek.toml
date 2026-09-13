@@ -19,7 +19,7 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "5d5d9ecda0a544617f550c84792ea1bd717620e1"  # frozen: v0.2.72
+rev = "2e9b57dbffd7869f0ee8bcdb1978cb1c477cb042"  # frozen: v0.2.73
 hooks = [
   { id = "rumdl" },
 ]

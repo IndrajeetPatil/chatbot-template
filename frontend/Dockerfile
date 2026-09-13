@@ -14,7 +14,8 @@ RUN pnpm run build
 
 FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132
 
-RUN apt-get update && apt-get install -y --no-install-recommends nginx-light \
+# Upgrade perl-base until the pinned base includes Debian's Perl security fixes.
+RUN apt-get update && apt-get install -y --no-install-recommends nginx-light perl-base \
     && rm -rf /var/lib/apt/lists/*
 
 COPY frontend.nginx.conf /etc/nginx/nginx.conf
