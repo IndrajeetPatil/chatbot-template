@@ -14,6 +14,7 @@ see [getting started](getting-started.md) for service selection and configuratio
 | `make format` / `make lint`                  | Formatting / ls-lint, Ruff, Biome, rumdl                        |
 | `make type-check` / `make type-coverage`     | Static types / 100% type coverage                               |
 | `make test`                                  | Backend and frontend unit tests with coverage                   |
+| `make frontend-bench`                        | Optional frontend request-preparation benchmarks                |
 | `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials               |
 | `make backend-load-test`                     | Start the backend and Locust against it                         |
 | `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                                |
@@ -45,17 +46,18 @@ make setup
 make qa
 ```
 
-| Removed by `make clean`                                                 | Recreated by                                 |
-| ----------------------------------------------------------------------- | -------------------------------------------- |
-| Backend `.venv`, frontend and root `node_modules`                       | `make setup`                                 |
-| Python bytecode, pytest / Hypothesis caches, coverage data and XML      | `make backend-test`                          |
-| Ruff, rumdl, Fallow, TypeScript, ESLint, and local `.cache` directories | `make qa`                                    |
-| Frontend build and coverage output                                      | `make frontend-build` / `make frontend-test` |
-| Playwright reports, traces, blob reports, and local cache               | `make e2e-test` / `make e2e-test-docker`     |
-| Lighthouse reports                                                      | `make lighthouse`                            |
-| Gitleaks `results.sarif`                                                | `make secret-scan-ci`                        |
-| uv download/tool cache; unused pnpm packages, metadata and dlx cache    | `make setup` and the relevant tool targets   |
-| Local pnpm stores and Docker's `chatbot-pw-*` dependency volumes        | `make setup` / `make e2e-test-docker`        |
+| Removed by `make clean`                                                 | Recreated by                                   |
+| ----------------------------------------------------------------------- | ---------------------------------------------- |
+| Backend `.venv`, frontend and root `node_modules`                       | `make setup`                                   |
+| Python bytecode, pytest / Hypothesis caches, coverage data and XML      | `make backend-test`                            |
+| Ruff, rumdl, Fallow, TypeScript, ESLint, and local `.cache` directories | `make qa`                                      |
+| Frontend build and coverage output                                      | `make frontend-build` / `make frontend-test`   |
+| Vitest reports and benchmark JSON in `frontend/.vitest/`                | Test or benchmark runs with artifact reporters |
+| Playwright reports, traces, blob reports, and local cache               | `make e2e-test` / `make e2e-test-docker`       |
+| Lighthouse reports                                                      | `make lighthouse`                              |
+| Gitleaks `results.sarif`                                                | `make secret-scan-ci`                          |
+| uv download/tool cache; unused pnpm packages, metadata and dlx cache    | `make setup` and the relevant tool targets     |
+| Local pnpm stores and Docker's `chatbot-pw-*` dependency volumes        | `make setup` / `make e2e-test-docker`          |
 
 - `backend/.env`, source files, lockfiles, and visual baselines are preserved.
 - uv and pnpm caches are shared with other projects: their next runs may download
@@ -103,6 +105,7 @@ make qa
 | GitHub Actions audit     | zizmor                                             | zizmor       |
 | Container vuln scan      | Trivy                                              | Trivy        |
 | Unit testing             | Vitest                                             | pytest       |
+| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                | \-           |
 | Property-based testing   | fast-check                                         | Hypothesis   |
 | Code coverage            | Vitest                                             | coverage.py  |
 | Coverage floor           | 90% statements/functions/lines; 75% branches       | 100%         |
@@ -114,6 +117,39 @@ make qa
 | API server               | \-                                                 | FastAPI      |
 | UI toolkit               | Material UI                                        | \-           |
 | Logger                   | \-                                                 | loguru       |
+
+## Frontend unit tests and benchmarks
+
+The frontend uses [Vitest 5](https://vitest.dev/blog/vitest-5.html) with the
+matching V8 coverage provider. The project's Node.js 24 and Vite 8 satisfy its
+runtime requirements. `@fast-check/vitest` 0.5 supports Vitest 5 and retains the
+property tests. Unit tests continue to use jsdom, two workers, automatic mock
+clearing, and the coverage thresholds above; coverage artifacts stay in
+`frontend/coverage/` for CI uploads.
+
+The [benchmarking API](https://vitest.dev/guide/benchmarking) is useful for pure
+frontend work whose cost grows with a conversation. The initial benchmark calls
+the actual `toBackendMessages` helper used when preparing chat requests, with
+10, 100, and 1,000 synthetic messages containing text and SDK metadata.
+
+| Command                                                               | Purpose                                                   |
+| --------------------------------------------------------------------- | --------------------------------------------------------- |
+| `make frontend-bench`                                                 | Run all benchmarks once                                   |
+| `make frontend-bench BENCH_ARGS='-t "1000 messages"'`                 | Focus on a long conversation                              |
+| `make frontend-bench BENCH_ARGS='--reporter=default --reporter=json'` | Show timings and save `frontend/.vitest/json/output.json` |
+
+- Benchmarks use the Vitest 5 test-context `bench` fixture in `*.bench.ts` files
+  and run in Node. Inputs are prepared before timing, and the result is consumed
+  and checked after timing to preserve meaningful work without timing assertions.
+- The benchmark command skips unit tests. Ordinary tests, `make qa`, and CI skip
+  benchmarks; all existing correctness and coverage gates remain enforced.
+- Results are advisory. Compare runs on the same machine and Node version with
+  other CPU-heavy work stopped. There is no timing threshold or committed baseline;
+  `bench.from()` and `writeResult` can support future comparisons once a stable
+  measurement environment is established.
+- These measurements cover request conversion only. They do not measure browser
+  rendering, network latency, or Azure model response time. Keep Playwright,
+  Lighthouse, and backend load tests for those broader checks.
 
 ## Browser and visual tests
 

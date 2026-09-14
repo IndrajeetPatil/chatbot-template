@@ -10,6 +10,7 @@ TSC=pnpm run check-types
 AUDIT=pnpm audit --audit-level=moderate
 BUILD=pnpm run build
 VITEST=pnpm run test
+VITEST_BENCH=pnpm run bench
 VITE_START=pnpm run start
 VITE_DEV=pnpm run dev --host 127.0.0.1 --strictPort
 PLAYWRIGHT=pnpm run test:e2e
@@ -36,6 +37,10 @@ frontend-type-check:
 frontend-test:
 	@echo "$(COLOR_BLUE_BG)Running frontend unit tests...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VITEST)
+
+frontend-bench:
+	@echo "$(COLOR_BLUE_BG)Benchmarking frontend request preparation...$(COLOR_RESET)"
+	cd $(FRONTEND_DIR) && $(VITEST_BENCH) $(BENCH_ARGS)
 
 frontend-build:
 	@echo "$(COLOR_BLUE_BG)Building frontend...$(COLOR_RESET)"
@@ -88,6 +93,7 @@ frontend-clean:
 	rm -rf $(FRONTEND_DIR)/node_modules \
 	       $(FRONTEND_DIR)/dist \
 	       $(FRONTEND_DIR)/coverage \
+	       $(FRONTEND_DIR)/.vitest \
 	       $(FRONTEND_DIR)/playwright-report \
 	       $(FRONTEND_DIR)/test-results \
 	       $(FRONTEND_DIR)/blob-report \
@@ -106,6 +112,6 @@ frontend-preview: frontend-build
 	cd $(FRONTEND_DIR) && $(VITE_START) --host 127.0.0.1 --strictPort
 
 .PHONY: frontend-setup frontend-lint frontend-format frontend-type-check \
-	frontend-test frontend-build frontend-audit frontend-fallow \
+	frontend-test frontend-bench frontend-build frontend-audit frontend-fallow \
 	frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage \
 	frontend-lighthouse frontend-e2e-test frontend-e2e-test-docker frontend-clean run-frontend frontend-preview
