@@ -65,6 +65,7 @@ ls:
     .dir: kebab-case
     .ts: camelCase
     .test.ts: camelCase
+    .bench.ts: camelCase
     .tsx: camelCase
     .test.tsx: camelCase
 
@@ -100,6 +101,7 @@ ignore:
   - "**/.pnpm-store"
   - "**/dist"
   - "**/coverage"
+  - "**/.vitest"
   - "**/htmlcov"
   - "**/.lighthouseci"
   - "**/.fallow"

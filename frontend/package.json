@@ -18,6 +18,7 @@
     "check-types": "tsc --noemit",
     "lint": "biome check --write --unsafe --error-on-warnings biome.json package.json tsconfig.json eslint.config.js playwright.config.ts vite-env.d.ts vite.config.ts vitest.setup.ts .lighthouserc.json .fallowrc.json scripts/ app/ client/ components/ e2e-tests/ src/ index.html",
     "test": "vitest run --coverage",
+    "bench": "vitest bench --run",
     "test:e2e": "playwright test",
     "fallow": "fallow doctor --quiet && fallow --fail-on-issues --quiet",
     "css-quality": "node scripts/css-quality.mjs",
@@ -56,7 +57,7 @@
   "devDependencies": {
     "@babel/core": "^8.0.5",
     "@biomejs/biome": "2.5.8",
-    "@fast-check/vitest": "^0.4.1",
+    "@fast-check/vitest": "^0.5.0",
     "@playwright/test": "^1.63.0",
     "@projectwallace/css-code-quality": "^3.1.4",
     "@rolldown/plugin-babel": "^0.2.4",
@@ -69,7 +70,7 @@
     "@types/react-dom": "^19.3.0",
     "@typescript-eslint/parser": "^8.70.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.0",
     "axe-core": "^4.13.0",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^10.10.0",
@@ -83,6 +84,6 @@
     "type-coverage": "^2.30.1",
     "typescript": "^6.0.3",
     "vite": "^8.3.0",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.0"
   }
 }
