@@ -10,7 +10,7 @@ container, which installs the toolchain for you.
 | Runtime / tool | Current version | Source of truth                                                        |
 | -------------- | --------------- | ---------------------------------------------------------------------- |
 | Python         | 3.14            | `backend/.python-version`, `backend/pyproject.toml`                    |
-| uv             | 0.12.12         | `backend/pyproject.toml`; Docker and installer pins must match         |
+| uv             | 0.12.13         | `backend/pyproject.toml`; Docker and installer pins must match         |
 | Node.js        | 24              | `frontend/package.json`; `.nvmrc`, Docker, and devcontainer must match |
 | pnpm           | 12.4.1          | `frontend/package.json`; CI reads this declaration                     |
 | Make and Bash  | System tools    | Required by the development commands                                   |
