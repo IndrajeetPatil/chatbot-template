@@ -1,13 +1,7 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import axe from "axe-core";
 import { openChat, sendMessage } from "./chat-fixture";
 import { MARKDOWN_REPLY } from "./markdown-fixture";
-
-declare global {
-  interface Window {
-    axe: typeof axe;
-  }
-}
 
 const KEYWORD_COLORS = {
   light: "rgb(207, 48, 64)",
@@ -38,13 +32,10 @@ for (const colorScheme of ["light", "dark"] as const) {
           ),
         ),
       ).toBe(true);
-      await page.addScriptTag({ content: axe.source });
-      const violations = await page.evaluate(async () => {
-        const result = await window.axe.run(".markdown", {
-          runOnly: ["color-contrast"],
-        });
-        return result.violations;
-      });
+      const { violations } = await new AxeBuilder({ page })
+        .include(".markdown")
+        .withRules(["color-contrast"])
+        .analyze();
       expect(violations).toEqual([]);
       const otherMode = colorScheme === "light" ? "dark" : "light";
       await page

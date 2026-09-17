@@ -84,39 +84,39 @@ make qa
 | Contrast                 | WCAG AA in both themes                                                                                                 |
 | Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance |
 
-| Step                     | Frontend                                           | Backend      |
-| ------------------------ | -------------------------------------------------- | ------------ |
-| Package manager          | pnpm                                               | uv           |
-| Formatter                | Biome                                              | Ruff         |
-| Linter                   | Biome                                              | Ruff         |
-| Import sorter            | Biome                                              | Ruff         |
-| Type checker             | TypeScript                                         | ty           |
-| Type annotation coverage | type-coverage                                      | typecoverage |
-| Security linting         | ESLint (`no-unsanitized`, `react-dom`)             | \-           |
-| Codebase analysis        | Fallow                                             | \-           |
-| CSS code quality         | @projectwallace/css-code-quality                   | \-           |
-| Contrast audit           | axe-core (`color-contrast`) in light and dark mode | \-           |
-| Markdown linting         | rumdl                                              | rumdl        |
-| File naming              | ls-lint                                            | ls-lint      |
-| Pre-commit hooks         | prek                                               | prek         |
-| Commit message linting   | commitlint                                         | commitlint   |
-| IaC / workflow scan      | Checkov                                            | Checkov      |
-| Secret scanning          | Gitleaks                                           | Gitleaks     |
-| GitHub Actions audit     | zizmor                                             | zizmor       |
-| Container vuln scan      | Trivy                                              | Trivy        |
-| Unit testing             | Vitest                                             | pytest       |
-| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                | \-           |
-| Property-based testing   | fast-check                                         | Hypothesis   |
-| Code coverage            | Vitest                                             | coverage.py  |
-| Coverage floor           | 90% statements/functions/lines; 75% branches       | 100%         |
-| Load testing             | \-                                                 | locust       |
-| End-to-end testing       | Playwright                                         | \-           |
-| Dependency audit         | pnpm audit                                         | uv audit     |
-| Performance / a11y       | Lighthouse CI, axe-core                            | \-           |
-| API client               | Vercel AI SDK                                      | openai       |
-| API server               | \-                                                 | FastAPI      |
-| UI toolkit               | Material UI                                        | \-           |
-| Logger                   | \-                                                 | loguru       |
+| Step                     | Frontend                                                | Backend      |
+| ------------------------ | ------------------------------------------------------- | ------------ |
+| Package manager          | pnpm                                                    | uv           |
+| Formatter                | Biome                                                   | Ruff         |
+| Linter                   | Biome                                                   | Ruff         |
+| Import sorter            | Biome                                                   | Ruff         |
+| Type checker             | TypeScript                                              | ty           |
+| Type annotation coverage | type-coverage                                           | typecoverage |
+| Security linting         | ESLint (`no-unsanitized`, `react-dom`)                  | \-           |
+| Codebase analysis        | Fallow                                                  | \-           |
+| CSS code quality         | @projectwallace/css-code-quality                        | \-           |
+| Contrast audit           | @axe-core/playwright (`color-contrast`), light and dark | \-           |
+| Markdown linting         | rumdl                                                   | rumdl        |
+| File naming              | ls-lint                                                 | ls-lint      |
+| Pre-commit hooks         | prek                                                    | prek         |
+| Commit message linting   | commitlint                                              | commitlint   |
+| IaC / workflow scan      | Checkov                                                 | Checkov      |
+| Secret scanning          | Gitleaks                                                | Gitleaks     |
+| GitHub Actions audit     | zizmor                                                  | zizmor       |
+| Container vuln scan      | Trivy                                                   | Trivy        |
+| Unit testing             | Vitest                                                  | pytest       |
+| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                     | \-           |
+| Property-based testing   | fast-check                                              | Hypothesis   |
+| Code coverage            | Vitest                                                  | coverage.py  |
+| Coverage floor           | 90% statements/functions/lines; 75% branches            | 100%         |
+| Load testing             | \-                                                      | locust       |
+| End-to-end testing       | Playwright                                              | \-           |
+| Dependency audit         | pnpm audit                                              | uv audit     |
+| Performance / a11y       | Lighthouse CI, axe-core                                 | \-           |
+| API client               | Vercel AI SDK                                           | openai       |
+| API server               | \-                                                      | FastAPI      |
+| UI toolkit               | Material UI                                             | \-           |
+| Logger                   | \-                                                      | loguru       |
 
 ## Frontend unit tests and benchmarks
 
@@ -248,7 +248,7 @@ Never rely on CI reporter exit codes alone.
 | Client modules, hooks, and test helpers                   | camelCase, including test suffixes    | `useChatSetup.ts`, `testUtils.tsx`               |
 | Vite entry point                                          | `main.tsx`                            | `frontend/src/main.tsx`                          |
 | Frontend directories, CSS, fonts, and images              | kebab-case                            | `e2e-tests/`, `geist-mono-vf.woff`               |
-| End-to-end tests and JavaScript utility scripts           | kebab-case                            | `chat-page.spec.ts`, `contrast-audit.mjs`        |
+| End-to-end tests and JavaScript utility scripts           | kebab-case                            | `chat-page.spec.ts`, `css-quality.mjs`           |
 | Shell scripts, Make fragments, docs, and config basenames | kebab-case                            | `post-create.sh`, `backend.mk`, `update-deps.md` |
 
 - Preserve standard names: `README.md`, `AGENTS.md`, `Dockerfile`, tool dotfiles.
