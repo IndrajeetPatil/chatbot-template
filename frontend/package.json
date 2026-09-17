@@ -22,7 +22,7 @@
     "test:e2e": "playwright test",
     "fallow": "fallow doctor --quiet && fallow --fail-on-issues --quiet",
     "css-quality": "node scripts/css-quality.mjs",
-    "contrast-audit": "playwright test contrast.spec.ts",
+    "contrast-audit": "PLAYWRIGHT_PORT=3100 playwright test contrast.spec.ts",
     "lint:security": "eslint app client components src",
     "type-coverage": "type-coverage --strict --at-least 100"
   },

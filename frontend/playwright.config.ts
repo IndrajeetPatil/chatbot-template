@@ -1,5 +1,12 @@
 import { defineConfig } from "@playwright/test";
 
+// Playwright's web server needs a known URL to poll, so it cannot take an
+// ephemeral port. Default to the development port and let callers move off it:
+// the contrast audit runs inside the required `make qa` gate, which must not
+// fail just because a development server already holds 3000.
+const PORT = process.env.PLAYWRIGHT_PORT ?? "3000";
+const BASE_URL = `http://localhost:${PORT}`;
+
 export default defineConfig({
   testDir: "./e2e-tests",
   snapshotPathTemplate:
@@ -18,7 +25,7 @@ export default defineConfig({
     toHaveScreenshot: { animations: "disabled", maxDiffPixels: 0 },
   },
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: BASE_URL,
     viewport: { width: 1280, height: 800 },
     colorScheme: "dark",
     reducedMotion: "reduce",
@@ -27,10 +34,11 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
-  // Exercise the production build, including the lazy markdown chunk.
+  // Exercise the production build, including the lazy markdown chunk. This is
+  // what `pnpm start` runs, invoked directly so PORT is not passed twice.
   webServer: {
-    command: "pnpm start --strictPort",
-    url: "http://localhost:3000",
+    command: `pnpm exec vite preview --host 0.0.0.0 --port ${PORT} --strictPort`,
+    url: BASE_URL,
     reuseExistingServer: false,
   },
 });
