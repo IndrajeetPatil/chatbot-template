@@ -1,20 +1,8 @@
-import { fileURLToPath, URL } from "node:url";
-
 import babel from "@rolldown/plugin-babel";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import type { PluginOption } from "vite";
 import { defineConfig } from "vitest/config";
 
-// Markdown and its plugins stay in RichMarkdown's lazy-loaded chunk. Leaving
-// them out of the manual chunks keeps them off the initial critical path,
-// with no eager modulepreload in index.html.
-const VENDOR_CHUNKS: [string, string][] = [
-  ["react", "/react/"],
-  ["react", "/react-dom/"],
-  ["mui", "/@emotion/"],
-  ["mui", "/@mui/icons-material/"],
-  ["mui", "/@mui/material/"],
-];
 const CHAT_API_PROXY_TARGET =
   process.env.CHAT_API_PROXY_TARGET ?? "http://localhost:8000";
 const CHAT_API_PROXY = {
@@ -39,31 +27,23 @@ const reactCompiler: PluginOption[] = isTest
 export default defineConfig({
   plugins: [react(), ...reactCompiler],
   publicDir: "app/favicon",
+  // `host: true` binds every interface so the devcontainer port forward works.
+  // Neither server sets `strictPort`: `make qa` must not fail just because a
+  // development server already holds 3000.
   server: {
+    host: true,
+    port: 3000,
     proxy: CHAT_API_PROXY,
   },
   preview: {
+    host: true,
+    port: 3000,
     proxy: CHAT_API_PROXY,
   },
+  // The `@/*` -> `./*` mapping lives in tsconfig.json; Vite reads it from
+  // there so the two cannot drift.
   resolve: {
-    alias: {
-      "@": fileURLToPath(new URL(".", import.meta.url)),
-    },
-  },
-  build: {
-    rolldownOptions: {
-      output: {
-        assetFileNames: "assets/[name]-[hash][extname]",
-        chunkFileNames: "assets/[name]-[hash].js",
-        entryFileNames: "assets/[name]-[hash].js",
-        manualChunks(id: string) {
-          if (!id.includes("node_modules")) {
-            return;
-          }
-          return VENDOR_CHUNKS.find(([, pattern]) => id.includes(pattern))?.[0];
-        },
-      },
-    },
+    tsconfigPaths: true,
   },
   test: {
     reporters: process.env.CI ? ["dot", "github-actions"] : ["default"],
