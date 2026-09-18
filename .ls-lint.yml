@@ -12,7 +12,6 @@ ls:
   .config.mjs: kebab-case
   .png: kebab-case
   .svg: kebab-case
-  .code-workspace: kebab-case
 
   backend:
     .py: snake_case | regex:__init__
