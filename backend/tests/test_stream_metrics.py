@@ -177,10 +177,13 @@ def test_failure_logs_error_status_with_partial_progress(
     clock: FakeClock,
     stream_metrics: MetricsReader,
 ) -> None:
+    # Azure reports usage in a final chunk, so a stream can fail after the
+    # counts arrive. The documented contract keeps whatever was measured.
     def consume() -> None:
         with measure_stream(AssistantModel.ASTRA, ReasoningEffort.HIGH) as metrics:
             clock.advance(250)
             metrics.record_content("Partial")
+            metrics.record_chunk(as_chunk(usage_chunk()))
             clock.advance(250)
             raise ValueError(_FAILURE)
 
@@ -195,10 +198,10 @@ def test_failure_logs_error_status_with_partial_progress(
         "duration_ms": 500.0,
         "ttft_ms": 250.0,
         "output_chars": 7,
-        "usage_received": False,
-        "prompt_tokens": None,
-        "completion_tokens": None,
-        "total_tokens": None,
+        "usage_received": True,
+        "prompt_tokens": 12,
+        "completion_tokens": 12,
+        "total_tokens": 24,
     })
 
 
@@ -210,6 +213,7 @@ def test_closing_the_consumer_logs_interrupted_status(
         with measure_stream(AssistantModel.SOL, ReasoningEffort.LOW) as metrics:
             clock.advance(250)
             metrics.record_content("Hi")
+            metrics.record_chunk(as_chunk(usage_chunk()))
             yield "Hi"
             clock.advance(10_000)  # unreachable: the consumer closes first
 
@@ -226,8 +230,8 @@ def test_closing_the_consumer_logs_interrupted_status(
         "duration_ms": 500.0,
         "ttft_ms": 250.0,
         "output_chars": 2,
-        "usage_received": False,
-        "prompt_tokens": None,
-        "completion_tokens": None,
-        "total_tokens": None,
+        "usage_received": True,
+        "prompt_tokens": 12,
+        "completion_tokens": 12,
+        "total_tokens": 24,
     })
