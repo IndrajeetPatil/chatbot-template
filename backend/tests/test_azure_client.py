@@ -140,19 +140,39 @@ def test_yields_text_deltas_and_drops_everything_else(
 
 def test_releases_the_upstream_response_when_the_consumer_disconnects(
     fake_azure: AzureFactory,
+    clock: FakeClock,
+    stream_metrics: MetricsReader,
 ) -> None:
     # The stream is deliberately abandoned mid-way: on a fully consumed body
     # httpx closes the response itself, so only an early disconnect can show
     # that the client releases the connection rather than leaking it.
-    calls: list[AzureCall] = fake_azure(
-        stream_of(content_chunk("Hi"), content_chunk(" there")),
-    )
+    def body() -> Iterator[bytes]:
+        clock.advance(250)
+        yield sse_bytes(content_chunk("Hi"), content_chunk(" there"))
+
+    calls: list[AzureCall] = fake_azure(raw_stream(body))
     stream: Generator[str] = open_stream()
     assert next(stream) == "Hi"
+    clock.advance(250)
 
     stream.close()
 
     assert calls[0].response.is_closed
+    # Abandoning the stream must still report the progress made before the
+    # disconnect, under the `interrupted` status rather than `completed`.
+    assert stream_metrics() == snapshot({
+        "event": "azure_openai_stream",
+        "status": "interrupted",
+        "model": "gpt-6-astra",
+        "reasoning_effort": "medium",
+        "duration_ms": 500.0,
+        "ttft_ms": 250.0,
+        "output_chars": 2,
+        "usage_received": False,
+        "prompt_tokens": None,
+        "completion_tokens": None,
+        "total_tokens": None,
+    })
 
 
 @pytest.mark.parametrize(
@@ -190,9 +210,13 @@ def test_raises_connection_error_when_the_endpoint_is_unreachable(
 
 def test_reraises_in_band_error_event_after_partial_content(
     fake_azure: AzureFactory,
+    clock: FakeClock,
+    stream_metrics: MetricsReader,
 ) -> None:
     def body() -> Iterator[bytes]:
+        clock.advance(250)
         yield sse_bytes(content_chunk("partial"))
+        clock.advance(250)
         yield error_event(_MID_STREAM_FAILURE)
 
     fake_azure(raw_stream(body))
@@ -202,6 +226,21 @@ def test_reraises_in_band_error_event_after_partial_content(
         received.extend(open_stream())
 
     assert received == snapshot(["partial"])
+    # A failure part-way through keeps the progress already measured; the
+    # connection-drop case below reaches this same handler.
+    assert stream_metrics() == snapshot({
+        "event": "azure_openai_stream",
+        "status": "error",
+        "model": "gpt-6-astra",
+        "reasoning_effort": "medium",
+        "duration_ms": 500.0,
+        "ttft_ms": 250.0,
+        "output_chars": 7,
+        "usage_received": False,
+        "prompt_tokens": None,
+        "completion_tokens": None,
+        "total_tokens": None,
+    })
 
 
 def test_reraises_connection_drop_after_partial_content(
