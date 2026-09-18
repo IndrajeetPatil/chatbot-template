@@ -5,6 +5,7 @@ Every test here drives the real `openai` SDK over a mock HTTP transport (see
 and the SDK's real response handling rather than about a stub's bookkeeping.
 """
 
+import json
 from typing import TYPE_CHECKING
 
 import httpx2
@@ -12,6 +13,7 @@ import openai
 import pytest
 from fastapi import status
 from inline_snapshot import snapshot
+from loguru import logger
 
 from app.azure_client import get_azure_openai_client, stream_azure_openai_response
 from app.entities import AssistantModel, ReasoningEffort
@@ -29,10 +31,12 @@ from tests.azure_double import (
     unreachable,
     usage_chunk,
 )
+from tests.conftest import METRICS_LOG_PREFIX
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
 
+    from loguru import Message
     from openai import AzureOpenAI
 
     from tests.azure_double import AzureCall
@@ -217,6 +221,9 @@ def test_reraises_in_band_error_event_after_partial_content(
     def body() -> Iterator[bytes]:
         clock.advance(250)
         yield sse_bytes(content_chunk("partial"))
+        # Azure reports usage in a trailing chunk, so a stream can fail after
+        # the counts arrive; an errored stream must still report them.
+        yield sse_bytes(usage_chunk())
         clock.advance(250)
         yield error_event(_MID_STREAM_FAILURE)
 
@@ -237,10 +244,10 @@ def test_reraises_in_band_error_event_after_partial_content(
         "duration_ms": 500.0,
         "ttft_ms": 250.0,
         "output_chars": 7,
-        "usage_received": False,
-        "prompt_tokens": None,
-        "completion_tokens": None,
-        "total_tokens": None,
+        "usage_received": True,
+        "prompt_tokens": 12,
+        "completion_tokens": 12,
+        "total_tokens": 24,
     })
 
 
@@ -267,9 +274,14 @@ def test_logs_metrics_for_a_completed_stream(
 ) -> None:
     def body() -> Iterator[bytes]:
         clock.advance(250)
-        yield sse_bytes(content_chunk("Hi"), content_chunk("!"))
+        yield sse_bytes(content_chunk("Hi"))
+        # Separate writes with time between them, so TTFT that reset on every
+        # delta would show up as 1250 rather than 250.
+        clock.advance(1_000)
+        yield sse_bytes(content_chunk("!"))
         clock.advance(250)
-        yield sse_bytes(usage_chunk())
+        # The keepalive trailing the token report must not clear the usage.
+        yield sse_bytes(usage_chunk(), keepalive_chunk())
         yield DONE
 
     fake_azure(raw_stream(body))
@@ -280,13 +292,74 @@ def test_logs_metrics_for_a_completed_stream(
         "status": "completed",
         "model": "gpt-6-astra",
         "reasoning_effort": "medium",
-        "duration_ms": 500.0,
+        "duration_ms": 1500.0,
         "ttft_ms": 250.0,
         "output_chars": 3,
         "usage_received": True,
         "prompt_tokens": 12,
         "completion_tokens": 12,
         "total_tokens": 24,
+    })
+
+
+def test_stream_without_text_deltas_records_no_ttft(
+    fake_azure: AzureFactory,
+    clock: FakeClock,
+    stream_metrics: MetricsReader,
+) -> None:
+    # TTFT marks the first *delta*, not the first chunk: a stream that only
+    # ever carries empty and choiceless chunks has no first token to time.
+    def body() -> Iterator[bytes]:
+        clock.advance(250)
+        yield sse_bytes(keepalive_chunk(), content_chunk(None), content_chunk(""))
+        yield DONE
+
+    fake_azure(raw_stream(body))
+
+    assert stream_text() == []
+    assert stream_metrics() == snapshot({
+        "event": "azure_openai_stream",
+        "status": "completed",
+        "model": "gpt-6-astra",
+        "reasoning_effort": "medium",
+        "duration_ms": 250.0,
+        "ttft_ms": None,
+        "output_chars": 0,
+        "usage_received": False,
+        "prompt_tokens": None,
+        "completion_tokens": None,
+        "total_tokens": None,
+    })
+
+
+def test_zero_token_usage_still_counts_as_a_usage_report(
+    fake_azure: AzureFactory,
+    clock: FakeClock,
+    stream_metrics: MetricsReader,
+) -> None:
+    # A provider reporting zero tokens has reported usage. Deriving
+    # `usage_received` from the counts' truthiness would file a real answer
+    # under the same value as "Azure told us nothing".
+    def body() -> Iterator[bytes]:
+        clock.advance(250)
+        yield sse_bytes(usage_chunk(0))
+        yield DONE
+
+    fake_azure(raw_stream(body))
+
+    assert stream_text() == []
+    assert stream_metrics() == snapshot({
+        "event": "azure_openai_stream",
+        "status": "completed",
+        "model": "gpt-6-astra",
+        "reasoning_effort": "medium",
+        "duration_ms": 250.0,
+        "ttft_ms": None,
+        "output_chars": 0,
+        "usage_received": True,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
     })
 
 
@@ -319,6 +392,31 @@ def test_logs_error_metrics_when_stream_creation_fails(
         "completion_tokens": None,
         "total_tokens": None,
     })
+
+
+def test_metrics_event_is_also_bound_for_structured_sinks(
+    fake_azure: AzureFactory,
+) -> None:
+    # The app configures no structured sink, so the rendered JSON is what ships
+    # today and every other test reads that. The bound copy is what a structured
+    # sink would consume instead, so it has to carry the same payload.
+    fake_azure(stream_of(content_chunk("Hi"), usage_chunk()))
+    captured: list[Message] = []
+    sink_id: int = logger.add(captured.append, format="{message}")
+    try:
+        stream_text()
+    finally:
+        logger.remove(sink_id)
+
+    events: list[Message] = [
+        message for message in captured if "stream_metrics" in message.record["extra"]
+    ]
+
+    assert len(events) == 1
+    assert (
+        json.loads(str(events[0]).removeprefix(METRICS_LOG_PREFIX))
+        == (events[0].record["extra"]["stream_metrics"])
+    )
 
 
 def test_client_is_built_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
