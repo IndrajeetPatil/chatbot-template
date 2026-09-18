@@ -21,13 +21,14 @@ sequenceDiagram
 
 ## Source map
 
-| File                                              | Responsibility                                                                 |
-| ------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [main.py](../backend/app/main.py)                 | FastAPI routes, request validation, CORS, rate limiting, Markdown instructions |
-| [azure_client.py](../backend/app/azure_client.py) | Cached Azure client, streaming completions, logging                            |
-| [config.py](../backend/app/config.py)             | Environment settings and startup validation                                    |
-| [entities.py](../backend/app/entities.py)         | Model, reasoning effort, and message role enums                                |
-| [tests](../backend/tests)                         | Unit and property-based tests                                                  |
+| File                                                  | Responsibility                                                                 |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [main.py](../backend/app/main.py)                     | FastAPI routes, request validation, CORS, rate limiting, Markdown instructions |
+| [azure_client.py](../backend/app/azure_client.py)     | Cached Azure client, streaming completions, logging                            |
+| [stream_metrics.py](../backend/app/stream_metrics.py) | Per-completion timing, provider usage, and structured metrics                  |
+| [config.py](../backend/app/config.py)                 | Environment settings and startup validation                                    |
+| [entities.py](../backend/app/entities.py)             | Model, reasoning effort, and message role enums                                |
+| [tests](../backend/tests)                             | Unit and property-based tests                                                  |
 
 ## Configuration
 
@@ -92,6 +93,44 @@ The frontend's AI SDK messages can instead provide text parts:
 - `TextStreamChatTransport` consumes plain text; the response is not SSE or JSON.
 - Azure errors are logged and re-raised. Once headers are sent, failures interrupt
   the stream rather than becoming a new JSON error response.
+
+## Stream instrumentation
+
+Run `make service SERVICE=backend` to see one `azure_openai_stream` metrics event
+per consumed completion in the backend logs. The event contains JSON fields in
+the default console output and the same dictionary under
+`record["extra"]["stream_metrics"]` for Loguru sinks.
+
+| Field                                                | Meaning                                                                                                     |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `model`, `reasoning_effort`                          | Requested deployment and reasoning effort                                                                   |
+| `status`                                             | `completed`, `error`, or `interrupted`                                                                      |
+| `ttft_ms`                                            | Milliseconds from the provider request starting to the first nonempty text delta; `null` if no text arrives |
+| `duration_ms`                                        | Elapsed time until completion, failure, or generator closure                                                |
+| `output_chars`                                       | Characters yielded to the caller; this is not a token count                                                 |
+| `usage_received`                                     | Whether Azure reported token usage                                                                          |
+| `prompt_tokens`, `completion_tokens`, `total_tokens` | Provider-reported counts for this request, or `null` when unavailable                                       |
+
+- Timing uses a monotonic clock. TTFT includes provider connection, retries, and
+  generation before the first text delta. Role-only, empty, and usage-only chunks
+  do not start it. It measures backend receipt, not browser rendering latency.
+- The request sets `stream_options={"include_usage": true}` and consumes the
+  final usage chunk even though its choices are empty. Counts come from Azure;
+  they are not estimated from text, and missing usage is never reported as zero.
+  Prompt tokens cover the entire submitted conversation and server instructions;
+  completion tokens can include reasoning tokens, not just visible reply text.
+- Failures and generator closure retain the measurements available so far.
+  `completed` means the provider iterator was exhausted, not that the browser
+  received every byte. The synchronous streaming adapter does not guarantee
+  immediate upstream cancellation or metrics emission when a browser disconnects.
+- Metrics contain no message text, credentials, or user identifiers. They are
+  per-request log events, not a persisted billing ledger or metrics endpoint.
+
+Token usage stays in backend telemetry. The chat currently has no budget or
+billing controls that would make counts actionable, and its plain-text transport
+cannot carry final usage metadata. If budget controls are added, introduce a
+typed metadata stream and optional per-reply usage details together; do not mix
+metrics into assistant text or present token counts as a price estimate.
 
 ## Checks
 

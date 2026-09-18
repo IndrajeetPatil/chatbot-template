@@ -1,15 +1,44 @@
-from typing import TYPE_CHECKING, Any
+import json
+from contextlib import AbstractContextManager
+from typing import TYPE_CHECKING, Any, cast, override
 
 import httpx2
 import openai
 import pytest
 from fastapi import status
+from loguru import logger
+from openai.types.chat import ChatCompletionChunk
+from openai.types.chat.chat_completion_chunk import Choice, ChoiceDelta
+from openai.types.completion_usage import CompletionUsage
 
 from app.azure_client import get_azure_openai_client, stream_azure_openai_response
 from app.entities import AssistantModel, ReasoningEffort
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Generator, Iterable, Iterator
+    from types import TracebackType
+
+    from loguru import Message
+
+    from app.stream_metrics import MetricValue
+
+
+class MockStream(AbstractContextManager["MockStream"]):
+    def __init__(self, chunks: Iterable[ChatCompletionChunk]) -> None:
+        self.chunks = chunks
+        self.closed = False
+
+    def __iter__(self) -> Iterator[ChatCompletionChunk]:
+        return iter(self.chunks)
+
+    @override
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        self.closed = True
 
 
 class MockAzureClient:
@@ -23,20 +52,26 @@ class MockAzureClient:
         class MockCompletions:
             def __init__(self) -> None:
                 self.create_calls: list[dict[str, Any]] = []
-                self.return_value: Iterable[object] = []
+                self.return_value: Iterable[ChatCompletionChunk] = []
+                self.stream: MockStream | None = None
                 self.side_effect: Exception | None = None
 
-            def create(self, **kwargs: object) -> Iterable[object]:
+            def create(self, **kwargs: object) -> MockStream:
                 self.create_calls.append(kwargs)
                 if self.side_effect is not None:
                     raise self.side_effect
-                return self.return_value
+                self.stream = MockStream(self.return_value)
+                return self.stream
 
 
-def create_chunk(content: str | None) -> object:
-    delta: object = type("MockDelta", (), {"content": content})()
-    choice: object = type("MockChoice", (), {"delta": delta})()
-    return type("MockChunk", (), {"choices": [choice]})()
+def create_chunk(content: str | None) -> ChatCompletionChunk:
+    return ChatCompletionChunk(
+        id="test-chunk",
+        created=0,
+        model="gpt-6-astra",
+        object="chat.completion.chunk",
+        choices=[Choice(index=0, delta=ChoiceDelta(content=content))],
+    )
 
 
 @pytest.fixture
@@ -93,6 +128,7 @@ def test_stream_successful_response(
             "reasoning_effort": reasoning_effort.value,
             "messages": prompt_messages,
             "stream": True,
+            "stream_options": {"include_usage": True},
         },
     ]
 
@@ -190,7 +226,7 @@ def test_openai_api_error_mid_stream_is_reraised(
         body=None,
     )
 
-    def failing_stream() -> Iterator[object]:
+    def failing_stream() -> Iterator[ChatCompletionChunk]:
         yield create_chunk("partial")
         raise mid_stream_exc
 
@@ -214,7 +250,8 @@ def test_openai_api_error_mid_stream_is_reraised(
 def test_stream_skips_chunks_with_empty_choices(
     mock_azure_client: MockAzureClient,
 ) -> None:
-    empty_chunk: object = type("MockChunk", (), {"choices": []})()
+    empty_chunk: ChatCompletionChunk = create_chunk(None)
+    empty_chunk.choices = []
     mock_azure_client.chat.completions.return_value = [
         empty_chunk,
         create_chunk("Hello"),
@@ -235,3 +272,180 @@ def test_stream_skips_chunks_with_empty_choices(
     )
 
     assert result == ["Hello"]
+
+
+@pytest.fixture
+def metric_messages(monkeypatch: pytest.MonkeyPatch) -> Iterator[list[Message]]:
+    ticks: Iterator[float] = iter([10.0, 10.25, 10.5])
+    monkeypatch.setattr("app.stream_metrics.time.perf_counter", lambda: next(ticks))
+    messages: list[Message] = []
+    sink: int = logger.add(messages.append, format="{message}")
+    try:
+        yield messages
+    finally:
+        logger.remove(sink)
+
+
+def final_metric(messages: list[Message]) -> dict[str, MetricValue]:
+    events: list[Message] = [
+        message for message in messages if "stream_metrics" in message.record["extra"]
+    ]
+    assert len(events) == 1
+    event = cast(
+        "dict[str, MetricValue]",
+        json.loads(str(events[0]).removeprefix("Azure OpenAI stream metrics: ")),
+    )
+    assert event == events[0].record["extra"]["stream_metrics"]
+    return event
+
+
+def usage_chunk(tokens: int = 12) -> ChatCompletionChunk:
+    chunk: ChatCompletionChunk = create_chunk(None)
+    chunk.choices = []
+    chunk.usage = CompletionUsage(
+        prompt_tokens=tokens,
+        completion_tokens=tokens,
+        total_tokens=tokens * 2,
+    )
+    return chunk
+
+
+def consume_response() -> list[str]:
+    return list(
+        stream_azure_openai_response(
+            messages=[{"role": "user", "content": "Private prompt"}],
+            model=AssistantModel.ASTRA,
+            reasoning_effort=ReasoningEffort.HIGH,
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    ("chunks", "expected_text", "tokens", "ttft_ms", "duration_ms"),
+    [
+        ([], [], None, None, 250.0),
+        ([create_chunk(None), create_chunk("")], [], None, None, 250.0),
+        ([usage_chunk()], [], 12, None, 250.0),
+        ([create_chunk("Private response")], ["Private response"], None, 250.0, 500.0),
+        (
+            [create_chunk(None), create_chunk("Hi"), create_chunk("!"), usage_chunk()],
+            ["Hi", "!"],
+            12,
+            250.0,
+            500.0,
+        ),
+        (
+            [create_chunk("Hi"), usage_chunk(0), create_chunk(None)],
+            ["Hi"],
+            0,
+            250.0,
+            500.0,
+        ),
+    ],
+)
+def test_stream_metrics(
+    mock_azure_client: MockAzureClient,
+    metric_messages: list[Message],
+    chunks: list[ChatCompletionChunk],
+    expected_text: list[str],
+    tokens: int | None,
+    ttft_ms: float | None,
+    duration_ms: float,
+) -> None:
+    mock_azure_client.chat.completions.return_value = chunks
+    assert consume_response() == expected_text
+    assert final_metric(metric_messages) == {
+        "event": "azure_openai_stream",
+        "status": "completed",
+        "model": "gpt-6-astra",
+        "reasoning_effort": "high",
+        "duration_ms": duration_ms,
+        "ttft_ms": ttft_ms,
+        "output_chars": len("".join(expected_text)),
+        "usage_received": tokens is not None,
+        "prompt_tokens": tokens,
+        "completion_tokens": tokens,
+        "total_tokens": None if tokens is None else tokens * 2,
+    }
+    assert mock_azure_client.chat.completions.stream is not None
+    assert mock_azure_client.chat.completions.stream.closed
+
+
+def test_creation_failure_records_metrics(
+    mock_azure_client: MockAzureClient,
+    metric_messages: list[Message],
+    openai_api_error: openai.APIError,
+) -> None:
+    mock_azure_client.chat.completions.side_effect = openai_api_error
+    with pytest.raises(type(openai_api_error)) as error:
+        consume_response()
+    assert error.value is openai_api_error
+    event: dict[str, MetricValue] = final_metric(metric_messages)
+    assert event["status"] == "error"
+    assert event["ttft_ms"] is None
+    assert event["duration_ms"] == pytest.approx(250.0)
+    assert event["output_chars"] == 0
+    assert event["usage_received"] is False
+    assert event["total_tokens"] is None
+    assert mock_azure_client.chat.completions.stream is None
+
+
+@pytest.mark.parametrize("partial", [False, True])
+@pytest.mark.parametrize("with_usage", [False, True])
+def test_midstream_failure_records_metrics(
+    mock_azure_client: MockAzureClient,
+    metric_messages: list[Message],
+    *,
+    partial: bool,
+    with_usage: bool,
+) -> None:
+    failure: ValueError = ValueError("provider failure")
+
+    def failing_stream() -> Iterator[ChatCompletionChunk]:
+        if partial:
+            yield create_chunk("Partial")
+        if with_usage:
+            yield usage_chunk()
+        raise failure
+
+    mock_azure_client.chat.completions.return_value = failing_stream()
+    with pytest.raises(ValueError, match="provider failure") as error:
+        consume_response()
+    assert error.value is failure
+    event: dict[str, MetricValue] = final_metric(metric_messages)
+    assert event["status"] == "error"
+    assert event["ttft_ms"] == (250.0 if partial else None)
+    assert event["duration_ms"] == pytest.approx(500.0 if partial else 250.0)
+    assert event["output_chars"] == (7 if partial else 0)
+    assert event["usage_received"] is with_usage
+    assert event["total_tokens"] == (24 if with_usage else None)
+    assert mock_azure_client.chat.completions.stream is not None
+    assert mock_azure_client.chat.completions.stream.closed
+
+
+def test_explicit_generator_close_records_interruption(
+    mock_azure_client: MockAzureClient,
+    metric_messages: list[Message],
+) -> None:
+    mock_azure_client.chat.completions.return_value = [
+        create_chunk("Hi"),
+        usage_chunk(),
+    ]
+    response: Generator[str] = stream_azure_openai_response(
+        messages=[{"role": "user", "content": "Private prompt"}],
+        model=AssistantModel.SOL,
+        reasoning_effort=ReasoningEffort.LOW,
+    )
+    assert next(response) == "Hi"
+    response.close()
+    event: dict[str, MetricValue] = final_metric(metric_messages)
+    assert event["status"] == "interrupted"
+    assert event["ttft_ms"] == pytest.approx(250.0)
+    assert event["duration_ms"] == pytest.approx(500.0)
+    assert event["output_chars"] == 2
+    assert event["usage_received"] is False
+    assert event["total_tokens"] is None
+    assert event["model"] == "gpt-5.6-sol"
+    assert event["reasoning_effort"] == "low"
+    assert mock_azure_client.chat.completions.stream is not None
+    assert mock_azure_client.chat.completions.stream.closed
