@@ -99,6 +99,32 @@ def test_completed_stream_logs_timings_and_usage(
     })
 
 
+def test_zero_token_usage_still_counts_as_a_usage_report(
+    clock: FakeClock,
+    stream_metrics: MetricsReader,
+) -> None:
+    # A provider reporting zero tokens has reported usage. Deriving
+    # `usage_received` from the counts' truthiness would file a real answer
+    # under the same value as "Azure told us nothing".
+    with measure_stream(AssistantModel.ASTRA, ReasoningEffort.HIGH) as metrics:
+        clock.advance(250)
+        metrics.record_chunk(as_chunk(usage_chunk(0)))
+
+    assert stream_metrics() == snapshot({
+        "event": "azure_openai_stream",
+        "status": "completed",
+        "model": "gpt-6-astra",
+        "reasoning_effort": "high",
+        "duration_ms": 250.0,
+        "ttft_ms": None,
+        "output_chars": 0,
+        "usage_received": True,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+    })
+
+
 def test_ttft_marks_the_first_content_only(
     clock: FakeClock,
     stream_metrics: MetricsReader,

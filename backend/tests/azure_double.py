@@ -119,6 +119,37 @@ def unreachable() -> Responder:
     return respond
 
 
+def record_request(client: AzureOpenAI, *, model: str) -> httpx2.Request:
+    """Send one request through `client` and return what reached the wire.
+
+    Re-targets an already-built client at a mock transport using the SDK's
+    public `copy`, so the request is assembled from that client's real
+    configuration rather than read back off its attributes.
+    """
+    sent: list[httpx2.Request] = []
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        sent.append(request)
+        return httpx2.Response(
+            status.HTTP_200_OK,
+            content=DONE,
+            headers={"content-type": "text/event-stream"},
+        )
+
+    probe: AzureOpenAI = client.copy(
+        http_client=httpx2.Client(transport=httpx2.MockTransport(handler)),
+    )
+    try:
+        probe.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "probe"}],
+            stream=True,
+        ).close()
+    finally:
+        probe.close()
+    return sent[0]
+
+
 def build_client(responder: Responder, calls: list[AzureCall]) -> AzureOpenAI:
     def handler(request: httpx2.Request) -> httpx2.Response:
         response: httpx2.Response = responder(request)

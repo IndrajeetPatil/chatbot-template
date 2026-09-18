@@ -23,6 +23,7 @@ from tests.azure_double import (
     error_status,
     keepalive_chunk,
     raw_stream,
+    record_request,
     sse_bytes,
     stream_of,
     unreachable,
@@ -334,18 +335,19 @@ def test_client_is_built_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     get_azure_openai_client.cache_clear()
 
     try:
+        request: httpx2.Request = record_request(client, model="gpt-6-astra")
         wiring: dict[str, object] = {
-            "base_url": str(client.base_url),
-            "default_query": client.default_query,
-            "api_key": client.api_key,
+            "url": str(request.url),
+            "api_key_header": request.headers.get("api-key"),
+            # Retry count is configuration we own. Proving the SDK honours it
+            # would spend ~14s in real backoff to re-assert its own guarantee.
             "max_retries": client.max_retries,
         }
     finally:
         client.close()
 
     assert wiring == snapshot({
-        "base_url": "https://test.openai.azure.com/openai/",
-        "default_query": {"api-version": "2024-02-01"},
-        "api_key": "test-key-123",
+        "url": "https://test.openai.azure.com/openai/deployments/gpt-6-astra/chat/completions?api-version=2024-02-01",
+        "api_key_header": "test-key-123",
         "max_retries": 5,
     })
