@@ -71,7 +71,8 @@ def _iter_stream_content(
 ) -> Iterator[str]:
     try:
         for chunk in stream:
-            if content := metrics.record(chunk):
+            content: str = metrics.record(chunk)
+            if content:
                 yield content
     except openai.APIError:
         logger.exception(
