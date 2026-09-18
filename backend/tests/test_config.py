@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, NamedTuple
 import pytest
 from hypothesis import assume, given
 from hypothesis import strategies as st
+from inline_snapshot import snapshot
 from limits import parse
 
 from app.config import Settings, get_settings
@@ -27,17 +28,41 @@ class _AzureCase(NamedTuple):
     missing: list[str]  # env-var names expected in the "missing" error
 
 
-def test_settings_valid_azure_credentials() -> None:
-    s: Settings = Settings(
+@pytest.fixture(autouse=True)
+def _isolated_from_dotenv(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Keep the snapshotted defaults independent of a developer's local .env."""
+    monkeypatch.chdir(tmp_path)
+
+
+def test_accepts_complete_azure_credentials() -> None:
+    settings: Settings = Settings(
         azure_openai_endpoint="https://example.openai.azure.com/",
         azure_openai_api_key="key",
         azure_openai_api_version="2024-09-01-preview",
         testing=False,
     )
-    assert s.azure_openai_endpoint == "https://example.openai.azure.com/"
-    assert s.azure_openai_api_key == "key"
-    assert s.azure_openai_api_version == "2024-09-01-preview"
-    assert s.testing is False
+
+    assert settings.model_dump() == snapshot({
+        "azure_openai_endpoint": "https://example.openai.azure.com/",
+        "azure_openai_api_key": "key",
+        "azure_openai_api_version": "2024-09-01-preview",
+        "cors_allowed_origins": ["http://localhost:3000"],
+        "chat_rate_limit": "10/minute",
+        "testing": False,
+    })
+
+
+def test_testing_mode_allows_empty_azure_credentials() -> None:
+    settings: Settings = Settings(testing=True)
+
+    assert settings.model_dump() == snapshot({
+        "azure_openai_endpoint": "",
+        "azure_openai_api_key": "",
+        "azure_openai_api_version": "",
+        "cors_allowed_origins": ["http://localhost:3000"],
+        "chat_rate_limit": "10/minute",
+        "testing": True,
+    })
 
 
 @st.composite
@@ -73,27 +98,6 @@ def test_settings_raises_on_missing_azure_credentials(case: _AzureCase) -> None:
         )
 
 
-def test_settings_testing_mode_allows_empty_azure_credentials(
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Path,
-) -> None:
-    monkeypatch.chdir(tmp_path)  # isolate from the repo's .env
-    s: Settings = Settings(testing=True)
-    assert s.azure_openai_endpoint == ""
-    assert s.azure_openai_api_key == ""
-    assert s.azure_openai_api_version == ""
-    assert s.testing is True
-
-
-def test_settings_default_chat_rate_limit(
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Path,
-) -> None:
-    monkeypatch.chdir(tmp_path)  # isolate from the repo's .env
-    s: Settings = Settings(testing=True)
-    assert s.chat_rate_limit == "10/minute"
-
-
 @given(st.text(alphabet=st.characters(min_codepoint=33, max_codepoint=126), min_size=1))
 def test_settings_raises_on_invalid_chat_rate_limit(value: str) -> None:
     is_valid_rate_limit: bool
@@ -112,7 +116,9 @@ def test_settings_raises_on_invalid_chat_rate_limit(value: str) -> None:
 
 def test_get_settings_returns_cached_instance() -> None:
     get_settings.cache_clear()
+
     first: Settings = get_settings()
     second: Settings = get_settings()
+
     assert first is second
     get_settings.cache_clear()

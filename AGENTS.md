@@ -14,6 +14,9 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
   [visual testing workflow](docs/development.md#browser-and-visual-tests).
 - Before API or deployment work, read [backend](docs/backend.md) and
   [security](docs/security.md). Preserve validation before streaming starts.
+- Before touching backend tests, read the [test guide](docs/backend.md#tests):
+  drive the real SDK through the transport double, and regenerate inline
+  snapshots with `make backend-snapshot-update` instead of editing them.
 - Before changing CI reporters, read and preserve the
   [CI output policy](docs/development.md#ci-output).
 
@@ -24,6 +27,10 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
 - Keep every check and threshold intact: backend coverage is 100% lines and
   branches; frontend is ≥90% statements/functions/lines and ≥75% branches;
   type coverage is 100% on both sides.
+- Meet the coverage gates by asserting behavior. Do not add tests whose only
+  effect is to execute a line, and do not let an expectation recompute what the
+  code under test computes; a test that still passes when the behavior breaks is
+  worse than no test.
 - Fallow: configured dead-code/dependency rules are errors, including unresolved
   imports; strict duplication starts at 50 tokens / 4 lines; cyclomatic and
   cognitive complexity are each ≤5, including tests. No blanket test exclusions.

@@ -28,7 +28,7 @@ sequenceDiagram
 | [stream_metrics.py](../backend/app/stream_metrics.py) | Per-completion timing, provider usage, and structured metrics                  |
 | [config.py](../backend/app/config.py)                 | Environment settings and startup validation                                    |
 | [entities.py](../backend/app/entities.py)             | Model, reasoning effort, and message role enums                                |
-| [tests](../backend/tests)                             | Unit and property-based tests                                                  |
+| [tests](../backend/tests)                             | Unit, property-based, and snapshot tests; the Azure transport double           |
 
 ## Configuration
 
@@ -131,6 +131,33 @@ billing controls that would make counts actionable, and its plain-text transport
 cannot carry final usage metadata. If budget controls are added, introduce a
 typed metadata stream and optional per-reply usage details together; do not mix
 metrics into assistant text or present token counts as a price estimate.
+
+## Tests
+
+Tests exercise the real `openai` SDK over a mock HTTP transport instead of
+stubbing `chat.completions.create`, so the deployment URL, `api-version`, SSE
+parsing, and status-to-exception mapping stay inside the system under test.
+
+| Module                                                                  | Scope                                                             |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| [azure_double.py](../backend/tests/azure_double.py)                     | Transport double, SSE chunk builders, canned faults               |
+| [test_azure_client.py](../backend/tests/test_azure_client.py)           | Outbound request, streaming, and upstream error handling          |
+| [test_stream_metrics.py](../backend/tests/test_stream_metrics.py)       | `StreamMetrics` and `measure_stream` against a controllable clock |
+| [test_main.py](../backend/tests/test_main.py)                           | Endpoint behavior, request validation, rate limiting              |
+| [test_config.py](../backend/tests/test_config.py)                       | Settings defaults and validators, including property tests        |
+
+- Expected values are [inline snapshots](https://15r10nk.github.io/inline-snapshot/).
+  Regenerate them with `make backend-snapshot-update` and review the diff; do not
+  hand-edit snapshots or replace them with values the test recomputes itself.
+  Snapshots inside `@pytest.mark.parametrize` are rewritten per case.
+- Prefer asserting the recorded request and the emitted metrics event over
+  asserting that a stub was called. Add faults to `azure_double.py` rather than
+  patching the SDK internals.
+- The double sets `max_retries=0`; the production client retries five times, so
+  a simulated failure would otherwise spend seconds in backoff.
+- Tests drive time through the `clock` fixture, never the real monotonic clock.
+- To confirm a test earns its place, break the behavior it covers and check that
+  it fails. `TESTING=true` keeps this offline: no test contacts Azure.
 
 ## Checks
 
