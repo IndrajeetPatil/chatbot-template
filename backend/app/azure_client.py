@@ -1,4 +1,3 @@
-import time
 from functools import cache
 from typing import TYPE_CHECKING, cast
 
@@ -7,9 +6,10 @@ from loguru import logger
 from openai import AzureOpenAI
 
 from app.config import get_settings
+from app.stream_metrics import StreamMetrics, measure_stream
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Generator, Iterator, Sequence
 
     from openai import Stream
     from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
@@ -47,6 +47,7 @@ def _create_openai_stream(
             reasoning_effort=reasoning_effort.value,
             messages=cast("OpenAIChatMessages", messages),
             stream=True,
+            stream_options={"include_usage": True},
         )
     except openai.AuthenticationError:
         logger.error("Azure OpenAI authentication failed — verify API key and endpoint")
@@ -64,14 +65,22 @@ def _create_openai_stream(
         raise
 
 
-def _iter_stream_content(stream: Stream[ChatCompletionChunk]) -> Iterator[str]:
-    for chunk in stream:
-        if not chunk.choices:
-            continue
-
-        content: str = chunk.choices[0].delta.content or ""
-        if content:
-            yield content
+def _iter_stream_content(
+    stream: Stream[ChatCompletionChunk],
+    metrics: StreamMetrics,
+) -> Iterator[str]:
+    try:
+        for chunk in stream:
+            content: str = metrics.record_chunk(chunk)
+            if content:
+                metrics.record_content(content)
+                yield content
+    except openai.APIError:
+        logger.exception(
+            "Azure OpenAI error during streaming after {} characters",
+            metrics.output_chars,
+        )
+        raise
 
 
 def stream_azure_openai_response(
@@ -79,30 +88,15 @@ def stream_azure_openai_response(
     messages: Sequence[ChatMessage],
     model: AssistantModel,
     reasoning_effort: ReasoningEffort,
-) -> Iterator[str]:
+) -> Generator[str]:
     client: AzureOpenAI = get_azure_openai_client()
-    start_time: float = time.perf_counter()
-    stream: Stream[ChatCompletionChunk] = _create_openai_stream(
-        client,
-        messages=messages,
-        model=model,
-        reasoning_effort=reasoning_effort,
-    )
-
-    total_length: int = 0
-    try:
-        for content in _iter_stream_content(stream):
-            total_length += len(content)
-            yield content
-    except openai.APIError:
-        logger.exception(
-            "Azure OpenAI error during streaming after {} characters",
-            total_length,
-        )
-        raise
-
-    logger.info(
-        "Azure OpenAI streaming completion took {:.2f}s and returned {} characters",
-        time.perf_counter() - start_time,
-        total_length,
-    )
+    with (
+        measure_stream(model, reasoning_effort) as metrics,
+        _create_openai_stream(
+            client,
+            messages=messages,
+            model=model,
+            reasoning_effort=reasoning_effort,
+        ) as stream,
+    ):
+        yield from _iter_stream_content(stream, metrics)
