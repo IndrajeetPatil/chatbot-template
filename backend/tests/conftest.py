@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 # `env` in pyproject.toml) before any app module is imported, so Settings() does
 # not reject missing Azure credentials during collection.
 
-_METRICS_LOG_PREFIX: str = "Azure OpenAI stream metrics: "
+METRICS_LOG_PREFIX: str = "Azure OpenAI stream metrics: "
 
 
 @pytest.fixture
@@ -59,6 +59,10 @@ class FakeClock:
 
     Timings are set by the test rather than inferred from how many times the
     production code happens to read the clock.
+
+    `stream_metrics` imports `perf_counter` by name, so this replaces only that
+    binding. Patching `time.perf_counter` would reach the global `time` module
+    and skew httpx's own `response.elapsed` bookkeeping too.
     """
 
     def __init__(self) -> None:
@@ -74,13 +78,19 @@ class FakeClock:
 @pytest.fixture
 def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
     fake: FakeClock = FakeClock()
-    monkeypatch.setattr("app.stream_metrics.time.perf_counter", fake)
+    monkeypatch.setattr("app.stream_metrics.perf_counter", fake)
     return fake
 
 
 @pytest.fixture
 def stream_metrics() -> Iterator[MetricsReader]:
-    """Capture the single stream-metrics log event emitted by a test."""
+    """Capture the single stream-metrics log event emitted by a test.
+
+    Reads the payload back out of the *rendered* message rather than the bound
+    record, because the app configures no structured sink: that JSON is what
+    actually reaches a log aggregator today. A dedicated test in
+    `test_azure_client` pins the `logger.bind` half against it.
+    """
     messages: list[Message] = []
     sink_id: int = logger.add(messages.append, format="{message}")
 
@@ -93,19 +103,10 @@ def stream_metrics() -> Iterator[MetricsReader]:
         if len(events) != 1:
             msg: str = f"expected 1 stream_metrics event, captured {len(events)}"
             raise AssertionError(msg)
-        bound = cast(
+        return cast(
             "dict[str, MetricValue]",
-            events[0].record["extra"]["stream_metrics"],
+            json.loads(str(events[0]).removeprefix(METRICS_LOG_PREFIX)),
         )
-        # The rendered message must carry the same payload as the bound record,
-        # since that JSON is what the default Loguru sink actually exposes.
-        rendered: object = json.loads(
-            str(events[0]).removeprefix(_METRICS_LOG_PREFIX),
-        )
-        if rendered != bound:
-            msg = "rendered metrics JSON does not match the bound payload"
-            raise AssertionError(msg)
-        return bound
 
     try:
         yield read

@@ -14,6 +14,9 @@ from typing import TYPE_CHECKING, Any
 import httpx2
 from fastapi import status
 from openai import AzureOpenAI
+from openai.types.chat import ChatCompletionChunk
+from openai.types.chat.chat_completion_chunk import Choice, ChoiceDelta
+from openai.types.completion_usage import CompletionUsage
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -24,57 +27,64 @@ AZURE_API_KEY: str = "test-key"
 CONNECT_ERROR: str = "connection refused"
 
 type Responder = Callable[[httpx2.Request], httpx2.Response]
-type Chunk = dict[str, Any]
+type RequestBody = dict[str, Any]
 
 
 @dataclass(frozen=True)
 class AzureCall:
     url: str
-    body: Chunk
+    body: RequestBody
     response: httpx2.Response
 
 
-def content_chunk(content: str | None) -> Chunk:
-    return {
-        "id": "test-chunk",
-        "created": 0,
+def _chunk(
+    choices: list[Choice],
+    usage: CompletionUsage | None = None,
+) -> ChatCompletionChunk:
+    return ChatCompletionChunk(
+        id="test-chunk",
+        created=0,
         # Never asserted on; kept deployment-agnostic so a canned response does
         # not appear to contradict the model the test actually requested.
-        "model": "test-deployment",
-        "object": "chat.completion.chunk",
-        "choices": [{"index": 0, "delta": {"content": content}}],
-    }
+        model="test-deployment",
+        object="chat.completion.chunk",
+        choices=choices,
+        usage=usage,
+    )
 
 
-def _choiceless_chunk() -> Chunk:
-    chunk: Chunk = content_chunk(None)
-    chunk["choices"] = []
-    return chunk
+def content_chunk(content: str | None) -> ChatCompletionChunk:
+    return _chunk([Choice(index=0, delta=ChoiceDelta(content=content))])
 
 
-def keepalive_chunk() -> Chunk:
+def keepalive_chunk() -> ChatCompletionChunk:
     """A chunk carrying neither choices nor usage, as sent between deltas."""
-    return _choiceless_chunk()
+    return _chunk([])
 
 
-def usage_chunk(tokens: int = 12) -> Chunk:
+def usage_chunk(tokens: int = 12) -> ChatCompletionChunk:
     """The final choiceless chunk carrying the token report."""
-    chunk: Chunk = _choiceless_chunk()
-    chunk["usage"] = {
-        "prompt_tokens": tokens,
-        "completion_tokens": tokens,
-        "total_tokens": tokens * 2,
-    }
-    return chunk
+    return _chunk(
+        [],
+        usage=CompletionUsage(
+            prompt_tokens=tokens,
+            completion_tokens=tokens,
+            total_tokens=tokens * 2,
+        ),
+    )
 
 
 def error_event(message: str) -> bytes:
     """An in-band SSE error frame, which the SDK surfaces as `openai.APIError`."""
-    return sse_bytes({"error": {"message": message, "type": "server_error"}})
+    payload: str = json.dumps({"error": {"message": message, "type": "server_error"}})
+    return f"data: {payload}\n\n".encode()
 
 
-def sse_bytes(*chunks: Chunk) -> bytes:
-    return "".join(f"data: {json.dumps(chunk)}\n\n" for chunk in chunks).encode()
+def sse_bytes(*chunks: ChatCompletionChunk) -> bytes:
+    # `indent=None` keeps each frame on one line; SSE frames are newline-delimited.
+    return "".join(
+        f"data: {chunk.to_json(indent=None)}\n\n" for chunk in chunks
+    ).encode()
 
 
 DONE: bytes = b"data: [DONE]\n\n"
@@ -93,7 +103,7 @@ def raw_stream(body: Callable[[], Iterator[bytes]]) -> Responder:
     return respond
 
 
-def stream_of(*chunks: Chunk) -> Responder:
+def stream_of(*chunks: ChatCompletionChunk) -> Responder:
     """Serve `chunks` as a complete SSE body terminated by the [DONE] sentinel."""
 
     def body() -> Iterator[bytes]:

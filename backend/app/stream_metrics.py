@@ -1,7 +1,7 @@
 import json
-import time
 from contextlib import contextmanager
 from dataclasses import dataclass
+from time import perf_counter
 from typing import TYPE_CHECKING, Literal
 
 from loguru import logger
@@ -28,17 +28,17 @@ class StreamMetrics:
     output_chars: int = 0
     usage: CompletionUsage | None = None
 
-    def record_chunk(self, chunk: ChatCompletionChunk) -> str:
+    def record(self, chunk: ChatCompletionChunk) -> str:
+        """Fold `chunk` into the running metrics and return its text delta."""
         if chunk.usage is not None:
             self.usage = chunk.usage
-        if not chunk.choices:
+        content: str | None = chunk.choices[0].delta.content if chunk.choices else None
+        if not content:
             return ""
-        return chunk.choices[0].delta.content or ""
-
-    def record_content(self, content: str) -> None:
         if self.ttft_ms is None:
-            self.ttft_ms = (time.perf_counter() - self.started_at) * 1000
+            self.ttft_ms = (perf_counter() - self.started_at) * 1000
         self.output_chars += len(content)
+        return content
 
     def log(self, status: StreamStatus) -> None:
         metrics: dict[str, MetricValue] = {
@@ -46,7 +46,7 @@ class StreamMetrics:
             "status": status,
             "model": self.model.value,
             "reasoning_effort": self.reasoning_effort.value,
-            "duration_ms": (time.perf_counter() - self.started_at) * 1000,
+            "duration_ms": (perf_counter() - self.started_at) * 1000,
             "ttft_ms": self.ttft_ms,
             "output_chars": self.output_chars,
             "usage_received": self.usage is not None,
@@ -69,7 +69,7 @@ def measure_stream(
     metrics: StreamMetrics = StreamMetrics(
         model=model,
         reasoning_effort=reasoning_effort,
-        started_at=time.perf_counter(),
+        started_at=perf_counter(),
     )
     status: StreamStatus = "error"
     try:

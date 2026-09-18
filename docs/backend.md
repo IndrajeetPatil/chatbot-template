@@ -139,13 +139,12 @@ Tests exercise the real `openai` SDK over a mock HTTP transport instead of
 stubbing `chat.completions.create`, so the deployment URL, `api-version`, SSE
 parsing, and status-to-exception mapping stay inside the system under test.
 
-| Module                                                            | Scope                                                              |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [azure_double.py](../backend/tests/azure_double.py)               | Transport double, SSE chunk builders, canned faults, request probe |
-| [test_azure_client.py](../backend/tests/test_azure_client.py)     | Outbound request, streaming, and upstream error handling           |
-| [test_stream_metrics.py](../backend/tests/test_stream_metrics.py) | `StreamMetrics` and `measure_stream` against a controllable clock  |
-| [test_main.py](../backend/tests/test_main.py)                     | Endpoint behavior, request validation, rate limiting               |
-| [test_config.py](../backend/tests/test_config.py)                 | Settings defaults and validators, including property tests         |
+| Module                                                        | Scope                                                                 |
+| ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [azure_double.py](../backend/tests/azure_double.py)           | Transport double, SSE chunk builders, canned faults, request probe    |
+| [test_azure_client.py](../backend/tests/test_azure_client.py) | Outbound request, streaming, upstream errors, and the metrics event   |
+| [test_main.py](../backend/tests/test_main.py)                 | Endpoint behavior, request validation, rate limiting                  |
+| [test_config.py](../backend/tests/test_config.py)             | Settings defaults and validators, including property tests            |
 
 - Expected values are [inline snapshots](https://15r10nk.github.io/inline-snapshot/).
   Regenerate them with `make backend-snapshot-update` and review the diff; do not
@@ -154,6 +153,9 @@ parsing, and status-to-exception mapping stay inside the system under test.
 - Prefer asserting the recorded request and the emitted metrics event over
   asserting that a stub was called. Add faults to `azure_double.py` rather than
   patching the SDK internals.
+- SSE fixtures are built as real `ChatCompletionChunk` models and serialized with
+  the SDK's own `to_json`, so a fixture that the SDK could never emit fails to
+  construct rather than silently exercising a shape production never sees.
 - Client configuration is checked through `record_request`, which re-targets a
   built client at a mock transport and returns what reached the wire, so the
   assertions stay on the URL and headers rather than on SDK attributes.
