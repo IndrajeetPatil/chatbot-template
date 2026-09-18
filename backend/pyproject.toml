@@ -97,15 +97,14 @@ exclude = [".venv", "build", "dist"]
 python-version = "3.14"
 
 [tool.ty.rules]
+# Enable every current diagnostic, including soundness and suppression checks that
+# ty leaves disabled by default. Pinning ty in uv.lock keeps new rules from arriving
+# silently between dependency updates.
 all = "error"
-division-by-zero = "warn"
-possibly-missing-attribute = "warn"
-possibly-missing-import = "warn"
-possibly-unresolved-reference = "warn"
-redundant-condition-strict = "warn"
-unsupported-dynamic-base = "warn"
 
 [tool.ty.analysis]
+# Prefer sound narrowing over convenience assumptions at external-data boundaries.
+respect-type-ignore-comments = false
 strict-equality-semantics = true
 strict-generic-narrowing = true
 
