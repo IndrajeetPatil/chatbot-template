@@ -117,11 +117,18 @@ fail_under = 100
 
 [tool.pytest.ini_options]
 addopts = [
-    "--strict-markers",
+    # error on problems parsing pytest configuration
     "--strict-config",
-    "--random-order",
+    # error on using unregistered marker
+    "--strict-markers",
+    # show extra test summary info for everything
     "-ra",
+    # include more verbose output
+    "--verbose",
+    # using pytest-random-order plugin option
+    "--random-order",
 ]
+testpaths = ["tests"]
 # pytest-env sets TESTING before any app module is imported, so Settings() does
 # not reject missing Azure credentials during collection. The `D:` (default)
 # prefix only sets it when absent, mirroring os.environ.setdefault.
