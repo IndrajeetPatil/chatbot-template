@@ -250,6 +250,37 @@ def test_logs_metrics_for_a_completed_stream(
     })
 
 
+def test_logs_error_metrics_when_stream_creation_fails(
+    fake_azure: AzureFactory,
+    clock: FakeClock,
+    stream_metrics: MetricsReader,
+) -> None:
+    # A request that never yields a stream must still emit one event: this is
+    # what pins stream creation inside the metrics context rather than before it.
+    def respond(request: httpx2.Request) -> httpx2.Response:
+        clock.advance(250)
+        return error_status(status.HTTP_500_INTERNAL_SERVER_ERROR)(request)
+
+    fake_azure(respond)
+
+    with pytest.raises(openai.InternalServerError):
+        stream_text()
+
+    assert stream_metrics() == snapshot({
+        "event": "azure_openai_stream",
+        "status": "error",
+        "model": "gpt-6-astra",
+        "reasoning_effort": "medium",
+        "duration_ms": 250.0,
+        "ttft_ms": None,
+        "output_chars": 0,
+        "usage_received": False,
+        "prompt_tokens": None,
+        "completion_tokens": None,
+        "total_tokens": None,
+    })
+
+
 def test_client_is_built_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     get_azure_openai_client.cache_clear()
 
