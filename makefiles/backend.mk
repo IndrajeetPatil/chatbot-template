@@ -37,6 +37,10 @@ backend-test:
 	@echo "$(COLOR_BLUE_BG)Running backend unit tests...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYTEST) && $(PYCOVERAGE)
 
+backend-snapshot-update:
+	@echo "$(COLOR_BLUE_BG)Rewriting backend inline snapshots...$(COLOR_RESET)"
+	cd $(BACKEND_DIR) && $(PYTEST) --inline-snapshot=create,fix
+
 backend-type-coverage:
 	@echo "$(COLOR_BLUE_BG)Running backend type coverage check...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYTYPECOVERAGE)
@@ -64,5 +68,5 @@ run-backend:
 	cd $(BACKEND_DIR) && $(FASTAPI_RUNSERVER)
 
 .PHONY: backend-setup backend-lint backend-format backend-type-check backend-audit \
-	backend-validate-api-schema backend-test backend-type-coverage \
-	backend-load-test backend-clean run-backend
+	backend-validate-api-schema backend-test backend-snapshot-update \
+	backend-type-coverage backend-load-test backend-clean run-backend

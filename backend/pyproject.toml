@@ -22,6 +22,7 @@ dev = [
     "coverage>=7.13.5",
     "httpx2>=2.3.0",
     "hypothesis>=6.122.0",
+    "inline-snapshot[black]>=0.35.4",
     "locust>=2.46.4",
     "prek>=0.3.12",
     "pytest-env>=1.1.5",
@@ -131,5 +132,9 @@ filterwarnings = [
     "error",
     # slowapi 0.1.10 calls asyncio.iscoroutinefunction, deprecated in Python 3.14
     "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
+    # inline-snapshot reports unfixable snapshots via plain Warning subclasses,
+    # which "error" would turn into failures instead of advisory messages.
+    "default::inline_snapshot.syntax_warnings.InlineSnapshotInfo",
+    "default::inline_snapshot.syntax_warnings.InlineSnapshotSyntaxWarning",
 ]
 python_files = ["test_*.py", "test-*.py", "tests.py", "test.py"]

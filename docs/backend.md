@@ -28,7 +28,7 @@ sequenceDiagram
 | [stream_metrics.py](../backend/app/stream_metrics.py) | Per-completion timing, provider usage, and structured metrics                  |
 | [config.py](../backend/app/config.py)                 | Environment settings and startup validation                                    |
 | [entities.py](../backend/app/entities.py)             | Model, reasoning effort, and message role enums                                |
-| [tests](../backend/tests)                             | Unit and property-based tests                                                  |
+| [tests](../backend/tests)                             | Unit, property-based, and snapshot tests; the Azure transport double           |
 
 ## Configuration
 
@@ -116,7 +116,8 @@ the default console output and the same dictionary under
   do not start it. It measures backend receipt, not browser rendering latency.
 - The request sets `stream_options={"include_usage": true}` and consumes the
   final usage chunk even though its choices are empty. Counts come from Azure;
-  they are not estimated from text, and missing usage is never reported as zero.
+  they are not estimated from text, missing usage is never reported as zero, and
+  a zero-token report is never reported as missing.
   Prompt tokens cover the entire submitted conversation and server instructions;
   completion tokens can include reasoning tokens, not just visible reply text.
 - Failures and generator closure retain the measurements available so far.
@@ -131,6 +132,36 @@ billing controls that would make counts actionable, and its plain-text transport
 cannot carry final usage metadata. If budget controls are added, introduce a
 typed metadata stream and optional per-reply usage details together; do not mix
 metrics into assistant text or present token counts as a price estimate.
+
+## Tests
+
+Tests exercise the real `openai` SDK over a mock HTTP transport instead of
+stubbing `chat.completions.create`, so the deployment URL, `api-version`, SSE
+parsing, and status-to-exception mapping stay inside the system under test.
+
+| Module                                                            | Scope                                                              |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [azure_double.py](../backend/tests/azure_double.py)               | Transport double, SSE chunk builders, canned faults, request probe |
+| [test_azure_client.py](../backend/tests/test_azure_client.py)     | Outbound request, streaming, and upstream error handling           |
+| [test_stream_metrics.py](../backend/tests/test_stream_metrics.py) | `StreamMetrics` and `measure_stream` against a controllable clock  |
+| [test_main.py](../backend/tests/test_main.py)                     | Endpoint behavior, request validation, rate limiting               |
+| [test_config.py](../backend/tests/test_config.py)                 | Settings defaults and validators, including property tests         |
+
+- Expected values are [inline snapshots](https://15r10nk.github.io/inline-snapshot/).
+  Regenerate them with `make backend-snapshot-update` and review the diff; do not
+  hand-edit snapshots or replace them with values the test recomputes itself.
+  Snapshots inside `@pytest.mark.parametrize` are rewritten per case.
+- Prefer asserting the recorded request and the emitted metrics event over
+  asserting that a stub was called. Add faults to `azure_double.py` rather than
+  patching the SDK internals.
+- Client configuration is checked through `record_request`, which re-targets a
+  built client at a mock transport and returns what reached the wire, so the
+  assertions stay on the URL and headers rather than on SDK attributes.
+- The double sets `max_retries=0`; the production client retries five times, so
+  a simulated failure would otherwise spend seconds in backoff.
+- Tests drive time through the `clock` fixture, never the real monotonic clock.
+- To confirm a test earns its place, break the behavior it covers and check that
+  it fails. `TESTING=true` keeps this offline: no test contacts Azure.
 
 ## Checks
 
