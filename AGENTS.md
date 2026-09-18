@@ -31,6 +31,10 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
   effect is to execute a line, and do not let an expectation recompute what the
   code under test computes; a test that still passes when the behavior breaks is
   worse than no test.
+- Test our behavior, not a dependency's implementation details. Assert what
+  crosses a boundary we own — the outbound request, the streamed output, the
+  logged event — rather than a library's private attributes, internal call
+  sequence, or guarantees its own test suite already covers.
 - Fallow: configured dead-code/dependency rules are errors, including unresolved
   imports; strict duplication starts at 50 tokens / 4 lines; cyclomatic and
   cognitive complexity are each ≤5, including tests. No blanket test exclusions.
