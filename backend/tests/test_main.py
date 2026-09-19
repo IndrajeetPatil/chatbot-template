@@ -31,11 +31,6 @@ def client() -> TestClient:
     return TestClient(app)
 
 
-@pytest.fixture
-def raising_client() -> TestClient:
-    return TestClient(app, raise_server_exceptions=True)
-
-
 def parts_message(*texts: str) -> Payload:
     return {
         "role": "user",
@@ -302,7 +297,7 @@ def test_health(client: TestClient) -> None:
 )
 def test_post_chat_propagates_streaming_failures(
     monkeypatch: pytest.MonkeyPatch,
-    raising_client: TestClient,
+    client: TestClient,
     failure: Exception,
 ) -> None:
     def stub(**_: object) -> Iterator[str]:
@@ -311,4 +306,4 @@ def test_post_chat_propagates_streaming_failures(
     monkeypatch.setattr("app.main.stream_azure_openai_response", stub)
 
     with pytest.raises(type(failure)):
-        raising_client.post("/api/v1/chat", json={"messages": [HI]})
+        client.post("/api/v1/chat", json={"messages": [HI]})
