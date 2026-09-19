@@ -146,17 +146,14 @@ def record_request(client: AzureOpenAI, *, model: str) -> httpx2.Request:
             headers={"content-type": "text/event-stream"},
         )
 
-    probe: AzureOpenAI = client.copy(
+    with client.copy(
         http_client=httpx2.Client(transport=httpx2.MockTransport(handler)),
-    )
-    try:
+    ) as probe:
         probe.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "probe"}],
             stream=True,
         ).close()
-    finally:
-        probe.close()
     return sent[0]
 
 
