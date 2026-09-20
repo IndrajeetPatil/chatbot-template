@@ -10,7 +10,14 @@ const MAX_MESSAGE_CHARS = 32_000;
 
 // Same rule the server enforces: non-empty after trimming, within the size cap.
 // Client-side validation is for UX; the server still validates for security.
-const ChatMessageTextSchema = z.string().trim().min(1).max(MAX_MESSAGE_CHARS);
+const ChatMessageTextSchema = z
+  .string()
+  .trim()
+  .min(1, "Enter a message before sending.")
+  .max(
+    MAX_MESSAGE_CHARS,
+    `Message is too long (max ${MAX_MESSAGE_CHARS.toLocaleString("en-US")} characters).`,
+  );
 const INITIAL_MESSAGES: UIMessage[] = [
   {
     id: INITIAL_MESSAGE_ID,
@@ -26,5 +33,4 @@ export {
   ChatMessageTextSchema,
   INITIAL_MESSAGE_ID,
   INITIAL_MESSAGES,
-  MAX_MESSAGE_CHARS,
 };

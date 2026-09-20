@@ -3,24 +3,12 @@ import StopIcon from "@mui/icons-material/Stop";
 import { Box, IconButton, TextField, Tooltip } from "@mui/material";
 import type React from "react";
 import { type KeyboardEvent, useRef, useState } from "react";
-import {
-  ChatMessageTextSchema,
-  MAX_MESSAGE_CHARS,
-} from "@/client/chatConstants";
+import { ChatMessageTextSchema } from "@/client/chatConstants";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void | Promise<void>;
   disabled?: boolean;
   onStop?: () => void;
-}
-
-const EMPTY_MESSAGE_ERROR = "Enter a message before sending.";
-const TOO_LONG_MESSAGE_ERROR = `Message is too long (max ${MAX_MESSAGE_CHARS.toLocaleString("en-US")} characters).`;
-
-function getMessageError(message: string) {
-  return message.trim().length === 0
-    ? EMPTY_MESSAGE_ERROR
-    : TOO_LONG_MESSAGE_ERROR;
 }
 
 const CHAT_INPUT_FORM_SX = {
@@ -147,7 +135,7 @@ function ChatInput({
     const result = ChatMessageTextSchema.safeParse(message);
 
     if (!result.success) {
-      setValidationError(getMessageError(message));
+      setValidationError(result.error.issues[0].message);
       inputRef.current?.focus();
       return;
     }
