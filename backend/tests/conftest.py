@@ -1,4 +1,5 @@
 import json
+from contextlib import ExitStack
 from typing import TYPE_CHECKING, cast
 
 import pytest
@@ -33,25 +34,20 @@ def fake_azure(monkeypatch: pytest.MonkeyPatch) -> Iterator[AzureFactory]:
     Returns a factory that takes a responder and hands back the list of calls
     the transport records, so tests can assert on the actual outbound request.
     """
-    clients: list[AzureOpenAI] = []
+    with ExitStack() as clients:
+        clients.callback(get_azure_openai_client.cache_clear)
 
-    def build(responder: Responder) -> list[AzureCall]:
-        calls: list[AzureCall] = []
-        client: AzureOpenAI = build_client(responder, calls)
-        clients.append(client)
-        get_azure_openai_client.cache_clear()
-        monkeypatch.setattr(
-            "app.azure_client.get_azure_openai_client",
-            lambda: client,
-        )
-        return calls
+        def build(responder: Responder) -> list[AzureCall]:
+            calls: list[AzureCall] = []
+            client: AzureOpenAI = clients.enter_context(build_client(responder, calls))
+            get_azure_openai_client.cache_clear()
+            monkeypatch.setattr(
+                "app.azure_client.get_azure_openai_client",
+                lambda: client,
+            )
+            return calls
 
-    try:
         yield build
-    finally:
-        for client in clients:
-            client.close()
-        get_azure_openai_client.cache_clear()
 
 
 class FakeClock:
