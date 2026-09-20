@@ -12,14 +12,14 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/astral-sh/ty-pre-commit"
-rev = "24cb944c372f536967c7f09b62552e7221f84363"  # frozen: v0.0.81
+rev = "e7729e08f9d338183032340a067053ca5e16e6a8"  # frozen: v0.0.82
 hooks = [
   { id = "ty", args = ["--directory=backend", "--isolated"] },
 ]
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "2e9b57dbffd7869f0ee8bcdb1978cb1c477cb042"  # frozen: v0.2.73
+rev = "e5ecce62dbd84b035277acbba3e2667a49079c0a"  # frozen: v0.2.74
 hooks = [
   { id = "rumdl" },
 ]

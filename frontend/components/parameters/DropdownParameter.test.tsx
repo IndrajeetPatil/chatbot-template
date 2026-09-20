@@ -34,7 +34,9 @@ describe("DropdownParameter", () => {
   test("closes menu without changing value", async () => {
     const { onChange } = renderDropdown();
 
-    fireEvent.click(screen.getByLabelText("Select an option"));
+    const button = screen.getByLabelText("Select an option");
+    button.focus();
+    fireEvent.click(button);
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
 
     await waitFor(() => {

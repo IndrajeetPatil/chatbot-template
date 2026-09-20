@@ -1,4 +1,4 @@
-FROM node:24-trixie-slim@sha256:6950b66b4c0cb0151ce89fa75074673850763d096b044f422c6729b588dd4956 AS builder
+FROM node:24-trixie-slim@sha256:8ec5d7557396cfe32d21c3f9c13072355ceab22b584578ca4bb28af31120cffe AS builder
 
 # Activate the package manager declared in package.json.
 RUN corepack enable
@@ -12,7 +12,7 @@ COPY . .
 
 RUN pnpm run build
 
-FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132
+FROM debian:trixie-slim@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
 
 # Upgrade perl-base until the pinned base includes Debian's Perl security fixes.
 RUN apt-get update && apt-get install -y --no-install-recommends nginx-light perl-base \
