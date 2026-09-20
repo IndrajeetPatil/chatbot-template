@@ -9,7 +9,7 @@ describe("ChatInput component", () => {
     render(<ChatInput onSendMessage={onSendMessageMock} />);
 
     const input = screen.getByLabelText("Message");
-    fireEvent.change(input, { target: { value: "Hello, World!" } });
+    fireEvent.change(input, { target: { value: "  Hello, World!  " } });
     fireEvent.keyDown(input, {
       key: "Enter",
       code: "Enter",
@@ -60,15 +60,31 @@ describe("ChatInput component", () => {
     expect(onSendMessageMock).toHaveBeenCalledWith("Hello via button");
   });
 
-  test("send button stays enabled when message is empty and surfaces validation", () => {
-    const onSendMessageMock = vi.fn();
-    render(<ChatInput onSendMessage={onSendMessageMock} />);
+  test.each([
+    ["", "Enter a message before sending."],
+    [" \t\n", "Enter a message before sending."],
+    [" ".repeat(32_001), "Enter a message before sending."],
+    ["x".repeat(32_001), "Message is too long (max 32,000 characters)."],
+  ])(
+    "rejects invalid input (case %#) with the matching error",
+    (message, error) => {
+      const onSendMessageMock = vi.fn();
+      render(<ChatInput onSendMessage={onSendMessageMock} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+      fireEvent.change(screen.getByRole("textbox"), {
+        target: { value: message },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
-    expect(onSendMessageMock).not.toHaveBeenCalled();
-    expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
-  });
+      expect(onSendMessageMock).not.toHaveBeenCalled();
+      expect(screen.getByRole("textbox")).toHaveAttribute(
+        "aria-invalid",
+        "true",
+      );
+      expect(screen.getByRole("textbox")).toHaveAccessibleDescription(error);
+      expect(screen.getByRole("textbox")).toHaveFocus();
+    },
+  );
 
   test("clears empty-submit validation when the user starts typing", () => {
     const onSendMessageMock = vi.fn();
@@ -85,19 +101,6 @@ describe("ChatInput component", () => {
       "aria-invalid",
       "false",
     );
-  });
-
-  test("rejects a message that exceeds the maximum length", () => {
-    const onSendMessageMock = vi.fn();
-    render(<ChatInput onSendMessage={onSendMessageMock} />);
-
-    fireEvent.change(screen.getByLabelText("Message"), {
-      target: { value: "x".repeat(32_001) },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
-
-    expect(onSendMessageMock).not.toHaveBeenCalled();
-    expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
   });
 
   test("send button is disabled when disabled prop is true", () => {
