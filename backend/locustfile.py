@@ -15,11 +15,11 @@ class ChatAPIUser(HttpUser):
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.models = ["gpt-6-astra", "gpt-5.6-sol"]
-        self.reasoning_efforts = ["low", "medium", "high"]
-        self.headers = {"Content-Type": "application/json"}
+        self.models: list[str] = ["gpt-6-astra", "gpt-5.6-sol"]
+        self.reasoning_efforts: list[str] = ["low", "medium", "high"]
+        self.headers: dict[str, str] = {"Content-Type": "application/json"}
 
-        self.test_prompts = [
+        self.test_prompts: list[str] = [
             "Tell me about artificial intelligence",
             "What is machine learning?",
             "Explain neural networks",

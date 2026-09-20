@@ -92,7 +92,7 @@ make qa
 | Linter                   | Biome                                                   | Ruff            |
 | Import sorter            | Biome                                                   | Ruff            |
 | Type checker             | TypeScript                                              | ty              |
-| Type annotation coverage | type-coverage                                           | typecoverage    |
+| Type annotation coverage | type-coverage                                           | pyrefly         |
 | Security linting         | ESLint (`no-unsanitized`, `react-dom`)                  | \-              |
 | Codebase analysis        | Fallow                                                  | \-              |
 | CSS code quality         | @projectwallace/css-code-quality                        | \-              |

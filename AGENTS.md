@@ -26,7 +26,9 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
   checks for documentation-only changes. Hooks are managed by prek.
 - Keep every check and threshold intact: backend coverage is 100% lines and
   branches; frontend is ≥90% statements/functions/lines and ≥75% branches;
-  type coverage is 100% on both sides.
+  type coverage is 100% on both sides. We use `pyrefly` to enforce 100% type
+  coverage in the backend. If `pyrefly` and `ty` conflict on any issue,
+  `ty` should win.
 - Meet the coverage gates by asserting behavior. Do not add tests whose only
   effect is to execute a line, and do not let an expectation recompute what the
   code under test computes; a test that still passes when the behavior breaks is
