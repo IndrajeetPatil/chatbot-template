@@ -50,7 +50,7 @@ jobs:
         run: make backend-test
 
       - name: Upload backend coverage to Codecov
-        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4  # v7.1.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: backend/coverage.xml
@@ -93,7 +93,7 @@ jobs:
         run: make frontend-test
 
       - name: Upload frontend coverage to Codecov
-        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4  # v7.1.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: frontend/coverage/lcov.info
