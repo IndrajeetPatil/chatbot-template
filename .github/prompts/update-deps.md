@@ -106,6 +106,11 @@ its latest tag but records the resolved **commit SHA** in `rev` with a
 same SHA-pinning convention the repo uses for GitHub Actions. Never rewrite a
 frozen `rev` back to a bare mutable tag.
 
+Compare the resolved `ty` version in `backend/uv.lock` with the frozen
+`ty-pre-commit` version in `prek.toml`. If the hook lags PyPI, consider keeping
+the project at the hook's version; if they differ, mention the skew and its
+effect on QA versus pre-commit in the PR. Run both `make qa` and `make hooks`.
+
 The `prek-version` in `.github/workflows/prek.yaml` is a separate CI pin.
 Before updating it or the prek action, confirm the action's bundled checksum
 table includes that prek version's Linux x86_64 archive. The action silently

@@ -26,22 +26,21 @@ describe("assistant schemas", () => {
 
   test.prop([fc.constantFrom(...modelValues)])(
     "accepts every supported model value",
-    (model) => AssistantModelSchema.safeParse(model).success,
+    (model) => AssistantModelSchema.validate(model),
   );
 
   test.prop([fc.string().filter((s) => !modelValues.includes(s))])(
     "rejects any value outside the supported models",
-    (value) => !AssistantModelSchema.safeParse(value).success,
+    (value) => !AssistantModelSchema.validate(value),
   );
 
   test.prop([fc.constantFrom(...reasoningEffortValues)])(
     "accepts every supported reasoning effort value",
-    (reasoningEffort) =>
-      ReasoningEffortSchema.safeParse(reasoningEffort).success,
+    (reasoningEffort) => ReasoningEffortSchema.validate(reasoningEffort),
   );
 
   test.prop([fc.string().filter((s) => !reasoningEffortValues.includes(s))])(
     "rejects any value outside the supported reasoning efforts",
-    (value) => !ReasoningEffortSchema.safeParse(value).success,
+    (value) => !ReasoningEffortSchema.validate(value),
   );
 });
