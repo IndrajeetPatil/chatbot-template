@@ -13,7 +13,6 @@ see [getting started](getting-started.md) for service selection and configuratio
 | `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit          |
 | `make format` / `make lint`                  | Formatting / ls-lint, Ruff, Biome, rumdl                        |
 | `make type-check` / `make type-coverage`     | Static types / 100% type coverage                               |
-| `make backend-check-ty-pins`                 | Verify project, lockfile, and pre-commit ty versions agree      |
 | `make test`                                  | Backend and frontend unit tests with coverage                   |
 | `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                     |
 | `make frontend-bench`                        | Optional frontend request-preparation benchmarks                |

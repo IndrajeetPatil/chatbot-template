@@ -106,14 +106,10 @@ its latest tag but records the resolved **commit SHA** in `rev` with a
 same SHA-pinning convention the repo uses for GitHub Actions. Never rewrite a
 frozen `rev` back to a bare mutable tag.
 
-Keep the ty version in three places identical: the exact `ty==` dev dependency
-in `backend/pyproject.toml`, the resolved `ty` version in `backend/uv.lock`, and
-the `# frozen: v...` tag of the `ty-pre-commit` hook in `prek.toml`. The hook
-can lag the newest PyPI release. If `make update-deps` fails its final
-`backend-check-ty-pins` step, pin the project to the hook's version and rerun
-`uv lock` and `uv sync` from `backend/`. Do not advance only the lockfile or
-replace the upstream hook. Rerun `make backend-check-ty-pins`, `make qa`, and
-`make hooks` before opening the PR.
+Compare the resolved `ty` version in `backend/uv.lock` with the frozen
+`ty-pre-commit` version in `prek.toml`. If the hook lags PyPI, consider keeping
+the project at the hook's version; if they differ, mention the skew and its
+effect on QA versus pre-commit in the PR. Run both `make qa` and `make hooks`.
 
 The `prek-version` in `.github/workflows/prek.yaml` is a separate CI pin.
 Before updating it or the prek action, confirm the action's bundled checksum
