@@ -40,6 +40,7 @@ update-deps:
 	cd ./frontend && pnpm update --patches
 	@echo "$(COLOR_BLUE_BG)Updating prek hook revisions...$(COLOR_RESET)"
 	prek update --freeze
+	$(MAKE) backend-check-ty-pins
 
 upgrade-deps: update-deps
 

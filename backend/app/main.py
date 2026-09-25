@@ -61,12 +61,6 @@ class TextPart(BaseModel):
     text: Annotated[str, Field(max_length=_MAX_MESSAGE_CHARS)]
 
 
-def _parse_message_text(content: str | None, parts: list[TextPart]) -> str:
-    if content is not None:
-        return content
-    return "".join(part.text for part in parts)
-
-
 class UIMessage(BaseModel):
     role: OpenAIMessageRole
     content: str | None = Field(default=None, max_length=_MAX_MESSAGE_CHARS)
@@ -96,7 +90,9 @@ class UIMessage(BaseModel):
 
     @property
     def text(self) -> str:
-        return _parse_message_text(self.content, self.parts)
+        if self.content is not None:
+            return self.content
+        return "".join(part.text for part in self.parts)
 
 
 class ChatRequest(BaseModel):

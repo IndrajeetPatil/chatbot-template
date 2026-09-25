@@ -21,7 +21,10 @@ backend-format:
 	cd $(BACKEND_DIR) && find . -name '*.py' -not -path './.venv/*' -print0 | xargs -0 uv run add-trailing-comma --exit-zero-even-if-changed
 	cd $(BACKEND_DIR) && uv run ruff format . ../README.md ../AGENTS.md ../docs ../.github/prompts
 
-backend-type-check:
+backend-check-ty-pins:
+	python3 scripts/check_ty_pins.py
+
+backend-type-check: backend-check-ty-pins
 	@echo "$(COLOR_BLUE_BG)Running backend static type checking with ty...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYTYPECHECK)
 
@@ -67,6 +70,6 @@ run-backend:
 	@echo "$(COLOR_BLUE_BG)Running backend server...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(FASTAPI_RUNSERVER)
 
-.PHONY: backend-setup backend-lint backend-format backend-type-check backend-audit \
+.PHONY: backend-setup backend-lint backend-format backend-check-ty-pins backend-type-check backend-audit \
 	backend-validate-api-schema backend-test backend-snapshot-update \
 	backend-type-coverage backend-load-test backend-clean run-backend
