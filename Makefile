@@ -161,7 +161,7 @@ hooks:
 # Quality assurance suites
 qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
 qa-frontend: file-naming frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-contrast-audit frontend-type-coverage
-qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-build frontend-contrast-audit type-coverage security-scan
+qa: format lint type-check backend-validate-api-schema backend-audit test fallow css-quality frontend-build frontend-contrast-audit type-coverage security-scan
 
 # Run targets
 run: service

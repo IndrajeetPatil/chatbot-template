@@ -89,6 +89,9 @@ jobs:
       - name: Python and TypeScript types
         run: make type-check
 
+      - name: Backend dependency audit
+        run: make backend-audit
+
       - name: API schema
         run: make backend-validate-api-schema
 

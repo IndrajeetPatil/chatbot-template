@@ -10,7 +10,7 @@ container, which installs the toolchain for you.
 | Runtime / tool | Current version | Source of truth                                                           |
 | -------------- | --------------- | ------------------------------------------------------------------------- |
 | Python         | 3.14            | `backend/.python-version`, `backend/pyproject.toml`                       |
-| uv             | 0.12.15         | `backend/pyproject.toml`; Docker and installer pins must match            |
+| uv             | 0.12.18         | `backend/pyproject.toml`; Docker and installer pins must match            |
 | Vite+ (`vp`)   | 1.0.0-rc.1      | `frontend/pnpm-workspace.yaml`; installer, Docker, and CI pins must match |
 | Node.js        | 26.10.0         | `frontend/.node-version`; Vite+ provisions it                             |
 | pnpm           | 12.4.1          | `frontend/package.json` (`packageManager`); Vite+ provisions it           |
