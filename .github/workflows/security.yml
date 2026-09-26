@@ -99,12 +99,8 @@ jobs:
         with:
           working-directory: ./backend
 
-      # Runtime dependencies are the merge gate. Development-only advisories
-      # remain visible through Dependabot and are triaged separately because
-      # they are not deployed with the service.
-      - name: Audit locked production dependencies
-        working-directory: ./backend
-        run: uv audit --locked --no-dev --preview-features audit-command
+      - name: Audit backend dependencies
+        run: make backend-audit
 
   checkov:
     name: Infrastructure Scan (Checkov)
