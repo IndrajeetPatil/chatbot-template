@@ -1,5 +1,6 @@
-import AxeBuilder from "@axe-core/playwright";
+import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+
 import { openChat, sendMessage } from "./chat-fixture";
 import { MARKDOWN_REPLY } from "./markdown-fixture";
 
@@ -7,6 +8,7 @@ const KEYWORD_COLORS = {
   light: "rgb(207, 48, 64)",
   dark: "rgb(255, 123, 114)",
 };
+const OTHER_MODE = { light: "dark", dark: "light" } as const;
 
 for (const colorScheme of ["light", "dark"] as const) {
   test.describe(colorScheme, () => {
@@ -14,7 +16,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     test("renders colored syntax and math, including after a theme change", async ({
       page,
     }) => {
-      await page.route("**/api/v1/chat", (route) =>
+      await page.route("**/api/v1/chat", async (route) =>
         route.fulfill({ contentType: "text/plain", body: MARKDOWN_REPLY }),
       );
       await openChat(page);
@@ -24,20 +26,20 @@ for (const colorScheme of ["light", "dark"] as const) {
       await expect(page.locator(".katex math")).toHaveCount(2);
       await expect(page.locator(".katex-display .katex-html")).toBeVisible();
       await expect(page.locator(".katex-error")).toHaveCount(0);
-      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(async () => document.fonts.ready);
       expect(
         await page.evaluate(() =>
-          Array.from(document.fonts).some(
-            (font) => font.family === "KaTeX_Main" && font.status === "loaded",
-          ),
+          [...document.fonts]
+            .filter((font) => font.family === "KaTeX_Main")
+            .map((font) => font.status),
         ),
-      ).toBe(true);
+      ).toContain("loaded");
       const { violations } = await new AxeBuilder({ page })
         .include(".markdown")
         .withRules(["color-contrast"])
         .analyze();
       expect(violations).toEqual([]);
-      const otherMode = colorScheme === "light" ? "dark" : "light";
+      const otherMode = OTHER_MODE[colorScheme];
       await page
         .getByRole("button", { name: `Switch to ${otherMode} mode` })
         .click();
@@ -51,17 +53,18 @@ for (const width of [320, 390]) {
     page,
   }) => {
     await page.setViewportSize({ width, height: 844 });
-    const equation = Array.from({ length: 30 }, (_, n) => `x_{${n}}`).join(
-      " + ",
-    );
+    const equation = Array.from(
+      { length: 30 },
+      (_term, index) => `x_{${index}}`,
+    ).join(" + ");
     const reply = `\`\`\`python\nprint("${"wide code ".repeat(20)}")\n\`\`\`\n\n$$\n${equation}\n$$`;
-    await page.route("**/api/v1/chat", (route) =>
+    await page.route("**/api/v1/chat", async (route) =>
       route.fulfill({ contentType: "text/plain", body: reply }),
     );
     await openChat(page);
     await sendMessage(page, "Show wide content.");
     await expect(page.locator(".katex-display")).toBeVisible();
-    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(async () => document.fonts.ready);
     for (const selector of [".markdown pre", ".katex-display"]) {
       const block = page.locator(selector);
       await expect(block).toHaveCSS("overflow-x", "auto");

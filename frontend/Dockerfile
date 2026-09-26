@@ -1,16 +1,14 @@
-FROM node:24-trixie-slim@sha256:8ec5d7557396cfe32d21c3f9c13072355ceab22b584578ca4bb28af31120cffe AS builder
-
-# Activate the package manager declared in package.json.
-RUN corepack enable
+# Vite+ provisions Node from .node-version and pnpm from packageManager.
+FROM ghcr.io/voidzero-dev/vite-plus:1.0.0-rc.1@sha256:6e65aa316696591c8eb52eb23ba48003805836bcd77aa84a08a2f26da30a5b42 AS builder
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml .node-version ./
+RUN vp install --frozen-lockfile
 
-COPY . .
+COPY --chown=vp:vp . .
 
-RUN pnpm run build
+RUN vp build
 
 FROM debian:trixie-slim@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
 

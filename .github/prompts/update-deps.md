@@ -6,8 +6,8 @@ description: Update dependencies and ensure the codebase is compatible with the 
 # Update Dependencies and Refactor Codebase
 
 Run `make update-deps` to refresh backend uv dependencies, frontend pnpm
-dependencies, registry package revisions, and prek hook revisions. Then iterate
-until the full local quality gate passes:
+dependencies (through `vp update`), registry package revisions, and prek hook
+revisions. Then iterate until the full local quality gate passes:
 
 - `make qa`
 - `make frontend-build`
@@ -24,26 +24,31 @@ When Playwright changes, synchronize the image tag and SHA256 digest in
 `make e2e-update` to regenerate baselines in the pinned renderer, review the PNGs,
 then rerun `make e2e-test-docker` without updating.
 
-If the pnpm version changes, update the canonical declaration in:
+`make update-deps` does not upgrade the Vite+ CLI itself. When a new Vite+
+release is adopted, update every pin together:
 
-- `frontend/package.json` (`packageManager`)
+- `frontend/pnpm-workspace.yaml` (the `vite-plus` catalog entry, the `vite`
+  alias to `@voidzero-dev/vite-plus-core` at the same version, and the `vitest`
+  and `@vitest/*` versions that release bundles)
+- `frontend/scripts/install-vp.sh` (`VP_VERSION` and the four per-platform
+  SHA256 checksums from the release's `vp-checksums.txt`)
+- `frontend/Dockerfile` (`ghcr.io/voidzero-dev/vite-plus:<version>` tag and its
+  `@sha256:` digest)
+- `.github/workflows/` (`voidzero-dev/setup-vp` full commit SHA and `# vX.Y.Z`
+  comment)
 
-The GitHub workflows read pnpm from `frontend/package.json` via
-`pnpm/action-setup`'s `package_json_file` input, and the devcontainer uses
-Corepack to install the same pinned version. Do not add or reintroduce hard-coded
-pnpm versions in workflow files.
+A Vite+ upgrade also moves the bundled Oxlint and Oxfmt. Because every stable
+lint category is enabled, new rules report immediately: fix the findings, and
+turn a rule off in `frontend/vite.config.ts` only with a comment explaining why
+(it contradicts another rule, is obsolete for the stack, or a stricter tool owns
+it). Run `make format` so formatter changes land in the same PR.
 
-If the Node.js version changes, update every runtime declaration together:
-
-- `frontend/package.json` (`devEngines.runtime.version`)
-- `frontend/.nvmrc`
-- `frontend/Dockerfile` (`node:<version>-trixie-slim`)
-- `.devcontainer/devcontainer.json`
-  (`ghcr.io/devcontainers/features/node` `version`)
-
-The GitHub workflows use the runtime resolved from `frontend/package.json` by
-pnpm. Do not add a separate hard-coded workflow Node version or a redundant
-`actions/setup-node` step unless the workflow design changes.
+Vite+ provisions pnpm from `frontend/package.json` (`packageManager`) and Node.js
+from `frontend/.node-version`, locally, in CI, in the devcontainer, and in the
+Docker builder. If either version changes, update only that canonical
+declaration. Do not add hard-coded pnpm or Node versions to workflow files, and
+do not reintroduce `actions/setup-node`, Corepack, or a Node devcontainer
+feature.
 
 If the Python version changes, update every backend runtime declaration together:
 
@@ -65,14 +70,19 @@ into workflow files.
 Refresh the pinned Docker base image digests even when the image tag does not
 change. Every `FROM` (and `COPY --from`) in `backend/Dockerfile` and
 `frontend/Dockerfile` is pinned as `<image>:<tag>@sha256:<digest>`; the digest
-freezes the exact bytes, so OS security patches published by Debian/Node under
-the same tag are only picked up when the digest is re-pinned. For each pinned
-image (`python:<version>-slim-trixie`, `ghcr.io/astral-sh/uv:<version>`,
-`node:<version>-trixie-slim`, `debian:trixie-slim`), pull the current tag and
-update the `@sha256:` digest to the latest published one, keeping the human
-readable tag intact. This is the mechanism that clears OS-package CVEs (e.g.
-`perl-base`, `zlib`, `libsqlite3`) from the Trivy scan, so do it before
-reconciling `.trivyignore.yaml` below.
+freezes the exact bytes, so OS security patches published by the image
+maintainers under the same tag are only picked up when the digest is re-pinned.
+For each pinned image (`python:<version>-slim-trixie`,
+`ghcr.io/astral-sh/uv:<version>`, `ghcr.io/voidzero-dev/vite-plus:<version>`,
+`debian:trixie-slim`), pull the current tag and update the `@sha256:` digest to
+the latest published one, keeping the human readable tag intact. Do the same for
+the devcontainer: re-pin the `mcr.microsoft.com/devcontainers/base` image digest
+in `.devcontainer/devcontainer.json`, and bump the `docker-in-docker` feature's
+major version there when a new one supports the base image's Ubuntu release
+(`devcontainer-lock.json` is gitignored, so the feature tracks its major
+version). This is the mechanism that clears OS-package CVEs (e.g. `perl-base`,
+`zlib`, `libsqlite3`) from the Trivy scan, so do it before reconciling
+`.trivyignore.yaml` below.
 
 For any other third-party tools updated (e.g., Trivy in
 `.github/workflows/docker-compose.yml`), ensure their downloaded scripts or
@@ -116,10 +126,10 @@ Before updating it or the prek action, confirm the action's bundled checksum
 table includes that prek version's Linux x86_64 archive. The action silently
 skips SHA256 verification for versions absent from its table.
 
-Review the GitHub Action changes made by pnpm and verify that public actions in
-`.github/workflows/` remain pinned by full commit SHA with a matching `# vX.Y.Z`
-comment. Investigate any action pnpm could not read instead of silently leaving
-an outdated mutable reference.
+Review the GitHub Action changes made by `vp update` (pnpm) and verify that
+public actions in `.github/workflows/` remain pinned by full commit SHA with a
+matching `# vX.Y.Z` comment. Investigate any action pnpm could not read instead
+of silently leaving an outdated mutable reference.
 
 Once the dependency update is green, review relevant changelogs and current
 documentation for upgraded libraries. Apply small compatibility simplifications

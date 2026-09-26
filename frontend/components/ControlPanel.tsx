@@ -1,12 +1,12 @@
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import TuneIcon from "@mui/icons-material/Tune";
 import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
-import { useColorScheme } from "@mui/material/styles";
+import type { ReactElement } from "react";
+
 import { getModelDisplay, getReasoningEffortDisplay } from "@/client/helpers";
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
+import DarkModeToggle from "@/components/DarkModeToggle";
 import ChatInput from "@/components/messages/ChatInput";
 import DropdownParameter from "@/components/parameters/DropdownParameter";
 
@@ -18,22 +18,6 @@ const MODEL_OPTIONS = Object.values(AssistantModel).map((value) => ({
 const REASONING_EFFORT_OPTIONS = Object.values(ReasoningEffort).map(
   (value) => ({ value, label: getReasoningEffortDisplay(value) }),
 );
-
-function DarkModeToggle() {
-  const { mode, systemMode, setMode } = useColorScheme();
-  const isDark = (mode === "system" ? systemMode : mode) === "dark";
-
-  return (
-    <Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-      <IconButton
-        onClick={() => setMode(isDark ? "light" : "dark")}
-        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      >
-        {isDark ? <LightModeIcon /> : <DarkModeIcon />}
-      </IconButton>
-    </Tooltip>
-  );
-}
 
 interface RegenerateButtonProps {
   disabled: boolean;
@@ -49,7 +33,7 @@ function RegenerateButton({
   return (
     <Tooltip
       title="Regenerate Response"
-      describeChild={true}
+      describeChild
     >
       <span>
         <IconButton
@@ -66,9 +50,9 @@ function RegenerateButton({
 
 interface ToolbarProps {
   model: AssistantModel;
-  setModel: (m: AssistantModel) => void;
+  setModel: (model: AssistantModel) => void;
   reasoningEffort: ReasoningEffort;
-  setReasoningEffort: (t: ReasoningEffort) => void;
+  setReasoningEffort: (reasoningEffort: ReasoningEffort) => void;
   onRegenerate: () => void;
   canRegenerate: boolean;
   disabled: boolean;
@@ -133,8 +117,13 @@ function ControlPanel({
   onSendMessage,
   disabled,
   onStop,
-  ...toolbarProps
-}: ControlPanelProps) {
+  model,
+  setModel,
+  reasoningEffort,
+  setReasoningEffort,
+  onRegenerate,
+  canRegenerate,
+}: ControlPanelProps): ReactElement {
   return (
     <Box sx={{ pt: 2, pb: "max(16px, env(safe-area-inset-bottom))" }}>
       <Box
@@ -153,7 +142,12 @@ function ControlPanel({
           onStop={onStop}
         />
         <Toolbar
-          {...toolbarProps}
+          model={model}
+          setModel={setModel}
+          reasoningEffort={reasoningEffort}
+          setReasoningEffort={setReasoningEffort}
+          onRegenerate={onRegenerate}
+          canRegenerate={canRegenerate}
           disabled={disabled}
         />
       </Box>

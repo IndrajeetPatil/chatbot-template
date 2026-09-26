@@ -1,4 +1,5 @@
 import type { UIMessage } from "@ai-sdk/react";
+
 import { AssistantModel, ReasoningEffort } from "./types/assistant.ts";
 
 const MODEL_LABELS: Record<AssistantModel, string> = {
@@ -12,13 +13,18 @@ const REASONING_EFFORT_LABELS: Record<ReasoningEffort, string> = {
   [ReasoningEffort.HIGH]: "High",
 };
 
-const getModelDisplay = (model: AssistantModel) => MODEL_LABELS[model];
+const getModelDisplay = (model: AssistantModel): string => MODEL_LABELS[model];
 
-const getReasoningEffortDisplay = (reasoningEffort: ReasoningEffort) =>
+const getReasoningEffortDisplay = (reasoningEffort: ReasoningEffort): string =>
   REASONING_EFFORT_LABELS[reasoningEffort];
 
+interface BackendMessage {
+  role: UIMessage["role"];
+  parts: { type: "text"; text: string }[];
+}
+
 // The text-only backend must not receive SDK metadata such as step-start parts.
-const toBackendMessages = (messages: UIMessage[]) =>
+const toBackendMessages = (messages: UIMessage[]): BackendMessage[] =>
   messages.map(({ role, parts }) => ({
     role,
     parts: parts

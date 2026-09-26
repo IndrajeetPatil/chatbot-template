@@ -1,6 +1,8 @@
 import { screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { vi, expect, test } from "vite-plus/test";
+
 import { makeTextMessage, renderWithTheme } from "@/client/testUtils";
+
 import MessageList from "./MessageList";
 
 const messages = [
@@ -30,7 +32,7 @@ test("announces loading and request failures", () => {
   const { rerender } = renderWithTheme(
     <MessageList
       messages={[]}
-      assistantIsLoading={true}
+      assistantIsLoading
       error={undefined}
     />,
   );
@@ -47,29 +49,27 @@ test("announces loading and request failures", () => {
 });
 
 test("filters non-text parts and joins text parts in order", async () => {
-  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-  try {
-    renderWithTheme(
-      <MessageList
-        messages={[
-          {
-            id: "reply",
-            role: "assistant",
-            parts: [
-              { type: "text", text: "First " },
-              { type: "step-start" },
-              { type: "text", text: "second" },
-            ],
-          },
-        ]}
-        assistantIsLoading={false}
-        error={undefined}
-      />,
-    );
-    // This is a data contract, not a comparison of product copy.
-    expect(await screen.findByText("First second")).toBeVisible();
-    expect(warn).toHaveBeenCalledOnce();
-  } finally {
-    warn.mockRestore();
-  }
+  const warn = vi.spyOn(console, "warn").mockReturnValue(undefined);
+  renderWithTheme(
+    <MessageList
+      messages={[
+        {
+          id: "reply",
+          role: "assistant",
+          parts: [
+            { type: "text", text: "First " },
+            { type: "step-start" },
+            { type: "text", text: "second" },
+          ],
+        },
+      ]}
+      assistantIsLoading={false}
+      error={undefined}
+    />,
+  );
+  // This is a data contract, not a comparison of product copy.
+  await expect(screen.findByText("First second")).resolves.toBeVisible();
+  expect(warn).toHaveBeenCalledExactlyOnceWith(
+    '[MessageList] Unexpected non-text message part type: "step-start"',
+  );
 });

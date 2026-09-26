@@ -1,4 +1,11 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { vi, test, describe, expect } from "vite-plus/test";
 
 import DropdownParameter from "./DropdownParameter";
 
@@ -8,7 +15,7 @@ const OPTIONS = [
   { value: "opt3", label: "Option 3" },
 ];
 
-function renderDropdown(onChange = vi.fn()) {
+function renderDropdown(onChange = vi.fn<(value: string) => void>()) {
   render(
     <DropdownParameter
       value="opt1"
@@ -22,7 +29,7 @@ function renderDropdown(onChange = vi.fn()) {
   return { onChange };
 }
 
-describe("DropdownParameter", () => {
+describe(DropdownParameter, () => {
   test("calls onChange with selected value", () => {
     const { onChange } = renderDropdown();
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
@@ -31,17 +38,20 @@ describe("DropdownParameter", () => {
     expect(onChange).toHaveBeenCalledWith("opt2");
   });
 
-  test("closes menu without changing value", async () => {
+  test("closes menu on Escape and returns focus without changing value", async () => {
     const { onChange } = renderDropdown();
 
     const button = screen.getByLabelText("Select an option");
-    button.focus();
+    act(() => {
+      button.focus();
+    });
     fireEvent.click(button);
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
 
     await waitFor(() => {
       expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     });
+    expect(button).toHaveFocus();
     expect(onChange).not.toHaveBeenCalled();
   });
 });

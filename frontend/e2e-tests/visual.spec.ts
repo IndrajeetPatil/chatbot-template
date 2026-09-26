@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 import { openChat, sendMessage } from "./chat-fixture";
 import { MARKDOWN_REPLY } from "./markdown-fixture";
 
@@ -34,20 +35,20 @@ for (const colorScheme of ["light", "dark"] as const) {
 
       test("model and reasoning menus", async ({ page }) => {
         await page
-          .getByRole("button", { name: /Select assistant model/ })
+          .getByRole("button", { name: /Select assistant model/u })
           .click();
         await expect(page.getByRole("menu")).toBeVisible();
         await expect(page).toHaveScreenshot(snapshot("models"));
         await page.keyboard.press("Escape");
         await page
-          .getByRole("button", { name: /Select reasoning effort/ })
+          .getByRole("button", { name: /Select reasoning effort/u })
           .click();
         await expect(page.getByRole("menu")).toBeVisible();
         await expect(page).toHaveScreenshot(snapshot("reasoning"));
       });
 
       test("markdown conversation", async ({ page }) => {
-        await page.route("**/api/v1/chat", (route) =>
+        await page.route("**/api/v1/chat", async (route) =>
           route.fulfill({
             contentType: "text/plain; charset=utf-8",
             body: MARKDOWN_REPLY,
@@ -57,7 +58,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         // The lazy markdown renderer must finish before capturing the page.
         await expect(page.getByTestId("code-block")).toBeVisible();
         await expect(page.locator(".katex-display")).toBeVisible();
-        await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(async () => document.fonts.ready);
         await expect(page).toHaveScreenshot(snapshot("conversation"));
       });
 
@@ -77,7 +78,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       });
 
       test("failed response", async ({ page }) => {
-        await page.route("**/api/v1/chat", (route) =>
+        await page.route("**/api/v1/chat", async (route) =>
           route.fulfill({
             status: 503,
             contentType: "text/plain",

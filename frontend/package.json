@@ -3,27 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@12.4.1+sha512.2e81e399d73fe8390dab25e06aa788ab7a5908248d2f5a370f82b481147a6a7a367bf8048f9a6fdb6460f21a66f0542dedb8b94ca2c8723596741920b1656d4c",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "version": "^24.0.0",
-      "onFail": "download"
-    }
-  },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "start": "vite preview",
-    "check-types": "tsc --noemit",
-    "lint": "biome check --write --unsafe --error-on-warnings biome.json package.json tsconfig.json eslint.config.js playwright.config.ts vite-env.d.ts vite.config.ts vitest.setup.ts .lighthouserc.json .fallowrc.json scripts/ app/ client/ components/ e2e-tests/ src/ index.html",
-    "test": "vitest run --coverage",
-    "bench": "vitest bench --run",
+    "bench": "vp test bench --run",
+    "lint:css": "biome lint --error-on-warnings",
     "test:e2e": "playwright test",
     "fallow": "fallow doctor --quiet && fallow --fail-on-issues --quiet",
-    "css-quality": "node scripts/css-quality.mjs",
+    "css-quality": "node scripts/css-quality.ts",
     "contrast-audit": "PLAYWRIGHT_PORT=3100 playwright test contrast.spec.ts",
-    "lint:security": "eslint app client components src",
     "type-coverage": "type-coverage --strict --at-least 100"
   },
   "dependencies": {
@@ -42,18 +28,6 @@
     "remark-math": "6.0.0",
     "zod": "^4.6.5"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@babel/core": "^8.0.6",
@@ -69,21 +43,31 @@
     "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@typescript-eslint/parser": "^8.70.1",
     "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/coverage-v8": "^5.0.2",
+    "@vitest/browser-playwright": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^10.11.0",
     "eslint-plugin-no-unsanitized": "^4.1.5",
-    "eslint-plugin-react-dom": "^5.20.8",
-    "eslint-plugin-react-hooks": "^7.1.1",
     "fallow": "^3.28.0",
-    "globals": "^17.12.0",
     "http-status-codes": "^2.3.0",
-    "jsdom": "^30.1.1",
+    "playwright": "^1.63.0",
     "type-coverage": "^2.30.1",
     "typescript": "^6.0.3",
-    "vite": "^8.3.1",
-    "vitest": "^5.0.2"
-  }
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "packageManager": "pnpm@12.4.1+sha512.2e81e399d73fe8390dab25e06aa788ab7a5908248d2f5a370f82b481147a6a7a367bf8048f9a6fdb6460f21a66f0542dedb8b94ca2c8723596741920b1656d4c"
 }

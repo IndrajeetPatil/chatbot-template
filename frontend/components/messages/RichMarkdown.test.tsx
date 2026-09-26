@@ -1,18 +1,24 @@
 import { screen } from "@testing-library/react";
+import { expect, test } from "vite-plus/test";
+
 import { renderWithTheme } from "@/client/testUtils";
+
 import RichMarkdown from "./RichMarkdown";
 
 test.each([
-  ["javascript", 'const greeting = "hello";', ".hljs-keyword", "const"],
-  ["python", 'def greet():\n    return "hello"', ".hljs-keyword", "def"],
-  ["sql", "SELECT count(*) FROM users;", ".hljs-keyword", "SELECT"],
-])("highlights %s with library tokens", (language, source, selector, token) => {
-  const { container } = renderWithTheme(
-    <RichMarkdown content={`\`\`\`${language}\n${source}\n\`\`\``} />,
-  );
-  expect(container.querySelector(selector)).toHaveTextContent(token);
-  expect(screen.getByTestId("code-block").textContent).toBe(`${source}\n`);
-});
+  ["javascript", 'const greeting = "hello";', "const"],
+  ["python", 'def greet():\n    return "hello"', "def"],
+  ["sql", "SELECT count(*) FROM users;", "SELECT"],
+])(
+  "highlights %s keywords with library tokens",
+  (language, source, keyword) => {
+    const { container } = renderWithTheme(
+      <RichMarkdown content={`\`\`\`${language}\n${source}\n\`\`\``} />,
+    );
+    expect(container.querySelector(".hljs-keyword")).toHaveTextContent(keyword);
+    expect(screen.getByTestId("code-block").textContent).toBe(`${source}\n`);
+  },
+);
 
 test.each(["", "unknown-language", "text"])(
   "preserves code with the %s language and dollar signs",
@@ -55,7 +61,7 @@ test("recovers as an incomplete streamed equation becomes valid", () => {
     <RichMarkdown content={"$$\n\\frac{1}{"} />,
   );
   expect(container.querySelector(".katex-error")).toHaveTextContent(
-    "\\frac{1}{",
+    String.raw`\frac{1}{`,
   );
   rerender(<RichMarkdown content={"$$\n\\frac{1}{2}\n$$"} />);
   expect(container.querySelector(".katex-error")).toBeNull();
@@ -64,7 +70,7 @@ test("recovers as an incomplete streamed equation becomes valid", () => {
 
 test("keeps inline code and escaped currency literal", () => {
   const { container } = renderWithTheme(
-    <RichMarkdown content={"`$literal$` costs \\$5 and \\$10."} />,
+    <RichMarkdown content="`$literal$` costs \$5 and \$10." />,
   );
   expect(container.querySelector("code")).toHaveTextContent("$literal$");
   expect(container).toHaveTextContent("costs $5 and $10.");

@@ -1,17 +1,30 @@
 import { expect, test } from "@playwright/test";
 import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+
 import { getModelDisplay, getReasoningEffortDisplay } from "@/client/helpers";
-import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
+import {
+  AssistantModel,
+  AssistantModelSchema,
+  ReasoningEffort,
+  ReasoningEffortSchema,
+} from "@/client/types/assistant";
+
 import { openChat, sendMessage } from "./chat-fixture";
 
-interface ChatBody {
-  model: string;
-  reasoning_effort: string;
-  messages: Array<{
-    role: string;
-    parts: Array<{ type: string; text: string }>;
-  }>;
-}
+// Loose objects keep unexpected keys so assertions can still reject them.
+const TextPartSchema = z.looseObject({ type: z.string(), text: z.string() });
+const MessageSchema = z.looseObject({
+  role: z.string(),
+  parts: z.array(TextPartSchema),
+});
+const ChatBodySchema = z.looseObject({
+  model: AssistantModelSchema,
+  reasoning_effort: ReasoningEffortSchema,
+  messages: z.array(MessageSchema),
+});
+
+type ChatBody = z.infer<typeof ChatBodySchema>;
 
 const CHAT_API_PATH = "**/api/v1/chat";
 
@@ -20,11 +33,11 @@ for (const model of Object.values(AssistantModel)) {
     test(`${model} with ${effort} reasoning effort`, async ({ page }) => {
       const expectedResponse = "Test received! How can I assist you today?";
       await page.route(CHAT_API_PATH, async (route) => {
-        const body = route.request().postDataJSON() as ChatBody;
+        const body = ChatBodySchema.parse(route.request().postDataJSON());
         expect(body.model).toBe(model);
         expect(body.reasoning_effort).toBe(effort);
         expect(body).not.toHaveProperty("temperature");
-        expect(body.messages[body.messages.length - 1].parts).toEqual([
+        expect(body.messages.at(-1)?.parts).toEqual([
           { type: "text", text: "test message" },
         ]);
         await route.fulfill({
@@ -36,7 +49,7 @@ for (const model of Object.values(AssistantModel)) {
 
       await openChat(page);
       await page
-        .getByRole("button", { name: /Select assistant model/ })
+        .getByRole("button", { name: /Select assistant model/u })
         .click();
       await page
         .getByRole("menuitem", {
@@ -45,7 +58,7 @@ for (const model of Object.values(AssistantModel)) {
         })
         .click();
       await page
-        .getByRole("button", { name: /Select reasoning effort/ })
+        .getByRole("button", { name: /Select reasoning effort/u })
         .click();
       await page
         .getByRole("menuitem", {
@@ -66,7 +79,7 @@ test("follow-up and regeneration send text-only conversation history", async ({
 }) => {
   const requests: ChatBody[] = [];
   await page.route(CHAT_API_PATH, async (route) => {
-    const body = route.request().postDataJSON() as ChatBody;
+    const body = ChatBodySchema.parse(route.request().postDataJSON());
     requests.push(body);
     expect(body.model).toBe(AssistantModel.ASTRA);
     expect(body.reasoning_effort).toBe(ReasoningEffort.LOW);

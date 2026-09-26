@@ -23,15 +23,18 @@ trap restore_ownership EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-corepack enable
-pnpm install --frozen-lockfile --loglevel=warn
+# The Vite+ home volume caches vp, Node, and pnpm between runs.
+export VP_HOME=/root/.vite-plus PATH="/root/.vite-plus/bin:$PATH"
+export VP_SELF_SETUP_NO_MODIFY_PATH=1
+bash scripts/install-vp.sh
+vp install --frozen-lockfile -- --loglevel=warn
 if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
     (
         echo "::group::Production build details"
         trap 'echo "::endgroup::"' EXIT
-        pnpm build
+        vp build
     )
 else
-    pnpm build
+    vp build
 fi
-pnpm test:e2e "$@"
+vp run test:e2e "$@"

@@ -35,9 +35,9 @@ update-deps:
 	@echo "$(COLOR_BLUE_BG)Updating backend Python dependencies...$(COLOR_RESET)"
 	cd ./backend && uv lock --upgrade && uv sync
 	@echo "$(COLOR_BLUE_BG)Updating frontend Node dependencies...$(COLOR_RESET)"
-	cd ./frontend && pnpm update
+	cd ./frontend && $(VP) update
 	@echo "$(COLOR_BLUE_BG)Refreshing registry package revisions...$(COLOR_RESET)"
-	cd ./frontend && pnpm update --patches
+	cd ./frontend && $(VP) update -- --patches
 	@echo "$(COLOR_BLUE_BG)Updating prek hook revisions...$(COLOR_RESET)"
 	prek update --freeze
 
@@ -45,7 +45,7 @@ upgrade-deps: update-deps
 
 # Aggregate targets
 lint: file-naming backend-lint frontend-lint markdown-lint
-format: backend-format frontend-format markdown-format
+format: backend-format frontend-format config-format markdown-format
 type-check: backend-type-check frontend-type-check
 test: backend-test frontend-test
 type-coverage: backend-type-coverage frontend-type-coverage
@@ -160,8 +160,8 @@ hooks:
 
 # Quality assurance suites
 qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
-qa-frontend: file-naming frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-contrast-audit frontend-security-lint frontend-type-coverage
-qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-build frontend-contrast-audit frontend-security-lint type-coverage security-scan
+qa-frontend: file-naming frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-contrast-audit frontend-type-coverage
+qa: format lint type-check backend-validate-api-schema test fallow css-quality frontend-build frontend-contrast-audit type-coverage security-scan
 
 # Run targets
 run: service

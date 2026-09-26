@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Vite+ runs the pnpm version pinned by the frontend's packageManager field.
+pnpm() { vp env exec pnpm "$@"; }
+
 # Query from the frontend workspace so pnpm honors its configured cache location.
 cache_dir=$(pnpm cache path)
 case "$cache_dir" in

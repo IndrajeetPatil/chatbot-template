@@ -1,4 +1,5 @@
 import { Box, Typography } from "@mui/material";
+import type { ReactElement } from "react";
 
 interface UserMessageProps {
   content: string;
@@ -20,7 +21,7 @@ const USER_MESSAGE_PAPER_SX = {
   overflowWrap: "anywhere",
 } as const;
 
-function UserMessage({ content }: UserMessageProps) {
+function UserMessage({ content }: UserMessageProps): ReactElement {
   return (
     <Box sx={USER_MESSAGE_CONTAINER_SX}>
       <Box sx={USER_MESSAGE_PAPER_SX}>

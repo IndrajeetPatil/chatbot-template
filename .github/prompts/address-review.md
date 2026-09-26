@@ -15,20 +15,21 @@ you have made any changes to address review feedback, run `make qa` to confirm
 the checks still pass, then commit and push the changes. Use the gh CLI to fetch
 comments; I have already authenticated myself.
 
-When a comment concerns a version or tooling inconsistency (e.g. pnpm, Node),
-search the entire repository for every place that version is declared and fix all
-of them in one go — not just the specific line the reviewer flagged.
+When a comment concerns a version or tooling inconsistency (e.g. Vite+, pnpm,
+Node), search the entire repository for every place that version is declared and
+fix all of them in one go — not just the specific line the reviewer flagged.
+
+Vite+ (`vp`) provisions both Node.js and pnpm locally, in CI, in the
+devcontainer, and in the Docker builder. For Vite+ itself, keep the `vite-plus`
+catalog entry in `frontend/pnpm-workspace.yaml`, `VP_VERSION` and its checksums
+in `frontend/scripts/install-vp.sh`, the `ghcr.io/voidzero-dev/vite-plus` builder
+image in `frontend/Dockerfile`, and the `voidzero-dev/setup-vp` action pin aligned.
 
 For pnpm, the canonical version lives in `frontend/package.json`
-(`packageManager`). The workflows read it via `pnpm/action-setup`'s
-`package_json_file` input, and `.devcontainer/post-create.sh` uses Corepack to
-install the same pinned version. Do not mirror pnpm versions into workflow files.
-
-For Node.js, the canonical runtime declaration lives in `frontend/package.json`
-(`devEngines.runtime.version`). Keep `frontend/.nvmrc`, the
-`node:<version>-trixie-slim` builder image in `frontend/Dockerfile`, and the Node
-feature in `.devcontainer/devcontainer.json` aligned with it. The workflows use
-the runtime resolved by pnpm; do not add a redundant `actions/setup-node` step.
+(`packageManager`). For Node.js, it lives in `frontend/.node-version`, which the
+workflows pass to `setup-vp` as `node-version-file`. Do not mirror either version
+into workflow files, and do not add `actions/setup-node`, Corepack, a Node
+devcontainer feature, or another Node version file.
 
 For Python, keep `backend/pyproject.toml`, `backend/uv.lock`, and
 `backend/Dockerfile` aligned. For uv, the canonical version lives in

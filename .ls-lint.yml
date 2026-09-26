@@ -82,7 +82,7 @@ ls:
 
   frontend/scripts:
     .dir: kebab-case
-    .mjs: kebab-case
+    .ts: kebab-case
     .sh: kebab-case
 
 ignore:

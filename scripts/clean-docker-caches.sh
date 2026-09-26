@@ -10,7 +10,7 @@ fi
 # Listing first makes cleanup repeatable without hiding removal failures (for
 # example, a volume still mounted by a running test container).
 volumes=$(docker volume ls --format '{{.Name}}')
-for volume in chatbot-pw-node-modules chatbot-pw-pnpm-store; do
+for volume in chatbot-pw-node-modules chatbot-pw-vite-plus chatbot-pw-pnpm-store; do
     if grep -Fxq -- "$volume" <<< "$volumes"; then
         docker volume rm "$volume"
     fi

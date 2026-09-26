@@ -18,13 +18,13 @@ See [backend configuration](backend.md#configuration) and the
 
 ## Rendering and request boundaries
 
-| Surface    | Enforced behavior                                               |
-| ---------- | --------------------------------------------------------------- |
-| Markdown   | Raw HTML disabled; ESLint blocks `dangerouslySetInnerHTML`      |
-| KaTeX      | Trusted commands disabled; fonts/styles bundled locally         |
-| Requests   | Message count and text length validated before streaming        |
-| Rate limit | Configurable; defaults to 10 requests/minute per client address |
-| nginx      | Response headers, caching, compression, proxying                |
+| Surface    | Enforced behavior                                                                    |
+| ---------- | ------------------------------------------------------------------------------------ |
+| Markdown   | Raw HTML disabled; Oxlint blocks `dangerouslySetInnerHTML` and unsanitized DOM sinks |
+| KaTeX      | Trusted commands disabled; fonts/styles bundled locally                              |
+| Requests   | Message count and text length validated before streaming                             |
+| Rate limit | Configurable; defaults to 10 requests/minute per client address                      |
+| nginx      | Response headers, caching, compression, proxying                                     |
 
 Preserve these restrictions when changing rendering or transport. See the
 [API contract](backend.md#api) for limits and errors.
@@ -33,7 +33,8 @@ Preserve these restrictions when changing rendering or transport. See the
 
 - Pin every downloaded third-party tool, script, and binary to a specific version.
 - Validate SHA256 checksums; never download latest or untagged tools.
-- Keep image digests, installer checksums, lockfiles, and documentation aligned.
+- Keep image digests, installer checksums (including `install-vp.sh`),
+  lockfiles, and documentation aligned.
 
 ## Automated scans
 

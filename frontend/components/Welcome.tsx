@@ -1,5 +1,6 @@
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { Box, Button, Typography } from "@mui/material";
+import type { ReactElement } from "react";
 
 const SUGGESTIONS = [
   {
@@ -20,7 +21,7 @@ export default function Welcome({
   onSendMessage,
 }: {
   onSendMessage: (message: string) => Promise<void>;
-}) {
+}): ReactElement {
   return (
     <Box sx={{ my: "auto", py: { xs: 1, sm: 6 } }}>
       <Typography
@@ -69,14 +70,16 @@ export default function Welcome({
         {SUGGESTIONS.map(({ title, prompt }) => (
           <Button
             key={title}
-            onClick={() => void onSendMessage(prompt)}
+            onClick={() => {
+              void onSendMessage(prompt);
+            }}
             sx={{
               alignItems: "flex-start",
               border: 1,
               borderColor: "divider",
               color: "text.primary",
               flexDirection: "column",
-              p: { xs: 1.5, sm: 2 },
+              padding: { xs: 1.5, sm: 2 },
               textAlign: "left",
               gap: 1,
               "&:hover": {

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 import { openChat, sendMessage } from "./chat-fixture";
 
 test("supports skip navigation and model selection by keyboard", async ({
@@ -11,7 +12,7 @@ test("supports skip navigation and model selection by keyboard", async ({
   ).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("textbox")).toBeFocused();
-  const model = page.getByRole("button", { name: /Select assistant model/ });
+  const model = page.getByRole("button", { name: /Select assistant model/u });
   await model.focus();
   await model.press("Enter");
   await expect(
@@ -19,18 +20,18 @@ test("supports skip navigation and model selection by keyboard", async ({
   ).toBeFocused();
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");
-  await expect(model).toHaveAccessibleName(/Current model: GPT-5.6 Sol/);
+  await expect(model).toHaveAccessibleName(/Current model: GPT-5.6 Sol/u);
   await expect(model).toBeFocused();
 });
 
 test("a suggestion starts a conversation and removes the welcome screen", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", (route) =>
+  await page.route("**/api/v1/chat", async (route) =>
     route.fulfill({ contentType: "text/plain", body: "Let’s break it down." }),
   );
   await openChat(page);
-  await page.getByRole("button", { name: /Explain a complex idea/ }).click();
+  await page.getByRole("button", { name: /Explain a complex idea/u }).click();
   await expect(page.getByText("Let’s break it down.")).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Where should we begin?" }),
@@ -43,7 +44,9 @@ test("a suggestion starts a conversation and removes the welcome screen", async 
 test("stopping a pending response restores the composer for a follow-up", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", () => {});
+  await page.route("**/api/v1/chat", () => {
+    // Never fulfill the request, so the response stays pending.
+  });
   await openChat(page);
   await page.getByRole("textbox").fill("Take your time.");
   await page.getByRole("button", { name: "Send", exact: true }).click();
@@ -52,7 +55,7 @@ test("stopping a pending response restores the composer for a follow-up", async 
   await expect(page.getByRole("textbox")).toBeEnabled();
   await expect(page.getByRole("status")).toHaveCount(0);
   await page.unroute("**/api/v1/chat");
-  await page.route("**/api/v1/chat", (route) =>
+  await page.route("**/api/v1/chat", async (route) =>
     route.fulfill({ contentType: "text/plain", body: "Ready again." }),
   );
   await sendMessage(page, "A new question");
@@ -62,7 +65,7 @@ test("stopping a pending response restores the composer for a follow-up", async 
 test("preserves multiline text and supports keyboard submission", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", (route) =>
+  await page.route("**/api/v1/chat", async (route) =>
     route.fulfill({ contentType: "text/plain", body: "Two lines received." }),
   );
   await openChat(page);
@@ -83,15 +86,16 @@ test("follows replies, preserves reading position, and jumps to the latest messa
 }) => {
   const reply = Array.from(
     { length: 40 },
-    (_, index) => `Paragraph ${index + 1}: A little more detail to read.`,
+    (_paragraph, index) =>
+      `Paragraph ${index + 1}: A little more detail to read.`,
   ).join("\n\n");
-  await page.route("**/api/v1/chat", (route) =>
+  await page.route("**/api/v1/chat", async (route) =>
     route.fulfill({ contentType: "text/plain", body: reply }),
   );
   await openChat(page);
   await sendMessage(page, "Give me a detailed reply.");
   const conversation = page.getByRole("region", { name: "Chat conversation" });
-  const atBottom = () =>
+  const atBottom = async () =>
     conversation.evaluate(
       (element) =>
         element.scrollHeight - element.scrollTop - element.clientHeight < 2,
@@ -105,7 +109,7 @@ test("follows replies, preserves reading position, and jumps to the latest messa
   ).toBeVisible();
   await sendMessage(page, "Tell me more.");
   await expect
-    .poll(() => conversation.evaluate((element) => element.scrollTop))
+    .poll(async () => conversation.evaluate((element) => element.scrollTop))
     .toBe(0);
   await page.getByRole("button", { name: "Jump to latest" }).click();
   await expect.poll(atBottom).toBe(true);
@@ -127,7 +131,7 @@ for (const width of [320, 390]) {
       page.getByRole("button", { name: "Send", exact: true }),
     ).toBeInViewport();
     await expect(
-      page.getByRole("button", { name: /Switch to light mode/ }),
+      page.getByRole("button", { name: /Switch to light mode/u }),
     ).toBeInViewport();
     expect(
       await page.evaluate(
