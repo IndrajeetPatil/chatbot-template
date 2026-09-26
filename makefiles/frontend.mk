@@ -31,7 +31,8 @@ config-format:
 	@cd $(FRONTEND_DIR) && $(VP) fmt $(FMT_ARGS) $(addprefix $(CURDIR)/,$(CONFIG_FILES))
 
 # Type-aware lint rules run too: with `--no-lint`, vite-plus 1.0.0-rc.1 still
-# reports them but ignores their disable comments.
+# reports them but ignores their disable comments
+# (https://github.com/voidzero-dev/vite-plus/issues/2830).
 frontend-type-check:
 	@echo "$(COLOR_BLUE_BG)Running frontend static type checking with TypeScript...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) check --no-fmt
