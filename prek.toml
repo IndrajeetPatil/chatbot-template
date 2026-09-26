@@ -5,61 +5,96 @@ default_stages = ["pre-commit"]
 [[repos]]
 repo = "https://github.com/astral-sh/ruff-pre-commit"
 rev = "a56c0b927e6465d37cae3e97d35d4d18ab2b96cd" # frozen: v0.16.9
-hooks = [
-  { id = "ruff-check", args = [
-    "--fix",
-  ] },
-  { id = "ruff-format", types_or = [
-    "python",
-    "pyi",
-    "jupyter",
-    "markdown",
-  ] },
-]
+
+[[repos.hooks]]
+id = "ruff-check"
+args = ["--fix"]
+
+[[repos.hooks]]
+id = "ruff-format"
+types_or = ["python", "pyi", "jupyter", "markdown"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ty-pre-commit"
 rev = "e7729e08f9d338183032340a067053ca5e16e6a8" # frozen: v0.0.82
-hooks = [{ id = "ty", args = ["--directory=backend", "--isolated"] }]
+
+[[repos.hooks]]
+id = "ty"
+args = ["--directory=backend", "--isolated"]
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
 rev = "cbd02203fbbb2839cd7e25e3062628ba4af18991" # frozen: v0.2.77
-hooks = [{ id = "rumdl" }]
+
+[[repos.hooks]]
+id = "rumdl"
 
 [[repos]]
 repo = "local"
-hooks = [
-  { id = "ls-lint", name = "file naming (ls-lint)", language = "system", entry = "make file-naming", pass_filenames = false, always_run = true },
-  { id = "commitlint", name = "commitlint", language = "node", entry = "commitlint --config commitlint.config.mjs --edit", additional_dependencies = [
-    "@commitlint/cli@21.0.2",
-    "@commitlint/config-conventional@21.0.2",
-  ], stages = [
-    "commit-msg",
-  ] },
-  { id = "checkov", name = "checkov security scan", language = "system", entry = "make security-scan", pass_filenames = false, stages = [
-    "pre-push",
-  ] },
+
+[[repos.hooks]]
+id = "ls-lint"
+name = "file naming (ls-lint)"
+language = "system"
+entry = "make file-naming"
+pass_filenames = false
+always_run = true
+
+[[repos.hooks]]
+id = "commitlint"
+name = "commitlint"
+language = "node"
+entry = "commitlint --config commitlint.config.mjs --edit"
+additional_dependencies = [
+  "@commitlint/cli@21.0.2",
+  "@commitlint/config-conventional@21.0.2",
 ]
+stages = ["commit-msg"]
+
+[[repos.hooks]]
+id = "checkov"
+name = "checkov security scan"
+language = "system"
+entry = "make security-scan"
+pass_filenames = false
+stages = ["pre-push"]
 
 [[repos]]
 repo = "builtin"
-hooks = [
-  { id = "trailing-whitespace", exclude = "\\.snap$" },
-  { id = "end-of-file-fixer" },
-  { id = "check-yaml", args = [
-    "--allow-multiple-documents",
-  ] },
-  { id = "check-toml" },
-  { id = "check-json" },
-  { id = "check-merge-conflict" },
-  { id = "mixed-line-ending", args = [
-    "--fix=lf",
-  ] },
-  { id = "check-added-large-files" },
-  { id = "detect-private-key" },
-  { id = "fix-byte-order-marker" },
-  { id = "no-commit-to-branch", args = [
-    "--branch=main",
-  ] },
-]
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+exclude = "\\.snap$"
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+
+[[repos.hooks]]
+id = "check-yaml"
+args = ["--allow-multiple-documents"]
+
+[[repos.hooks]]
+id = "check-toml"
+
+[[repos.hooks]]
+id = "check-json"
+
+[[repos.hooks]]
+id = "check-merge-conflict"
+
+[[repos.hooks]]
+id = "mixed-line-ending"
+args = ["--fix=lf"]
+
+[[repos.hooks]]
+id = "check-added-large-files"
+
+[[repos.hooks]]
+id = "detect-private-key"
+
+[[repos.hooks]]
+id = "fix-byte-order-marker"
+
+[[repos.hooks]]
+id = "no-commit-to-branch"
+args = ["--branch=main"]
