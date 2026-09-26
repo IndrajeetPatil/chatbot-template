@@ -4,7 +4,8 @@
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
-      "computedHash": "c19a532a3777698b80b35270939a1dc559da451381971b3e1e78174d1ab54863"
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "computedHash": "80161e6836b3b40f4e83730a290deb40ac14d877d38c97ad5f6d71be37ce74c3"
     }
   }
 }
