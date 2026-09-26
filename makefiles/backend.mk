@@ -27,7 +27,7 @@ backend-type-check:
 
 backend-audit:
 	@echo "$(COLOR_BLUE_BG)Auditing backend dependencies...$(COLOR_RESET)"
-	cd $(BACKEND_DIR) && uv audit --no-dev --frozen --preview-features audit && uv tool run --from deptry==0.25.1 deptry .
+	cd $(BACKEND_DIR) && uv audit --no-dev --frozen --preview-features audit && uv run deptry .
 
 backend-validate-api-schema:
 	@echo "$(COLOR_BLUE_BG)Validating API schema...$(COLOR_RESET)"

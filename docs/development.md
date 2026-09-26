@@ -9,7 +9,7 @@ see [getting started](getting-started.md) for service selection and configuratio
 
 | Command                                      | Purpose                                                         |
 | -------------------------------------------- | --------------------------------------------------------------- |
-| `make qa`                                    | Format, lint, types, schema, coverage, frontend audits, Checkov |
+| `make qa`                                    | Format, lint, types, schema, coverage, audits, Checkov          |
 | `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit          |
 | `make format` / `make lint`                  | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl  |
 | `make type-check` / `make type-coverage`     | Static types / 100% type coverage                               |
@@ -89,41 +89,41 @@ make qa
 | Contrast                 | WCAG AA in both themes                                                                                                 |
 | Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance |
 
-| Step                     | Frontend                                                 | Backend         |
-| ------------------------ | -------------------------------------------------------- | --------------- |
-| Toolchain                | Vite+ (Vite, Rolldown, Vitest, Oxlint, Oxfmt)            | uv              |
-| Package manager          | pnpm, provisioned by Vite+                               | uv              |
-| Formatter                | Oxfmt                                                    | Ruff            |
-| Linter                   | Oxlint (type-aware); Biome for CSS only                  | Ruff            |
-| Import sorter            | Oxfmt                                                    | Ruff            |
-| Type checker             | TypeScript (`vp check`)                                  | ty              |
-| Type annotation coverage | type-coverage                                            | pyrefly         |
-| Security linting         | Oxlint (`react/no-danger`, `no-unsanitized`, local rule) | \-              |
-| Codebase analysis        | Fallow                                                   | \-              |
-| CSS code quality         | @projectwallace/css-code-quality                         | \-              |
-| Contrast audit           | @axe-core/playwright (`color-contrast`), light and dark  | \-              |
-| Markdown linting         | rumdl                                                    | rumdl           |
-| File naming              | ls-lint                                                  | ls-lint         |
-| Pre-commit hooks         | prek                                                     | prek            |
-| Commit message linting   | commitlint                                               | commitlint      |
-| IaC / workflow scan      | Checkov                                                  | Checkov         |
-| Secret scanning          | Gitleaks                                                 | Gitleaks        |
-| GitHub Actions audit     | zizmor                                                   | zizmor          |
-| Container vuln scan      | Trivy                                                    | Trivy           |
-| Unit testing             | Vitest browser mode (Chromium)                           | pytest          |
-| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                      | \-              |
-| Property-based testing   | fast-check                                               | Hypothesis      |
-| Snapshot testing         | Playwright visual baselines                              | inline-snapshot |
-| Code coverage            | Vitest                                                   | coverage.py     |
-| Coverage floor           | 90% statements/functions/lines; 75% branches             | 100%            |
-| Load testing             | \-                                                       | locust          |
-| End-to-end testing       | Playwright                                               | \-              |
-| Dependency audit         | pnpm audit (`vp pm audit`)                               | uv audit        |
-| Performance / a11y       | Lighthouse CI, axe-core                                  | \-              |
-| API client               | Vercel AI SDK                                            | openai          |
-| API server               | \-                                                       | FastAPI         |
-| UI toolkit               | Material UI                                              | \-              |
-| Logger                   | \-                                                       | loguru          |
+| Step                     | Frontend                                                 | Backend              |
+| ------------------------ | -------------------------------------------------------- | -------------------- |
+| Toolchain                | Vite+ (Vite, Rolldown, Vitest, Oxlint, Oxfmt)            | uv                   |
+| Package manager          | pnpm, provisioned by Vite+                               | uv                   |
+| Formatter                | Oxfmt                                                    | Ruff                 |
+| Linter                   | Oxlint (type-aware); Biome for CSS only                  | Ruff                 |
+| Import sorter            | Oxfmt                                                    | Ruff                 |
+| Type checker             | TypeScript (`vp check`)                                  | ty                   |
+| Type annotation coverage | type-coverage                                            | pyrefly              |
+| Security linting         | Oxlint (`react/no-danger`, `no-unsanitized`, local rule) | \-                   |
+| Codebase analysis        | Fallow                                                   | \-                   |
+| CSS code quality         | @projectwallace/css-code-quality                         | \-                   |
+| Contrast audit           | @axe-core/playwright (`color-contrast`), light and dark  | \-                   |
+| Markdown linting         | rumdl                                                    | rumdl                |
+| File naming              | ls-lint                                                  | ls-lint              |
+| Pre-commit hooks         | prek                                                     | prek                 |
+| Commit message linting   | commitlint                                               | commitlint           |
+| IaC / workflow scan      | Checkov                                                  | Checkov              |
+| Secret scanning          | Gitleaks                                                 | Gitleaks             |
+| GitHub Actions audit     | zizmor                                                   | zizmor               |
+| Container vuln scan      | Trivy                                                    | Trivy                |
+| Unit testing             | Vitest browser mode (Chromium)                           | pytest               |
+| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                      | \-                   |
+| Property-based testing   | fast-check                                               | Hypothesis           |
+| Snapshot testing         | Playwright visual baselines                              | inline-snapshot      |
+| Code coverage            | Vitest                                                   | coverage.py          |
+| Coverage floor           | 90% statements/functions/lines; 75% branches             | 100%                 |
+| Load testing             | \-                                                       | locust               |
+| End-to-end testing       | Playwright                                               | \-                   |
+| Dependency audit         | pnpm audit (`vp pm audit`)                               | `uv audit`, `deptry` |
+| Performance / a11y       | Lighthouse CI, axe-core                                  | \-                   |
+| API client               | Vercel AI SDK                                            | openai               |
+| API server               | \-                                                       | FastAPI              |
+| UI toolkit               | Material UI                                              | \-                   |
+| Logger                   | \-                                                       | loguru               |
 
 - [Vite+](https://viteplus.dev) configures linting, formatting, and tests in
   the `lint`, `fmt`, and `test` blocks of

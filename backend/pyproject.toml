@@ -18,6 +18,7 @@ dependencies = [
 dev = [
   "add-trailing-comma>=4.0.0",
   "coverage>=7.16.1",
+  "deptry>=0.25.1",
   "httpx2>=2.13.1",
   "hypothesis>=6.168.1",
   "inline-snapshot[black]>=0.35.4",
