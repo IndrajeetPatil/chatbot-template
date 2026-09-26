@@ -18,7 +18,7 @@ dependencies = [
 dev = [
     "add-trailing-comma>=4.0.0",
     # Starlette 1.6.0 still imports the deprecated anyio.abc.BlockingPortal alias.
-    "anyio<4.15",
+    "anyio<4.16",
     "coverage>=7.13.5",
     "httpx2>=2.3.0",
     "hypothesis>=6.122.0",
@@ -31,7 +31,7 @@ dev = [
     "pytest>=9.0.3",
     "ruff>=0.15.20",
     # Match the frozen ty-pre-commit hook in ../prek.toml.
-    "ty==0.0.82",
+    "ty==0.0.83",
 ]
 
 [tool.uv]
