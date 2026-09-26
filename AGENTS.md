@@ -3,66 +3,40 @@
 React/Vite frontend + FastAPI backend, streaming Azure OpenAI replies.
 Start with [README.md](README.md) and the [documentation index](docs/README.md).
 
-## Working here
+## Gotchas
 
-- Setup and pinned runtime versions: [getting started](docs/getting-started.md).
-- Commands, tests, naming, hooks, and CI: [development](docs/development.md).
 - The frontend toolchain is Vite+ (`vp`), configured in `frontend/vite.config.ts`.
   Use `vp` commands (`vp test`, `vp lint`, `vp run <script>`, `vp exec <bin>`,
   `vp pm <command>`) rather than calling pnpm, Node.js, or Vitest directly.
-- Document the Make commands; use lists, tables, and diagrams for scannability.
-  Run `make markdown-format` to keep table columns aligned.
-- Before UI work, read [frontend](docs/frontend.md) and the development guide's
-  [Fallow policy](docs/development.md#frontend-code-quality-with-fallow) and
-  [visual testing workflow](docs/development.md#browser-and-visual-tests).
-- Before API or deployment work, read [backend](docs/backend.md) and
-  [security](docs/security.md). Preserve validation before streaming starts.
-- Before touching backend tests, read the [test guide](docs/backend.md#tests):
-  drive the real SDK through the transport double, and regenerate inline
-  snapshots with `make backend-snapshot-update` instead of editing them.
-- Before changing CI reporters, read and preserve the
-  [CI output policy](docs/development.md#ci-output).
+- If `pyrefly` (backend type coverage) and `ty` disagree, `ty` wins.
+- Coverage gates invite filler tests. Meet them by asserting behavior at
+  boundaries we own (the outbound request, the streamed output, the logged
+  event), never by executing lines, recomputing expected values, or asserting a
+  dependency's internals.
+- Keep the upstream `ty-pre-commit` hook pinned at a full commit SHA; if its
+  bundled uv conflicts, downgrade the project uv pin rather than replacing the
+  hook. See [maintenance constraints](docs/development.md#maintenance-constraints).
+- Align Markdown tables with `make markdown-format`.
 
-## Required checks and constraints
+## Before you change
 
-- Run `make qa` and `make hooks` for implementation changes; use the relevant
-  checks for documentation-only changes. Hooks are managed by prek.
-- Keep every check and threshold intact: backend coverage is 100% lines and
-  branches; frontend is ≥90% statements/functions/lines and ≥75% branches;
-  type coverage is 100% on both sides. We use `pyrefly` to enforce 100% type
-  coverage in the backend. If `pyrefly` and `ty` conflict on any issue,
-  `ty` should win.
-- Meet the coverage gates by asserting behavior. Do not add tests whose only
-  effect is to execute a line, and do not let an expectation recompute what the
-  code under test computes; a test that still passes when the behavior breaks is
-  worse than no test.
-- Test our behavior, not a dependency's implementation details. Assert what
-  crosses a boundary we own — the outbound request, the streamed output, the
-  logged event — rather than a library's private attributes, internal call
-  sequence, or guarantees its own test suite already covers.
-- Oxlint: every stable category is an error. Turn a rule off only when it
-  contradicts another, is obsolete for the stack, or is owned by a stricter tool,
-  with a comment explaining why. Biome lints CSS only.
-- Fallow: configured dead-code/dependency rules are errors, including unresolved
-  imports; strict duplication starts at 50 tokens / 4 lines; cyclomatic and
-  cognitive complexity are each ≤5, including tests. No blanket test exclusions.
-  Preserve the entry-point and dependency-exception policy in the linked guide.
-- Pin all downloaded third-party tools, scripts, and binaries to specific
-  versions and validate SHA256 checksums. Never download latest/untagged tools.
-- Retain the upstream `ty-pre-commit` hook at a full commit SHA. If its bundled
-  uv conflicts with the project pin, downgrade the project uv to the compatible
-  version and synchronize the Docker image, installer checksum, and docs.
-  Do not replace the upstream hook with a local hook.
-- Consult `.ls-lint.yml`: Python snake_case, React components/pages PascalCase,
-  client modules/hooks camelCase, scripts/docs/assets kebab-case. Preserve
-  `main.tsx` and standard tool filenames; directory overrides replace inherited
-  rules. The naming hook requires `make` and `ls-lint` on `PATH`.
-- Use conventional commit messages (enforced by commitlint).
-- Never commit credentials from `backend/.env`; no `dangerouslySetInnerHTML`.
+| Area                  | Read first                                                                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI                    | [frontend](docs/frontend.md), [Fallow policy](docs/development.md#frontend-code-quality-with-fallow), [visual tests](docs/development.md#browser-and-visual-tests)           |
+| API or deployment     | [backend](docs/backend.md), [security](docs/security.md); validation must finish before streaming starts                                                                     |
+| Backend tests         | [test guide](docs/backend.md#tests); regenerate snapshots with `make backend-snapshot-update`                                                                                |
+| CI reporters          | [CI output policy](docs/development.md#ci-output)                                                                                                                            |
+| Tools or dependencies | [maintenance constraints](docs/development.md#maintenance-constraints), [supply chain](docs/security.md#supply-chain)                                                        |
+
+## Checks
+
+Run `make qa` and `make hooks` for implementation changes; run the relevant
+subset for documentation-only changes. Never lower a threshold or disable a
+check to get green. A lint rule may be switched off only with a comment saying
+why (see [automated checks](docs/development.md#automated-checks)).
 
 ## Pull requests
 
-Keep the title and body synchronized with the current net diff, update stale
-metadata without asking, and verify the live values after editing.
-Unless explicitly requested, do not wait for CI/CD after pushing; report that
-checks were triggered and include the PR or workflow link.
+Keep the title and body in sync with the net diff, update stale metadata
+without asking, and verify the live values after editing. Unless asked, do not
+wait for CI after pushing; share the PR or workflow link instead.
