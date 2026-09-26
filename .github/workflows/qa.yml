@@ -27,22 +27,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           working-directory: ./backend
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
+      # Vite+ provisions Node from .node-version and pnpm from packageManager.
+      - name: Install Vite+
+        uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
+          working-directory: ./frontend
+          node-version-file: .node-version
           cache: true
-          cache_dependency_path: frontend/pnpm-lock.yaml
-          package_json_file: frontend/package.json
+          run-install: false
 
       - name: Install system dependencies
         run: |
@@ -65,8 +67,8 @@ jobs:
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: |
-          pnpm install --frozen-lockfile --loglevel=warn
-          pnpm exec playwright install --with-deps
+          vp install --frozen-lockfile -- --loglevel=warn
+          vp exec playwright install --with-deps chromium
 
       # Keep the same gates as make qa, with independently readable step logs.
       - name: File naming
@@ -75,8 +77,11 @@ jobs:
       - name: Backend lint and format
         run: make backend-format backend-lint
 
-      - name: Frontend lint and format
-        run: make frontend-format BIOME_ARGS=--colors=force
+      - name: Frontend and configuration format
+        run: make frontend-format config-format FMT_ARGS=--check
+
+      - name: Frontend lint
+        run: make frontend-lint LINT_ARGS=
 
       - name: Markdown lint
         run: make markdown-lint
@@ -99,14 +104,14 @@ jobs:
         # Keep config validation and the human reporter as the enforcement gate.
         # CI formats are for presentation; do not rely on their exit status.
         run: |
-          pnpm exec fallow doctor --quiet
-          pnpm exec fallow --quiet --format github-annotations
-          pnpm exec fallow --fail-on-issues --quiet --summary
+          vp exec fallow doctor --quiet
+          vp exec fallow --quiet --format github-annotations
+          vp exec fallow --fail-on-issues --quiet --summary
 
       - name: Fallow summary
         if: ${{ !cancelled() && steps.fallow.outcome != 'skipped' }}
         working-directory: ./frontend
-        run: pnpm exec fallow --quiet --format github-summary >> "$GITHUB_STEP_SUMMARY"
+        run: vp exec fallow --quiet --format github-summary >> "$GITHUB_STEP_SUMMARY"
 
       - name: CSS quality
         run: make css-quality
@@ -120,9 +125,6 @@ jobs:
       - name: Contrast in light and dark mode
         run: make frontend-contrast-audit
 
-      - name: Frontend security lint
-        run: make frontend-security-lint
-
       - name: Python and TypeScript type coverage
         run: make type-coverage
 
@@ -134,12 +136,12 @@ jobs:
         run: |
           echo "::group::Lighthouse measurement details"
           trap 'echo "::endgroup::"' EXIT
-          pnpm dlx @lhci/cli@0.15.1 collect
+          vp dlx @lhci/cli@0.15.1 collect
 
       - name: Lighthouse CI (scores)
         working-directory: ./frontend
         run: |
-          pnpm exec node -e "
+          vp node -e "
             const fs = require('fs');
             const dir = '.lighthouseci';
             const files = fs.readdirSync(dir).filter(f => f.startsWith('lhr-') && f.endsWith('.json'));
@@ -167,16 +169,16 @@ jobs:
 
       - name: Lighthouse CI (assert)
         working-directory: ./frontend
-        run: pnpm dlx @lhci/cli@0.15.1 assert
+        run: vp dlx @lhci/cli@0.15.1 assert
 
       - name: Lighthouse CI (upload)
         working-directory: ./frontend
-        run: pnpm dlx @lhci/cli@0.15.1 upload --githubToken="$GITHUB_TOKEN"
+        run: vp dlx @lhci/cli@0.15.1 upload --githubToken="$GITHUB_TOKEN"
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-reports
           path: |

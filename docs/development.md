@@ -11,7 +11,7 @@ see [getting started](getting-started.md) for service selection and configuratio
 | -------------------------------------------- | --------------------------------------------------------------- |
 | `make qa`                                    | Format, lint, types, schema, coverage, frontend audits, Checkov |
 | `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit          |
-| `make format` / `make lint`                  | Formatting / ls-lint, Ruff, Biome, rumdl                        |
+| `make format` / `make lint`                  | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl  |
 | `make type-check` / `make type-coverage`     | Static types / 100% type coverage                               |
 | `make test`                                  | Backend and frontend unit tests with coverage                   |
 | `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                     |
@@ -34,8 +34,10 @@ see [getting started](getting-started.md) for service selection and configuratio
 | `make clean`                                 | Remove generated output and local / unused shared caches        |
 
 Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
-[frontend.mk](../makefiles/frontend.mk). `make format` includes Markdown formatting;
-rumdl enforces aligned table columns in lint, QA, and hooks.
+[frontend.mk](../makefiles/frontend.mk). Frontend targets run through Vite+ (`vp`).
+`make format` includes Markdown and, through `make config-format`, root YAML,
+JSON, and TOML files formatted by the frontend's Oxfmt; CI checks both with
+`FMT_ARGS=--check`. rumdl enforces aligned table columns in lint, QA, and hooks.
 
 ## Cleaning and rebuilding
 
@@ -47,29 +49,31 @@ make setup
 make qa
 ```
 
-| Removed by `make clean`                                                 | Recreated by                                   |
-| ----------------------------------------------------------------------- | ---------------------------------------------- |
-| Backend `.venv`, frontend and root `node_modules`                       | `make setup`                                   |
-| Python bytecode, pytest / Hypothesis caches, coverage data and XML      | `make backend-test`                            |
-| Ruff, rumdl, Fallow, TypeScript, ESLint, and local `.cache` directories | `make qa`                                      |
-| Frontend build and coverage output                                      | `make frontend-build` / `make frontend-test`   |
-| Vitest reports and benchmark JSON in `frontend/.vitest/`                | Test or benchmark runs with artifact reporters |
-| Playwright reports, traces, blob reports, and local cache               | `make e2e-test` / `make e2e-test-docker`       |
-| Lighthouse reports                                                      | `make lighthouse`                              |
-| Gitleaks `results.sarif`                                                | `make secret-scan-ci`                          |
-| uv download/tool cache; unused pnpm packages, metadata and dlx cache    | `make setup` and the relevant tool targets     |
-| Local pnpm stores and Docker's `chatbot-pw-*` dependency volumes        | `make setup` / `make e2e-test-docker`          |
+| Removed by `make clean`                                              | Recreated by                                   |
+| -------------------------------------------------------------------- | ---------------------------------------------- |
+| Backend `.venv`, frontend and root `node_modules`                    | `make setup`                                   |
+| Python bytecode, pytest / Hypothesis caches, coverage data and XML   | `make backend-test`                            |
+| Ruff, rumdl, Fallow, TypeScript, and local `.cache` directories      | `make qa`                                      |
+| Frontend build and coverage output                                   | `make frontend-build` / `make frontend-test`   |
+| Vitest reports and benchmark JSON in `frontend/.vitest/`             | Test or benchmark runs with artifact reporters |
+| Playwright reports, traces, blob reports, and local cache            | `make e2e-test` / `make e2e-test-docker`       |
+| Lighthouse reports                                                   | `make lighthouse`                              |
+| Gitleaks `results.sarif`                                             | `make secret-scan-ci`                          |
+| uv download/tool cache; unused pnpm packages, metadata and dlx cache | `make setup` and the relevant tool targets     |
+| Local pnpm stores and Docker's `chatbot-pw-*` dependency volumes     | `make setup` / `make e2e-test-docker`          |
 
 - `backend/.env`, source files, lockfiles, and visual baselines are preserved.
 - uv and pnpm caches are shared with other projects: their next runs may download
   packages again. pnpm pruning preserves packages still referenced by other
   projects, so it does not guarantee a completely empty shared store.
-- Docker cleanup removes only `chatbot-pw-node-modules` and the legacy
-  `chatbot-pw-pnpm-store` volume. If Docker is unavailable, cleanup reports the
-  skip; rerun `make docker-clean` after starting it. In-use volumes fail cleanup.
-- Installed runtimes, browser binaries, hook environments, Docker images, and
-  shared Docker build layers remain. `make docker-build` already uses `--no-cache`
-  to rebuild service layers; `make e2e-test-docker` repopulates its dependency volume.
+- Docker cleanup removes only `chatbot-pw-node-modules`, `chatbot-pw-vite-plus`,
+  and the legacy `chatbot-pw-pnpm-store` volume. If Docker is unavailable,
+  cleanup reports the skip; rerun `make docker-clean` after starting it. In-use
+  volumes fail cleanup.
+- Installed runtimes (including `~/.vite-plus`), browser binaries, hook
+  environments, Docker images, and shared Docker build layers remain.
+  `make docker-build` already uses `--no-cache` to rebuild service layers;
+  `make e2e-test-docker` repopulates its dependency volumes.
 - `make backend-clean` / `make frontend-clean` remove only that service's local
   artifacts. `make cache-clean` separately repeats shared package-cache cleanup.
 
@@ -85,49 +89,65 @@ make qa
 | Contrast                 | WCAG AA in both themes                                                                                                 |
 | Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance |
 
-| Step                     | Frontend                                                | Backend         |
-| ------------------------ | ------------------------------------------------------- | --------------- |
-| Package manager          | pnpm                                                    | uv              |
-| Formatter                | Biome                                                   | Ruff            |
-| Linter                   | Biome                                                   | Ruff            |
-| Import sorter            | Biome                                                   | Ruff            |
-| Type checker             | TypeScript                                              | ty              |
-| Type annotation coverage | type-coverage                                           | pyrefly         |
-| Security linting         | ESLint (`no-unsanitized`, `react-dom`)                  | \-              |
-| Codebase analysis        | Fallow                                                  | \-              |
-| CSS code quality         | @projectwallace/css-code-quality                        | \-              |
-| Contrast audit           | @axe-core/playwright (`color-contrast`), light and dark | \-              |
-| Markdown linting         | rumdl                                                   | rumdl           |
-| File naming              | ls-lint                                                 | ls-lint         |
-| Pre-commit hooks         | prek                                                    | prek            |
-| Commit message linting   | commitlint                                              | commitlint      |
-| IaC / workflow scan      | Checkov                                                 | Checkov         |
-| Secret scanning          | Gitleaks                                                | Gitleaks        |
-| GitHub Actions audit     | zizmor                                                  | zizmor          |
-| Container vuln scan      | Trivy                                                   | Trivy           |
-| Unit testing             | Vitest                                                  | pytest          |
-| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                     | \-              |
-| Property-based testing   | fast-check                                              | Hypothesis      |
-| Snapshot testing         | Playwright visual baselines                             | inline-snapshot |
-| Code coverage            | Vitest                                                  | coverage.py     |
-| Coverage floor           | 90% statements/functions/lines; 75% branches            | 100%            |
-| Load testing             | \-                                                      | locust          |
-| End-to-end testing       | Playwright                                              | \-              |
-| Dependency audit         | pnpm audit                                              | uv audit        |
-| Performance / a11y       | Lighthouse CI, axe-core                                 | \-              |
-| API client               | Vercel AI SDK                                           | openai          |
-| API server               | \-                                                      | FastAPI         |
-| UI toolkit               | Material UI                                             | \-              |
-| Logger                   | \-                                                      | loguru          |
+| Step                     | Frontend                                                 | Backend         |
+| ------------------------ | -------------------------------------------------------- | --------------- |
+| Toolchain                | Vite+ (Vite, Rolldown, Vitest, Oxlint, Oxfmt)            | uv              |
+| Package manager          | pnpm, provisioned by Vite+                               | uv              |
+| Formatter                | Oxfmt                                                    | Ruff            |
+| Linter                   | Oxlint (type-aware); Biome for CSS only                  | Ruff            |
+| Import sorter            | Oxfmt                                                    | Ruff            |
+| Type checker             | TypeScript (`vp check`)                                  | ty              |
+| Type annotation coverage | type-coverage                                            | pyrefly         |
+| Security linting         | Oxlint (`react/no-danger`, `no-unsanitized`, local rule) | \-              |
+| Codebase analysis        | Fallow                                                   | \-              |
+| CSS code quality         | @projectwallace/css-code-quality                         | \-              |
+| Contrast audit           | @axe-core/playwright (`color-contrast`), light and dark  | \-              |
+| Markdown linting         | rumdl                                                    | rumdl           |
+| File naming              | ls-lint                                                  | ls-lint         |
+| Pre-commit hooks         | prek                                                     | prek            |
+| Commit message linting   | commitlint                                               | commitlint      |
+| IaC / workflow scan      | Checkov                                                  | Checkov         |
+| Secret scanning          | Gitleaks                                                 | Gitleaks        |
+| GitHub Actions audit     | zizmor                                                   | zizmor          |
+| Container vuln scan      | Trivy                                                    | Trivy           |
+| Unit testing             | Vitest browser mode (Chromium)                           | pytest          |
+| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                      | \-              |
+| Property-based testing   | fast-check                                               | Hypothesis      |
+| Snapshot testing         | Playwright visual baselines                              | inline-snapshot |
+| Code coverage            | Vitest                                                   | coverage.py     |
+| Coverage floor           | 90% statements/functions/lines; 75% branches             | 100%            |
+| Load testing             | \-                                                       | locust          |
+| End-to-end testing       | Playwright                                               | \-              |
+| Dependency audit         | pnpm audit (`vp pm audit`)                               | uv audit        |
+| Performance / a11y       | Lighthouse CI, axe-core                                  | \-              |
+| API client               | Vercel AI SDK                                            | openai          |
+| API server               | \-                                                       | FastAPI         |
+| UI toolkit               | Material UI                                              | \-              |
+| Logger                   | \-                                                       | loguru          |
+
+- [Vite+](https://viteplus.dev) configures linting, formatting, and tests in
+  the `lint`, `fmt`, and `test` blocks of
+  [vite.config.ts](../frontend/vite.config.ts). Use `vp dev`, `vp build`,
+  `vp test`, `vp check`, `vp lint`, and `vp fmt` directly; `vp run <script>`,
+  `vp exec <bin>`, and `vp pm <command>` cover the remaining scripts, binaries,
+  and pnpm commands.
+- Oxlint enables every stable category as an error, including type-aware rules
+  and type checking. Switch a rule off only when it contradicts another rule, is
+  obsolete for the stack, or is owned by a stricter tool, and explain why beside
+  it; cyclomatic complexity is capped at 5.
+- Biome remains only because Oxlint cannot lint CSS; Oxfmt formats CSS.
+- Fallow, type-coverage, Playwright Test, Lighthouse CI, css-code-quality,
+  prek, ls-lint, rumdl, and commitlint run outside Vite+.
 
 ## Frontend unit tests and benchmarks
 
-The frontend uses [Vitest 5](https://vitest.dev/blog/vitest-5.html) with the
-matching V8 coverage provider. The project's Node.js 24 and Vite 8 satisfy its
-runtime requirements. `@fast-check/vitest` 0.5 supports Vitest 5 and retains the
-property tests. Unit tests continue to use jsdom, two workers, automatic mock
-clearing, and the coverage thresholds above; coverage artifacts stay in
-`frontend/coverage/` for CI uploads.
+The frontend uses [Vitest 5](https://vitest.dev/blog/vitest-5.html), bundled by
+Vite+, with the matching V8 coverage provider. Unit tests run in real Chromium
+through Vitest browser mode (`vite-plus/test/browser-playwright`), so layout,
+storage, and clipboard behave as they do for users; tests import from
+`vite-plus/test`. `@fast-check/vitest` 0.5 retains the property tests. Mocks are
+restored after each test, the coverage thresholds above apply, and coverage
+artifacts stay in `frontend/coverage/` for CI uploads.
 
 The [benchmarking API](https://vitest.dev/guide/benchmarking) is useful for pure
 frontend work whose cost grows with a conversation. The initial benchmark calls
@@ -141,11 +161,12 @@ the actual `toBackendMessages` helper used when preparing chat requests, with
 | `make frontend-bench BENCH_ARGS='--reporter=default --reporter=json'` | Show timings and save `frontend/.vitest/json/output.json` |
 
 - Benchmarks use the Vitest 5 test-context `bench` fixture in `*.bench.ts` files
-  and run in Node. Inputs are prepared before timing, and the result is consumed
-  and checked after timing to preserve meaningful work without timing assertions.
+  and run in Chromium like unit tests. Inputs are prepared before timing, and
+  the result is consumed and checked after timing to preserve meaningful work
+  without timing assertions.
 - The benchmark command skips unit tests. Ordinary tests, `make qa`, and CI skip
   benchmarks; all existing correctness and coverage gates remain enforced.
-- Results are advisory. Compare runs on the same machine and Node version with
+- Results are advisory. Compare runs on the same machine and browser version with
   other CPU-heavy work stopped. There is no timing threshold or committed baseline;
   `bench.from()` and `writeResult` can support future comparisons once a stable
   measurement environment is established.
@@ -157,7 +178,7 @@ the actual `toBackendMessages` helper used when preparing chat requests, with
 
 | Layer                     | Purpose                                                                             |
 | ------------------------- | ----------------------------------------------------------------------------------- |
-| Vitest                    | Data contracts, interactions, unit coverage                                         |
+| Vitest                    | Data contracts, interactions, unit coverage in Chromium                             |
 | Playwright                | Real app at desktop/mobile sizes, light/dark themes; API responses mocked           |
 | Local browser tests       | `make e2e-test`; visual comparisons skip off Linux                                  |
 | Canonical visual renderer | `make e2e-test-docker`; digest-pinned Linux/amd64 image, including on Apple Silicon |
@@ -171,8 +192,9 @@ flowchart LR
     Verify --> Commit[Commit reviewed baselines]
 ```
 
-- The container uses a dedicated dependency volume and restores host UID/GID
-  ownership of generated files, including after failures.
+- The container installs Vite+ with `install-vp.sh` into the
+  `chatbot-pw-vite-plus` volume, keeps dependencies in `chatbot-pw-node-modules`,
+  and restores host UID/GID ownership of generated files, even after failures.
 - Production preview requires port 3000 to be free; it never reuses a server.
 - Snapshots cover greeting, validation, model/reasoning menus, Markdown replies,
   pending responses, and request failures.
@@ -192,8 +214,8 @@ flowchart LR
 
 ## Frontend code quality with Fallow
 
-[Fallow](https://docs.fallow.tools/) complements Biome, ESLint, TypeScript, and
-unit tests. Its [configuration](../frontend/.fallowrc.json) uses the installed
+[Fallow](https://docs.fallow.tools/) complements Oxlint, TypeScript, and unit
+tests. Its [configuration](../frontend/.fallowrc.json) uses the installed
 package schema to match the lockfile.
 
 | Analysis                 | Policy                                                                                                      |
@@ -208,6 +230,8 @@ package schema to match the lockfile.
   entry points through built-in plugins. Do not add QA scripts as runtime entries.
 - Limit dependency exceptions to `@emotion/react`, `@emotion/styled` (MUI peers),
   and `babel-plugin-react-compiler` (loaded by `reactCompilerPreset()`).
+- A custom `oxlint-js-plugins` framework entry marks `lint/*.js` and
+  `eslint-plugin-no-unsanitized` as Oxlint tooling rather than unused code.
 - Recheck exceptions after upgrades. Directly imported QA packages and deleted
   mock paths need no exemptions.
 - No blanket test exclusions or disabling unresolved-import checks.
@@ -233,7 +257,6 @@ Never rely on CI reporter exit codes alone.
 | ------------- | ------------------------------- |
 | General       | `FORCE_COLOR`, `CLICOLOR_FORCE` |
 | uv / prek     | `UV_COLOR`, `PREK_COLOR`        |
-| Biome         | `--colors=force`                |
 | zizmor        | `--color=always`                |
 | pytest        | `--color=yes`                   |
 
@@ -250,7 +273,7 @@ Never rely on CI reporter exit codes alone.
 | Client modules, hooks, and test helpers                   | camelCase, including test suffixes    | `useChatSetup.ts`, `testUtils.tsx`               |
 | Vite entry point                                          | `main.tsx`                            | `frontend/src/main.tsx`                          |
 | Frontend directories, CSS, fonts, and images              | kebab-case                            | `e2e-tests/`, `geist-mono-vf.woff`               |
-| End-to-end tests and JavaScript utility scripts           | kebab-case                            | `chat-page.spec.ts`, `css-quality.mjs`           |
+| End-to-end tests and TypeScript utility scripts           | kebab-case                            | `chat-page.spec.ts`, `css-quality.ts`            |
 | Shell scripts, Make fragments, docs, and config basenames | kebab-case                            | `post-create.sh`, `backend.mk`, `update-deps.md` |
 
 - Preserve standard names: `README.md`, `AGENTS.md`, `Dockerfile`, tool dotfiles.
@@ -284,5 +307,9 @@ Never rely on CI reporter exit codes alone.
   v3.0.0's SHA256 table; CI runs pre-commit, while local commit-msg and pre-push
   stages remain configured.
 - Pin and SHA256-verify downloaded tools; see [security](security.md).
+- Upgrade Vite+ in one change: the `vite-plus` catalog entry in
+  `frontend/pnpm-workspace.yaml`, `VP_VERSION` and checksums in
+  `frontend/scripts/install-vp.sh`, the builder image tag and digest in
+  `frontend/Dockerfile`, and the `voidzero-dev/setup-vp` action pin.
 - Unless requested, do not wait for hosted CI after pushing; provide the PR or
   workflow link and distinguish local results from live checks.

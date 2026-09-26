@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { vi, describe, test, expect } from "vite-plus/test";
 
 import ChatInput from "./ChatInput";
 
-describe("ChatInput component", () => {
+describe(ChatInput, () => {
   test("should call onSendMessage with the message when Ctrl+Enter is pressed", () => {
-    const onSendMessageMock = vi.fn();
+    const onSendMessageMock = vi.fn<(message: string) => void>();
     render(<ChatInput onSendMessage={onSendMessageMock} />);
 
     const input = screen.getByLabelText("Message");
@@ -21,7 +21,7 @@ describe("ChatInput component", () => {
   });
 
   test("plain Enter does not send a multiline message", () => {
-    const onSendMessageMock = vi.fn();
+    const onSendMessageMock = vi.fn<(message: string) => void>();
     render(<ChatInput onSendMessage={onSendMessageMock} />);
 
     const input = screen.getByLabelText("Message");
@@ -32,7 +32,7 @@ describe("ChatInput component", () => {
   });
 
   test("should not call onSendMessage if Ctrl+Enter is pressed with an empty message", () => {
-    const onSendMessageMock = vi.fn();
+    const onSendMessageMock = vi.fn<(message: string) => void>();
     render(<ChatInput onSendMessage={onSendMessageMock} />);
 
     const input = screen.getByLabelText("Message");
@@ -49,7 +49,7 @@ describe("ChatInput component", () => {
   });
 
   test("should send message when send button is clicked", () => {
-    const onSendMessageMock = vi.fn();
+    const onSendMessageMock = vi.fn<(message: string) => void>();
     render(<ChatInput onSendMessage={onSendMessageMock} />);
 
     fireEvent.change(screen.getByLabelText("Message"), {
@@ -68,7 +68,7 @@ describe("ChatInput component", () => {
   ])(
     "rejects invalid input (case %#) with the matching error",
     (message, error) => {
-      const onSendMessageMock = vi.fn();
+      const onSendMessageMock = vi.fn<(message: string) => void>();
       render(<ChatInput onSendMessage={onSendMessageMock} />);
 
       fireEvent.change(screen.getByRole("textbox"), {
@@ -87,7 +87,7 @@ describe("ChatInput component", () => {
   );
 
   test("clears empty-submit validation when the user starts typing", () => {
-    const onSendMessageMock = vi.fn();
+    const onSendMessageMock = vi.fn<(message: string) => void>();
     render(<ChatInput onSendMessage={onSendMessageMock} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
@@ -104,11 +104,11 @@ describe("ChatInput component", () => {
   });
 
   test("send button is disabled when disabled prop is true", () => {
-    const onSendMessageMock = vi.fn();
+    const onSendMessageMock = vi.fn<(message: string) => void>();
     render(
       <ChatInput
         onSendMessage={onSendMessageMock}
-        disabled={true}
+        disabled
       />,
     );
 
@@ -116,11 +116,11 @@ describe("ChatInput component", () => {
   });
 
   test("stops generation without submitting another message", () => {
-    const onStop = vi.fn();
-    const onSendMessage = vi.fn();
+    const onStop = vi.fn<() => void>();
+    const onSendMessage = vi.fn<(message: string) => void>();
     render(
       <ChatInput
-        disabled={true}
+        disabled
         onSendMessage={onSendMessage}
         onStop={onStop}
       />,
@@ -131,21 +131,25 @@ describe("ChatInput component", () => {
   });
 
   test("does not submit a disabled composer through its form", () => {
-    const onSendMessage = vi.fn();
-    const { container } = render(
+    const onSendMessage = vi.fn<(message: string) => void>();
+    const { rerender } = render(<ChatInput onSendMessage={onSendMessage} />);
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "Hello" },
+    });
+    rerender(
       <ChatInput
-        disabled={true}
+        disabled
         onSendMessage={onSendMessage}
       />,
     );
-    const form = container.querySelector("form");
-    if (!form) throw new Error("Expected the composer form");
-    fireEvent.submit(form);
+    // Submit events bubble from the field to the enclosing form.
+    fireEvent.submit(screen.getByRole("textbox"));
     expect(onSendMessage).not.toHaveBeenCalled();
+    expect(screen.getByRole("textbox")).toHaveValue("Hello");
   });
 
   test("does not send while composing with an input method editor", () => {
-    const onSendMessage = vi.fn();
+    const onSendMessage = vi.fn<(message: string) => void>();
     render(<ChatInput onSendMessage={onSendMessage} />);
     fireEvent.change(screen.getByRole("textbox"), {
       target: { value: "こんにちは" },

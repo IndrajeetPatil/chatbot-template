@@ -40,11 +40,11 @@ echo "${INSTALLED_UV_VERSION}" | grep -qF "${UV_VERSION}" || {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# pnpm — Node.js package manager (version locked to frontend/package.json)
+# Vite+ — frontend toolchain; provisions Node from frontend/.node-version and
+# pnpm from frontend/package.json. devcontainer.json puts it on PATH.
 # ──────────────────────────────────────────────────────────────────────────────
-corepack enable
-(cd frontend && corepack install)
-(cd frontend && pnpm --version)
+VP_SELF_SETUP_NO_MODIFY_PATH=1 bash frontend/scripts/install-vp.sh
+export PATH="$HOME/.vite-plus/bin:$PATH"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ls-lint — file-naming linter
@@ -90,9 +90,9 @@ cd frontend
 # confirmModulesPurge=false: when a local checkout is mounted into the
 # container, any node_modules built on the host (different OS/arch) must be
 # purged and reinstalled for Linux. Without a TTY, pnpm would otherwise abort
-# rather than prompt for confirmation.
-pnpm install --frozen-lockfile --config.confirmModulesPurge=false
-pnpm exec playwright install --with-deps
+# rather than prompt for confirmation. Unit and e2e tests only use Chromium.
+vp install --frozen-lockfile -- --config.confirmModulesPurge=false
+vp exec playwright install --with-deps chromium
 cd ..
 
 # ──────────────────────────────────────────────────────────────────────────────

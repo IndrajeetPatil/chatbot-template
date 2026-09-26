@@ -1,35 +1,35 @@
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { Button, Menu, MenuItem, Tooltip } from "@mui/material";
-import type React from "react";
 import { useId, useState } from "react";
+import type { ReactElement, ReactNode } from "react";
 
-interface DropdownOption<T extends string | number> {
-  value: T;
+interface DropdownOption<Value extends string | number> {
+  value: Value;
   label: string;
 }
 
-interface DropdownParameterProps<T extends string | number> {
-  value: T;
-  onChange: (value: T) => void;
-  icon: React.ReactNode;
+interface DropdownParameterProps<Value extends string | number> {
+  value: Value;
+  onChange: (value: Value) => void;
+  icon: ReactNode;
   ariaLabel: string;
-  options: DropdownOption<T>[];
+  options: DropdownOption<Value>[];
   label: string;
 }
 
-function DropdownParameter<T extends string | number>({
+function DropdownParameter<Value extends string | number>({
   value,
   onChange,
   icon,
   ariaLabel,
   options,
   label,
-}: DropdownParameterProps<T>) {
+}: DropdownParameterProps<Value>): ReactElement {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuId = useId();
   const isOpen = anchorEl !== null;
   const controlledMenuId = isOpen ? menuId : undefined;
-  const selectOption = (selected: T) => {
+  const selectOption = (selected: Value) => {
     onChange(selected);
     setAnchorEl(null);
   };
@@ -38,7 +38,9 @@ function DropdownParameter<T extends string | number>({
     <>
       <Tooltip title={ariaLabel}>
         <Button
-          onClick={(e) => setAnchorEl(e.currentTarget)}
+          onClick={(event) => {
+            setAnchorEl(event.currentTarget);
+          }}
           aria-label={ariaLabel}
           aria-haspopup="menu"
           aria-controls={controlledMenuId}
@@ -63,13 +65,17 @@ function DropdownParameter<T extends string | number>({
         id={menuId}
         anchorEl={anchorEl}
         open={isOpen}
-        onClose={() => setAnchorEl(null)}
+        onClose={() => {
+          setAnchorEl(null);
+        }}
       >
         {options.map((option) => (
           <MenuItem
             key={String(option.value)}
             selected={option.value === value}
-            onClick={() => selectOption(option.value)}
+            onClick={() => {
+              selectOption(option.value);
+            }}
           >
             {option.label}
           </MenuItem>

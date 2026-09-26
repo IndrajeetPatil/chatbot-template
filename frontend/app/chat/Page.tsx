@@ -1,6 +1,8 @@
 import { Box, Container, CssBaseline, Typography } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { useState } from "react";
+import type { ReactElement } from "react";
+
 import { theme } from "@/client/theme";
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 import { useChatSetup } from "@/client/useChatSetup";
@@ -39,7 +41,7 @@ const CHAT_MAIN_SX = {
   px: { xs: 2, sm: 4 },
 } as const;
 
-export default function Home() {
+export default function Home(): ReactElement {
   const [model, setModel] = useState<AssistantModel>(AssistantModel.ASTRA);
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>(
     ReasoningEffort.LOW,
@@ -57,9 +59,9 @@ export default function Home() {
   return (
     <ThemeProvider
       theme={theme}
-      noSsr={true}
+      noSsr
     >
-      <CssBaseline enableColorScheme={true} />
+      <CssBaseline enableColorScheme />
       <Box
         href="#message-input"
         component="a"
@@ -96,7 +98,7 @@ export default function Home() {
             Chatbot Template
             <Box
               component="span"
-              aria-hidden={true}
+              aria-hidden
               sx={{ color: "primary.main", ml: 0.5 }}
             >
               ↗
@@ -114,9 +116,9 @@ export default function Home() {
           assistantIsLoading={assistantIsLoading}
           error={error}
           welcome={
-            !hasUserMessage ? (
+            hasUserMessage ? undefined : (
               <Welcome onSendMessage={handleSendMessage} />
-            ) : undefined
+            )
           }
         />
         <ControlPanel
@@ -124,11 +126,15 @@ export default function Home() {
           setModel={setModel}
           reasoningEffort={reasoningEffort}
           setReasoningEffort={setReasoningEffort}
-          onRegenerate={handleRegenerateResponse}
+          onRegenerate={() => {
+            void handleRegenerateResponse();
+          }}
           canRegenerate={hasUserMessage}
           disabled={assistantIsLoading}
           onSendMessage={handleSendMessage}
-          onStop={stop}
+          onStop={() => {
+            void stop();
+          }}
         />
       </Container>
     </ThemeProvider>

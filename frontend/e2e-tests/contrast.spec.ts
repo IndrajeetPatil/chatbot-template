@@ -1,5 +1,6 @@
-import AxeBuilder from "@axe-core/playwright";
+import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+
 import { openChat } from "./chat-fixture";
 
 // Lighthouse asserts accessibility on the default render only, so check WCAG AA

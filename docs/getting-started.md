@@ -7,16 +7,21 @@
 Clone the repository and install the pinned tools, or use the development
 container, which installs the toolchain for you.
 
-| Runtime / tool | Current version | Source of truth                                                        |
-| -------------- | --------------- | ---------------------------------------------------------------------- |
-| Python         | 3.14            | `backend/.python-version`, `backend/pyproject.toml`                    |
-| uv             | 0.12.13         | `backend/pyproject.toml`; Docker and installer pins must match         |
-| Node.js        | 24              | `frontend/package.json`; `.nvmrc`, Docker, and devcontainer must match |
-| pnpm           | 12.4.1          | `frontend/package.json`; CI reads this declaration                     |
-| Make and Bash  | System tools    | Required by the development commands                                   |
+| Runtime / tool | Current version | Source of truth                                                           |
+| -------------- | --------------- | ------------------------------------------------------------------------- |
+| Python         | 3.14            | `backend/.python-version`, `backend/pyproject.toml`                       |
+| uv             | 0.12.15         | `backend/pyproject.toml`; Docker and installer pins must match            |
+| Vite+ (`vp`)   | 1.0.0-rc.1      | `frontend/pnpm-workspace.yaml`; installer, Docker, and CI pins must match |
+| Node.js        | 26.10.0         | `frontend/.node-version`; Vite+ provisions it                             |
+| pnpm           | 12.4.1          | `frontend/package.json` (`packageManager`); Vite+ provisions it           |
+| Make and Bash  | System tools    | Required by the development commands                                      |
 
-- pnpm runs scripts with the declared Node.js runtime, even if the global version
-  differs.
+- Install Vite+ with `bash frontend/scripts/install-vp.sh`, which downloads the
+  pinned release, verifies its SHA256 checksum, and adds `~/.vite-plus/bin` to
+  your shell profile, or use the [official installer](https://viteplus.dev).
+  Neither Node.js nor pnpm needs a separate global installation.
+- Frontend unit and end-to-end tests run in Chromium; install it once with
+  `cd frontend && vp exec playwright install --with-deps chromium`.
 - Contributor hooks also need the pinned `ls-lint` binary on `PATH`; see
   [tooling requirements](development.md#file-naming).
 
@@ -30,7 +35,7 @@ container, which installs the toolchain for you.
 | --------------------- | ---------------------------------------------------------------- |
 | Environment file      | Copies `backend/.env.example` only when `backend/.env` is absent |
 | Backend dependencies  | Restores the frozen uv lockfile                                  |
-| Frontend dependencies | Restores the frozen pnpm lockfile                                |
+| Frontend dependencies | Restores the frozen pnpm lockfile with `vp install`              |
 | Repeated setup        | Preserves the existing environment file and credentials          |
 
 | Azure choice     | Supported values                                               |
@@ -86,8 +91,9 @@ flowchart LR
 - Configure `backend/.env` first; Docker setup does not need host dependencies.
 - Compose publishes frontend port 3000 and backend port 8000. Review
   [deployment security](security.md) before exposing either service.
-- The frontend builder installs development dependencies; the final nginx image
-  contains no `node_modules` or development tooling.
+- The frontend builder uses the digest-pinned Vite+ image to install
+  dependencies and build; the final nginx image contains no `node_modules` or
+  development tooling.
 - [nginx configuration](../frontend/frontend.nginx.conf) controls proxying, SPA
   fallback, response headers, caching, and compression.
 

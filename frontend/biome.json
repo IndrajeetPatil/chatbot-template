@@ -1,139 +1,23 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.8/schema.json",
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  },
   "vcs": {
     "enabled": true,
-    "clientKind": "git"
+    "clientKind": "git",
+    "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**",
-      "!**/.next",
-      "!**/.fallow",
-      "!**/.lighthouseci",
-      "!**/coverage",
-      "!**/dist",
-      "!**/playwright-report",
-      "!**/test-results",
-      "!**/tsconfig.tsbuildinfo",
-      "!node_modules"
-    ]
+    "includes": ["**/*.css", "!coverage", "!dist"]
+  },
+  "assist": {
+    "enabled": false
   },
   "formatter": {
-    "enabled": true,
-    "useEditorconfig": true,
-    "formatWithErrors": false,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineEnding": "lf",
-    "lineWidth": 80,
-    "attributePosition": "auto",
-    "bracketSpacing": true,
-    "includes": [
-      "**",
-      "!**/.next/**",
-      "!**/.fallow/**",
-      "!**/.lighthouseci/**",
-      "!**/coverage/**",
-      "!**/dist/**",
-      "!**/playwright-report/**",
-      "!**/test-results/**",
-      "!**/tsconfig.tsbuildinfo",
-      "!node_modules/**"
-    ]
-  },
-  "json": {
-    "formatter": {
-      "trailingCommas": "none"
-    }
+    "enabled": false
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended",
-      "complexity": {
-        "noExcessiveCognitiveComplexity": {
-          "level": "error",
-          "options": {
-            "maxAllowedComplexity": 5
-          }
-        }
-      },
-      "style": {
-        "noNamespace": "error",
-        "useAsConstAssertion": "error"
-      }
-    },
-    "includes": [
-      "**",
-      "!**/.next/**",
-      "!**/.fallow/**",
-      "!**/.lighthouseci/**",
-      "!**/coverage/**",
-      "!**/dist/**",
-      "!**/playwright-report/**",
-      "!**/test-results/**",
-      "!**/tsconfig.tsbuildinfo",
-      "!node_modules/**"
-    ]
-  },
-  "javascript": {
-    "formatter": {
-      "jsxQuoteStyle": "double",
-      "quoteProperties": "asNeeded",
-      "trailingCommas": "all",
-      "semicolons": "always",
-      "arrowParentheses": "always",
-      "bracketSameLine": false,
-      "quoteStyle": "double",
-      "attributePosition": "multiline",
-      "bracketSpacing": true
-    },
-    "globals": []
-  },
-  "css": {
-    "linter": {
-      "enabled": true
-    },
-    "formatter": {
-      "enabled": true
+      "preset": "recommended"
     }
-  },
-  "overrides": [
-    {
-      "includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
-      "linter": {
-        "rules": {
-          "correctness": {
-            "noUndeclaredVariables": "off",
-            "useImportExtensions": "off"
-          },
-          "suspicious": {
-            "noReactSpecificProps": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "**/*.test.ts",
-        "**/*.test.tsx",
-        "**/*.spec.ts",
-        "**/*.spec.tsx"
-      ],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noExcessiveCognitiveComplexity": "off"
-          }
-        }
-      }
-    }
-  ]
+  }
 }

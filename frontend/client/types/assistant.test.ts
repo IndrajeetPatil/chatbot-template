@@ -1,4 +1,6 @@
-import { fc, test } from "@fast-check/vitest";
+import { fc } from "@fast-check/vitest";
+import { describe, expect, test } from "vite-plus/test";
+import { ZodError } from "zod";
 
 import {
   AssistantModel,
@@ -9,14 +11,18 @@ import {
 
 describe("assistant type values", () => {
   test("exposes supported assistant models", () => {
-    expect(Object.values(AssistantModel)).toEqual([
+    expect(Object.values(AssistantModel)).toStrictEqual([
       "gpt-6-astra",
       "gpt-5.6-sol",
     ]);
   });
 
   test("exposes supported assistant reasoning efforts", () => {
-    expect(Object.values(ReasoningEffort)).toEqual(["low", "medium", "high"]);
+    expect(Object.values(ReasoningEffort)).toStrictEqual([
+      "low",
+      "medium",
+      "high",
+    ]);
   });
 });
 
@@ -24,23 +30,41 @@ describe("assistant schemas", () => {
   const modelValues: string[] = Object.values(AssistantModel);
   const reasoningEffortValues: string[] = Object.values(ReasoningEffort);
 
-  test.prop([fc.constantFrom(...modelValues)])(
-    "accepts every supported model value",
-    (model) => AssistantModelSchema.validate(model),
-  );
+  test("accepts every supported model value", () => {
+    fc.assert(
+      fc.property(fc.constantFrom(...modelValues), (model) => {
+        expect(AssistantModelSchema.parse(model)).toBe(model);
+      }),
+    );
+  });
 
-  test.prop([fc.string().filter((s) => !modelValues.includes(s))])(
-    "rejects any value outside the supported models",
-    (value) => !AssistantModelSchema.validate(value),
-  );
+  test("rejects any value outside the supported models", () => {
+    fc.assert(
+      fc.property(
+        fc.string().filter((value) => !modelValues.includes(value)),
+        (value) => {
+          expect(() => AssistantModelSchema.parse(value)).toThrow(ZodError);
+        },
+      ),
+    );
+  });
 
-  test.prop([fc.constantFrom(...reasoningEffortValues)])(
-    "accepts every supported reasoning effort value",
-    (reasoningEffort) => ReasoningEffortSchema.validate(reasoningEffort),
-  );
+  test("accepts every supported reasoning effort value", () => {
+    fc.assert(
+      fc.property(fc.constantFrom(...reasoningEffortValues), (effort) => {
+        expect(ReasoningEffortSchema.parse(effort)).toBe(effort);
+      }),
+    );
+  });
 
-  test.prop([fc.string().filter((s) => !reasoningEffortValues.includes(s))])(
-    "rejects any value outside the supported reasoning efforts",
-    (value) => !ReasoningEffortSchema.validate(value),
-  );
+  test("rejects any value outside the supported reasoning efforts", () => {
+    fc.assert(
+      fc.property(
+        fc.string().filter((value) => !reasoningEffortValues.includes(value)),
+        (value) => {
+          expect(() => ReasoningEffortSchema.parse(value)).toThrow(ZodError);
+        },
+      ),
+    );
+  });
 });

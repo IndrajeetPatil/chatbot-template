@@ -1,4 +1,5 @@
-import { fc, test } from "@fast-check/vitest";
+import { fc } from "@fast-check/vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import {
   getModelDisplay,
@@ -22,7 +23,7 @@ test("preserves conversation text while removing SDK step markers", () => {
         ],
       },
     ]),
-  ).toEqual([
+  ).toStrictEqual([
     { role: "user", parts: [{ type: "text", text: "Hello" }] },
     {
       role: "assistant",
@@ -34,7 +35,10 @@ test("preserves conversation text while removing SDK step markers", () => {
   ]);
 });
 
-describe("getModelDisplay", () => {
+const supportedModels = fc.constantFrom(...Object.values(AssistantModel));
+const supportedEfforts = fc.constantFrom(...Object.values(ReasoningEffort));
+
+describe(getModelDisplay, () => {
   test.each([
     [AssistantModel.ASTRA, "GPT-6 Astra"],
     [AssistantModel.SOL, "GPT-5.6 Sol"],
@@ -42,13 +46,16 @@ describe("getModelDisplay", () => {
     expect(getModelDisplay(model)).toBe(expected);
   });
 
-  test.prop([fc.constantFrom(...Object.values(AssistantModel))])(
-    "returns a non-empty label for every supported model",
-    (model) => getModelDisplay(model).length > 0,
-  );
+  test("returns a non-empty label for every supported model", () => {
+    fc.assert(
+      fc.property(supportedModels, (model) => {
+        expect(getModelDisplay(model)).not.toBe("");
+      }),
+    );
+  });
 });
 
-describe("getReasoningEffortDisplay", () => {
+describe(getReasoningEffortDisplay, () => {
   test.each([
     [ReasoningEffort.LOW, "Low"],
     [ReasoningEffort.MEDIUM, "Medium"],
@@ -57,8 +64,11 @@ describe("getReasoningEffortDisplay", () => {
     expect(getReasoningEffortDisplay(temp)).toBe(expected);
   });
 
-  test.prop([fc.constantFrom(...Object.values(ReasoningEffort))])(
-    "returns a non-empty label for every supported reasoning effort",
-    (temp) => getReasoningEffortDisplay(temp).length > 0,
-  );
+  test("returns a non-empty label for every supported reasoning effort", () => {
+    fc.assert(
+      fc.property(supportedEfforts, (effort) => {
+        expect(getReasoningEffortDisplay(effort)).not.toBe("");
+      }),
+    );
+  });
 });

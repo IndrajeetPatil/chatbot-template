@@ -1,6 +1,7 @@
-import { expect, type Page } from "@playwright/test";
+import { expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
-export async function openChat(page: Page) {
+export async function openChat(page: Page): Promise<void> {
   await page.goto("/chat");
   await expect(
     page.getByRole("textbox", { name: "Message", exact: true }),
@@ -9,10 +10,10 @@ export async function openChat(page: Page) {
   await expect(
     page.getByRole("region", { name: "Chat conversation" }).locator("p"),
   ).toBeVisible();
-  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(async () => document.fonts.ready);
 }
 
-export async function sendMessage(page: Page, message: string) {
+export async function sendMessage(page: Page, message: string): Promise<void> {
   const response = page.waitForResponse("**/api/v1/chat");
   await page
     .getByRole("textbox", { name: "Message", exact: true })

@@ -13,7 +13,7 @@ const MAX_MESSAGE_CHARS = 32_000;
 const ChatMessageTextSchema = z
   .string()
   .trim()
-  .min(1, "Enter a message before sending.")
+  .nonempty("Enter a message before sending.")
   .max(
     MAX_MESSAGE_CHARS,
     `Message is too long (max ${MAX_MESSAGE_CHARS.toLocaleString("en-US")} characters).`,

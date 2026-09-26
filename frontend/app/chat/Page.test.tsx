@@ -1,25 +1,39 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { beforeEach, expect, test, vi } from "vite-plus/test";
+
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
-
-const { mockUseChatSetup, send, regenerate } = vi.hoisted(() => ({
-  mockUseChatSetup: vi.fn(),
-  send: vi.fn().mockResolvedValue(undefined),
-  regenerate: vi.fn().mockResolvedValue(undefined),
-}));
-
-vi.mock("@/client/useChatSetup", () => ({ useChatSetup: mockUseChatSetup }));
+import type { useChatSetup } from "@/client/useChatSetup";
 
 import Home from "./Page";
 
-beforeEach(() => {
+type ChatSetup = ReturnType<typeof useChatSetup>;
+
+const { mockUseChatSetup, send, regenerate } = vi.hoisted(() => ({
+  mockUseChatSetup: vi.fn<typeof useChatSetup>(),
+  send: vi.fn<ChatSetup["handleSendMessage"]>().mockResolvedValue(undefined),
+  regenerate: vi
+    .fn<ChatSetup["handleRegenerateResponse"]>()
+    .mockResolvedValue(undefined),
+}));
+
+vi.mock(import("@/client/useChatSetup"), () => ({
+  useChatSetup: mockUseChatSetup,
+}));
+
+function setupChat({ hasUserMessage }: Pick<ChatSetup, "hasUserMessage">) {
   mockUseChatSetup.mockReturnValue({
     messages: [],
     assistantIsLoading: false,
-    hasUserMessage: true,
+    hasUserMessage,
+    error: undefined,
     handleSendMessage: send,
     handleRegenerateResponse: regenerate,
+    stop: vi.fn<ChatSetup["stop"]>(),
   });
+}
+
+beforeEach(() => {
+  setupChat({ hasUserMessage: true });
 });
 
 test("connects model, reasoning, send and regeneration to the chat hook", () => {
@@ -30,11 +44,11 @@ test("connects model, reasoning, send and regeneration to the chat hook", () => 
   );
 
   fireEvent.click(
-    screen.getByRole("button", { name: /Select assistant model/ }),
+    screen.getByRole("button", { name: /Select assistant model/u }),
   );
   fireEvent.click(screen.getAllByRole("menuitem")[1]);
   fireEvent.click(
-    screen.getByRole("button", { name: /Select reasoning effort/ }),
+    screen.getByRole("button", { name: /Select reasoning effort/u }),
   );
   fireEvent.click(screen.getAllByRole("menuitem")[2]);
   expect(mockUseChatSetup).toHaveBeenLastCalledWith(
@@ -46,7 +60,7 @@ test("connects model, reasoning, send and regeneration to the chat hook", () => 
   fireEvent.click(screen.getByRole("button", { name: "Send" }));
   expect(send).toHaveBeenCalledWith("Hello");
   fireEvent.click(screen.getByRole("button", { name: "Regenerate response" }));
-  expect(regenerate).toHaveBeenCalledOnce();
+  expect(regenerate).toHaveBeenCalledExactlyOnceWith();
 });
 
 test("exposes navigation landmarks and connects the skip link to the composer", () => {
@@ -60,15 +74,10 @@ test("exposes navigation landmarks and connects the skip link to the composer", 
 });
 
 test("starts a conversation from a suggested prompt", () => {
-  mockUseChatSetup.mockReturnValue({
-    messages: [],
-    assistantIsLoading: false,
-    hasUserMessage: false,
-    handleSendMessage: send,
-  });
+  setupChat({ hasUserMessage: false });
   render(<Home />);
   fireEvent.click(
-    screen.getByRole("button", { name: /Explain a complex idea/ }),
+    screen.getByRole("button", { name: /Explain a complex idea/u }),
   );
   expect(send).toHaveBeenCalledWith("Explain a complex idea in simple terms.");
 });

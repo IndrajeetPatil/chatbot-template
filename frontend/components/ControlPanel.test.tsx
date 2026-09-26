@@ -1,73 +1,62 @@
 import { ThemeProvider } from "@mui/material/styles";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import type { ComponentProps } from "react";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
+import { cdp } from "vite-plus/test/browser";
+
 import { theme } from "@/client/theme";
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
 
 import ControlPanel from "./ControlPanel";
 
-const DEFAULT_PROPS = {
-  model: AssistantModel.ASTRA,
-  setModel: vi.fn(),
-  reasoningEffort: ReasoningEffort.MEDIUM,
-  setReasoningEffort: vi.fn(),
-  onRegenerate: vi.fn(),
-  canRegenerate: true,
-  disabled: false,
-  onSendMessage: vi.fn().mockResolvedValue(undefined),
-  onStop: vi.fn(),
-};
+type ControlPanelProps = ComponentProps<typeof ControlPanel>;
 
-class MockMediaQueryList extends EventTarget implements MediaQueryList {
-  readonly matches: boolean;
-  readonly media: string;
-  onchange:
-    | ((this: MediaQueryList, ev: MediaQueryListEvent) => unknown)
-    | null = null;
-
-  constructor(matches: boolean, media: string) {
-    super();
-    this.matches = matches;
-    this.media = media;
-  }
-
-  addListener(): void {}
-  removeListener(): void {}
+// Chromium evaluates the real media query, as it does for users.
+async function emulatePrefersColorScheme(value: "dark" | "") {
+  await cdp().send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-color-scheme", value }],
+  });
 }
 
-function mockMatchMedia(prefersDark: boolean) {
-  vi.stubGlobal(
-    "matchMedia",
-    (query: string): MediaQueryList =>
-      new MockMediaQueryList(
-        prefersDark && query === "(prefers-color-scheme: dark)",
-        query,
-      ),
-  );
-}
-
-function renderControlPanel(overrides: Partial<typeof DEFAULT_PROPS> = {}) {
+function renderControlPanel(overrides: Partial<ControlPanelProps> = {}) {
+  const props: ControlPanelProps = {
+    model: AssistantModel.ASTRA,
+    setModel: vi.fn<ControlPanelProps["setModel"]>(),
+    reasoningEffort: ReasoningEffort.MEDIUM,
+    setReasoningEffort: vi.fn<ControlPanelProps["setReasoningEffort"]>(),
+    onRegenerate: vi.fn<ControlPanelProps["onRegenerate"]>(),
+    canRegenerate: true,
+    disabled: false,
+    onSendMessage: vi.fn<ControlPanelProps["onSendMessage"]>(),
+    onStop: vi.fn<ControlPanelProps["onStop"]>(),
+    ...overrides,
+  };
   return render(
     <ThemeProvider
       theme={theme}
-      noSsr={true}
+      noSsr
     >
       <ControlPanel
-        {...DEFAULT_PROPS}
-        {...overrides}
+        model={props.model}
+        setModel={props.setModel}
+        reasoningEffort={props.reasoningEffort}
+        setReasoningEffort={props.setReasoningEffort}
+        onRegenerate={props.onRegenerate}
+        canRegenerate={props.canRegenerate}
+        disabled={props.disabled}
+        onSendMessage={props.onSendMessage}
+        onStop={props.onStop}
       />
     </ThemeProvider>,
   );
 }
 
-describe("ControlPanel", () => {
-  // Vitest's jsdom environment currently has no localStorage (Node's
-  // experimental global shadows jsdom's), so MUI's mode persistence is a
-  // try/catch-guarded no-op and an unguarded clear() would throw. The optional
-  // chain keeps tests isolated if the environment ever gains storage.
-  afterEach(() => {
-    window.localStorage?.clear();
-    vi.unstubAllGlobals();
+describe(ControlPanel, () => {
+  // MUI persists the chosen mode in localStorage; clear it so each test
+  // starts from the system preference.
+  afterEach(async () => {
+    localStorage.clear();
+    await emulatePrefersColorScheme("");
   });
 
   test("regenerate button is enabled when canRegenerate is true and not disabled", () => {
@@ -86,10 +75,10 @@ describe("ControlPanel", () => {
   });
 
   test("clicking regenerate calls onRegenerate", () => {
-    const onRegenerate = vi.fn();
+    const onRegenerate = vi.fn<() => void>();
     renderControlPanel({ onRegenerate });
     fireEvent.click(screen.getByLabelText("Regenerate response"));
-    expect(onRegenerate).toHaveBeenCalledTimes(1);
+    expect(onRegenerate).toHaveBeenCalledOnce();
   });
 
   test("shows dark mode toggle when system preference is not dark", () => {
@@ -97,8 +86,8 @@ describe("ControlPanel", () => {
     expect(screen.getByLabelText("Switch to dark mode")).toBeInTheDocument();
   });
 
-  test("shows light mode toggle when system prefers dark", () => {
-    mockMatchMedia(true);
+  test("shows light mode toggle when system prefers dark", async () => {
+    await emulatePrefersColorScheme("dark");
     renderControlPanel();
     expect(screen.getByLabelText("Switch to light mode")).toBeInTheDocument();
   });
@@ -109,14 +98,14 @@ describe("ControlPanel", () => {
     expect(screen.getByLabelText("Switch to light mode")).toBeInTheDocument();
   });
 
-  test("clicking the toggle switches from dark to light mode", () => {
-    mockMatchMedia(true);
+  test("clicking the toggle switches from dark to light mode", async () => {
+    await emulatePrefersColorScheme("dark");
     renderControlPanel();
     fireEvent.click(screen.getByLabelText("Switch to light mode"));
     expect(screen.getByLabelText("Switch to dark mode")).toBeInTheDocument();
   });
 
-  test("ChatInput receives disabled prop", () => {
+  test("disables the composer but keeps stop available while busy", () => {
     renderControlPanel({ disabled: true });
     expect(screen.getByRole("textbox")).toBeDisabled();
     expect(

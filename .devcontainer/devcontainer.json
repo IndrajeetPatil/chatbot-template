@@ -1,17 +1,14 @@
 {
   "name": "Chatbot Template",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
-
+  "image": "mcr.microsoft.com/devcontainers/base:3.0.8-ubuntu26.04@sha256:edfb983aab9c579a385dc23c57d7d3703f5ec920124d99c16204a2cac465aab4",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "24"
-    },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {}
   },
-
-  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends make",
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends make python3",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-
+  "remoteEnv": {
+    "PATH": "/home/vscode/.vite-plus/bin:${containerEnv:PATH}"
+  },
   "forwardPorts": [3000, 8000],
   "portsAttributes": {
     "3000": {
@@ -23,15 +20,14 @@
       "onAutoForward": "notify"
     }
   },
-
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "ms-python.debugpy",
         "charliermarsh.ruff",
+        "VoidZero.vite-plus-extension-pack",
         "biomejs.biome",
-        "dbaeumer.vscode-eslint",
         "ms-azuretools.vscode-docker"
       ],
       "settings": {
@@ -40,25 +36,41 @@
           "editor.defaultFormatter": "charliermarsh.ruff",
           "editor.formatOnSave": true
         },
+        "oxc.fmt.configPath": "frontend/vite.config.ts",
         "[javascript]": {
-          "editor.defaultFormatter": "biomejs.biome",
+          "editor.defaultFormatter": "oxc.oxc-vscode",
           "editor.formatOnSave": true
         },
         "[typescript]": {
-          "editor.defaultFormatter": "biomejs.biome",
+          "editor.defaultFormatter": "oxc.oxc-vscode",
           "editor.formatOnSave": true
         },
         "[typescriptreact]": {
-          "editor.defaultFormatter": "biomejs.biome",
+          "editor.defaultFormatter": "oxc.oxc-vscode",
           "editor.formatOnSave": true
         },
         "[json]": {
-          "editor.defaultFormatter": "biomejs.biome",
+          "editor.defaultFormatter": "oxc.oxc-vscode",
           "editor.formatOnSave": true
         },
         "[jsonc]": {
-          "editor.defaultFormatter": "biomejs.biome",
+          "editor.defaultFormatter": "oxc.oxc-vscode",
           "editor.formatOnSave": true
+        },
+        "[yaml]": {
+          "editor.defaultFormatter": "oxc.oxc-vscode",
+          "editor.formatOnSave": true
+        },
+        "[toml]": {
+          "editor.defaultFormatter": "oxc.oxc-vscode",
+          "editor.formatOnSave": true
+        },
+        "[css]": {
+          "editor.defaultFormatter": "oxc.oxc-vscode",
+          "editor.formatOnSave": true
+        },
+        "editor.codeActionsOnSave": {
+          "source.fixAll.oxc": "explicit"
         }
       }
     }

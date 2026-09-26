@@ -1,8 +1,9 @@
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactElement } from "react";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+
 import "katex/dist/katex.min.css";
 import "@/app/markdown.css";
 import { useIsDark } from "@/client/hooks";
@@ -25,7 +26,11 @@ function CodeBlock({ children }: ComponentPropsWithoutRef<"pre">) {
 
 const COMPONENTS = { pre: CodeBlock };
 
-export default function RichMarkdown({ content }: { content: string }) {
+export default function RichMarkdown({
+  content,
+}: {
+  content: string;
+}): ReactElement {
   const isDark = useIsDark();
   return (
     <div

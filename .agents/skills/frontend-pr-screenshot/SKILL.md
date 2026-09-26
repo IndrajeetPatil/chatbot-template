@@ -6,8 +6,8 @@ description: >
   show the UI in a PR comment, verify visual changes in a PR, or
   include visual evidence after UI work.
 allowed-tools: >
-  Bash(gh *), Bash(git *), Bash(curl *), Bash(npx playwright*),
-  Bash(lsof *), Bash(pnpm *), Bash(kill *), Bash(sleep *),
+  Bash(gh *), Bash(git *), Bash(curl *), Bash(vp *),
+  Bash(lsof *), Bash(kill *), Bash(sleep *),
   Bash(seq *), Bash(cat *), Bash(date *), Bash(printf *)
 ---
 
@@ -28,7 +28,7 @@ PR_NUMBER=$(gh pr view --json number -q '.number' 2>/dev/null)
 
 ```bash
 if ! lsof -ti:3000 > /dev/null 2>&1; then
-  cd frontend && pnpm run dev &
+  cd frontend && vp dev &
   DEV_PID=$!
   READY=0
   for i in $(seq 1 30); do
@@ -45,7 +45,7 @@ The app defaults to dark mode when no OS preference is detected.
 Pass `--color-scheme dark` so headless Chromium matches.
 
 ```bash
-cd frontend && npx playwright screenshot \
+cd frontend && vp exec playwright screenshot \
   "http://localhost:3000/chat" \
   /tmp/frontend-screenshot.png \
   --wait-for-selector "#message-input" \
@@ -53,7 +53,7 @@ cd frontend && npx playwright screenshot \
   --timeout 15000
 ```
 
-Install if missing: `pnpm exec playwright install chromium --with-deps`
+Install if missing: `vp exec playwright install --with-deps chromium`
 
 ### 4 — Post PR comment
 

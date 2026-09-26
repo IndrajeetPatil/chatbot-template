@@ -68,11 +68,12 @@ informs the web foundations:
 
 ## Working on the frontend
 
-| Task                                 | Command / guidance                                                    |
-| ------------------------------------ | --------------------------------------------------------------------- |
-| Development with hot reload          | `make service SERVICE=frontend`                                       |
-| Build and preview production assets  | `make frontend-preview`                                               |
-| Frontend checks                      | `make qa-frontend`                                                    |
-| Proxy and Docker configuration       | [Getting started](getting-started.md)                                 |
-| UI changes                           | [Browser and visual testing](development.md#browser-and-visual-tests) |
-| Analysis scope or dependency changes | [Fallow policy](development.md#frontend-code-quality-with-fallow)     |
+| Task                                 | Command / guidance                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Development with hot reload          | `make service SERVICE=frontend`                                                                               |
+| Build and preview production assets  | `make frontend-preview`                                                                                       |
+| Frontend checks                      | `make qa-frontend`                                                                                            |
+| Individual tools from `frontend/`    | `vp test`, `vp lint`, `vp fmt`, `vp check`, `vp run <script>`; see [tooling](development.md#automated-checks) |
+| Proxy and Docker configuration       | [Getting started](getting-started.md)                                                                         |
+| UI changes                           | [Browser and visual testing](development.md#browser-and-visual-tests)                                         |
+| Analysis scope or dependency changes | [Fallow policy](development.md#frontend-code-quality-with-fallow)                                             |

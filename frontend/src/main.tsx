@@ -6,11 +6,11 @@ import ChatPage from "@/app/chat/Page";
 
 import "@/app/styles.css";
 
-if (window.location.pathname === "/") {
-  window.history.replaceState(null, "", "/chat");
+if (globalThis.location.pathname === "/") {
+  globalThis.history.replaceState(null, "", "/chat");
 }
 
-const root = document.getElementById("root");
+const root = document.querySelector("#root");
 
 if (!root) {
   throw new Error("Missing root element");

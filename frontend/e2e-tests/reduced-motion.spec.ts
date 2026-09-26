@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 import { openChat } from "./chat-fixture";
 
 test.use({ reducedMotion: "no-preference" });
@@ -6,13 +7,15 @@ test.use({ reducedMotion: "no-preference" });
 test("honors reduced motion for the loading indicator and controls", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", () => {});
+  await page.route("**/api/v1/chat", () => {
+    // Never fulfill the request, so the response stays pending.
+  });
   await openChat(page);
   await page.getByRole("textbox").fill("Take your time.");
   await page.getByRole("button", { name: "Send", exact: true }).click();
   const responseStatus = page.getByRole("status");
   await expect(responseStatus).toHaveText("Generating…");
-  const runningAnimations = () =>
+  const runningAnimations = async () =>
     responseStatus.evaluate(
       (element) =>
         element
@@ -20,10 +23,11 @@ test("honors reduced motion for the loading indicator and controls", async ({
           .filter((animation) => animation.playState === "running").length,
     );
   const modelControl = page.getByRole("button", {
-    name: /Select assistant model/,
+    name: /Select assistant model/u,
   });
-  const transitionDuration = () =>
+  const transitionDuration = async () =>
     modelControl.evaluate((element) =>
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- durations carry an `s` unit that `Number()` turns into NaN
       Number.parseFloat(getComputedStyle(element).transitionDuration),
     );
 

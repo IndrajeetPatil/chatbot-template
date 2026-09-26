@@ -7,6 +7,9 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
 
 - Setup and pinned runtime versions: [getting started](docs/getting-started.md).
 - Commands, tests, naming, hooks, and CI: [development](docs/development.md).
+- The frontend toolchain is Vite+ (`vp`), configured in `frontend/vite.config.ts`.
+  Use `vp` commands (`vp test`, `vp lint`, `vp run <script>`, `vp exec <bin>`,
+  `vp pm <command>`) rather than calling pnpm, Node.js, or Vitest directly.
 - Document the Make commands; use lists, tables, and diagrams for scannability.
   Run `make markdown-format` to keep table columns aligned.
 - Before UI work, read [frontend](docs/frontend.md) and the development guide's
@@ -37,6 +40,9 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
   crosses a boundary we own — the outbound request, the streamed output, the
   logged event — rather than a library's private attributes, internal call
   sequence, or guarantees its own test suite already covers.
+- Oxlint: every stable category is an error. Turn a rule off only when it
+  contradicts another, is obsolete for the stack, or is owned by a stricter tool,
+  with a comment explaining why. Biome lints CSS only.
 - Fallow: configured dead-code/dependency rules are errors, including unresolved
   imports; strict duplication starts at 50 tokens / 4 lines; cyclomatic and
   cognitive complexity are each ≤5, including tests. No blanket test exclusions.

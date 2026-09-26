@@ -1,8 +1,9 @@
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import StopIcon from "@mui/icons-material/Stop";
 import { Box, IconButton, TextField, Tooltip } from "@mui/material";
-import type React from "react";
-import { type KeyboardEvent, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import type { KeyboardEvent, ReactElement, Ref } from "react";
+
 import { ChatMessageTextSchema } from "@/client/chatConstants";
 
 interface ChatInputProps {
@@ -15,12 +16,12 @@ const CHAT_INPUT_FORM_SX = {
   alignItems: "flex-end",
   display: "flex",
   gap: 1,
-  p: 2,
+  padding: 2,
 } as const;
 
 const CHAT_INPUT_FIELD_SX = {
   flexGrow: 1,
-  "& .MuiInputBase-root": { p: 0 },
+  "& .MuiInputBase-root": { padding: 0 },
   "& .MuiInputBase-input::placeholder": { color: "text.secondary", opacity: 1 },
   "& .MuiFormHelperText-root": { mx: 0, mt: 1.5, fontSize: "0.7rem" },
 } as const;
@@ -67,7 +68,7 @@ function SendButton({
 }
 
 interface MessageFieldProps {
-  inputRef: React.Ref<HTMLTextAreaElement>;
+  inputRef: Ref<HTMLTextAreaElement>;
   disabled: boolean;
   message: string;
   validationError: string | null;
@@ -87,8 +88,8 @@ function MessageField({
     <TextField
       id="message-input"
       inputRef={inputRef}
-      multiline={true}
-      fullWidth={true}
+      multiline
+      fullWidth
       disabled={disabled}
       variant="standard"
       slotProps={{
@@ -101,7 +102,9 @@ function MessageField({
       minRows={2}
       maxRows={6}
       value={message}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(event) => {
+        onChange(event.target.value);
+      }}
       onKeyDown={onKeyDown}
       error={validationError !== null}
       helperText={
@@ -124,18 +127,21 @@ function ChatInput({
   disabled = false,
   onSendMessage,
   onStop,
-}: ChatInputProps) {
+}: ChatInputProps): ReactElement {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [message, setMessage] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const sendMessage = async () => {
-    if (disabled) return;
+    if (disabled) {
+      return;
+    }
     // Same rule the server enforces, checked here for instant UX feedback.
     const result = ChatMessageTextSchema.safeParse(message);
 
     if (!result.success) {
-      setValidationError(result.error.issues[0].message);
+      const [firstIssue] = result.error.issues;
+      setValidationError(firstIssue.message);
       inputRef.current?.focus();
       return;
     }
@@ -148,8 +154,8 @@ function ChatInput({
   return (
     <Box
       component="form"
-      onSubmit={(e) => {
-        e.preventDefault();
+      onSubmit={(event) => {
+        event.preventDefault();
         void sendMessage();
       }}
       sx={CHAT_INPUT_FORM_SX}
@@ -161,7 +167,9 @@ function ChatInput({
         validationError={validationError}
         onChange={(value) => {
           setMessage(value);
-          if (validationError !== null) setValidationError(null);
+          if (validationError !== null) {
+            setValidationError(null);
+          }
         }}
         onKeyDown={(event) => {
           if (isSendShortcut(event)) {

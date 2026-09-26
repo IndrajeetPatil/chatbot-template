@@ -10,7 +10,8 @@ import {
 } from "@mui/material";
 import type { TextUIPart } from "ai";
 import { isTextUIPart } from "ai";
-import type { ReactNode } from "react";
+import type { ReactElement } from "react";
+
 import { INITIAL_MESSAGE_ID } from "@/client/chatConstants";
 import { useConversationScroll } from "@/client/useConversationScroll";
 import AssistantMessage from "@/components/messages/AssistantMessage";
@@ -21,6 +22,7 @@ function renderMessage(message: UIMessage) {
     .filter((part): part is TextUIPart => {
       if (!isTextUIPart(part)) {
         if (import.meta.env.DEV) {
+          // oxlint-disable-next-line no-console -- dev-only diagnostic for SDK part types this UI cannot render yet
           console.warn(
             `[MessageList] Unexpected non-text message part type: "${part.type}"`,
           );
@@ -50,7 +52,7 @@ interface MessageListProps {
   messages: UIMessage[];
   assistantIsLoading: boolean;
   error: Error | undefined;
-  welcome?: ReactNode;
+  welcome?: ReactElement;
 }
 
 function ResponseStatus({
@@ -61,14 +63,14 @@ function ResponseStatus({
     <>
       {assistantIsLoading && (
         <Stack
+          component="output"
           aria-live="polite"
           direction="row"
-          role="status"
           spacing={1}
           sx={{ alignItems: "center" }}
         >
           <CircularProgress
-            aria-hidden={true}
+            aria-hidden
             size={20}
           />
           <Typography variant="body2">Generating…</Typography>
@@ -89,7 +91,7 @@ function MessageList({
   assistantIsLoading,
   error,
   welcome,
-}: MessageListProps) {
+}: MessageListProps): ReactElement {
   const {
     viewportRef,
     contentRef,
@@ -130,7 +132,7 @@ function MessageList({
             >
               {messages
                 .filter((message) => message.id !== INITIAL_MESSAGE_ID)
-                .map(renderMessage)}
+                .map((message) => renderMessage(message))}
             </Stack>
           )}
           <ResponseStatus

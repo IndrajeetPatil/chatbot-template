@@ -6,6 +6,7 @@ import { defineConfig } from "@playwright/test";
 // fail just because a development server already holds 3000.
 const PORT = process.env.PLAYWRIGHT_PORT ?? "3000";
 const BASE_URL = `http://localhost:${PORT}`;
+const isCI = Boolean(process.env.CI);
 
 export default defineConfig({
   testDir: "./e2e-tests",
@@ -14,10 +15,10 @@ export default defineConfig({
   // Baselines are reviewed and updated explicitly, never created by CI.
   updateSnapshots: "none",
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  forbidOnly: isCI,
+  retries: isCI ? 1 : 0,
   workers: 1,
-  reporter: process.env.CI
+  reporter: isCI
     ? [["dot"], ["github"], ["html", { open: "never" }]]
     : [["list"], ["html", { open: "never" }]],
   expect: {
@@ -34,10 +35,10 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
-  // Exercise the production build, including the lazy markdown chunk. This is
-  // what `pnpm start` runs, invoked directly so PORT is not passed twice.
+  // Exercise the production build, including the lazy markdown chunk, with
+  // the same server as the `start` script.
   webServer: {
-    command: `pnpm exec vite preview --host 0.0.0.0 --port ${PORT} --strictPort`,
+    command: `vp preview --host 0.0.0.0 --port ${PORT} --strictPort`,
     url: BASE_URL,
     reuseExistingServer: false,
   },
