@@ -16,10 +16,12 @@ function staticKeyName(key) {
   return key.type === "Literal" ? key.value : undefined;
 }
 
-// `react/no-danger` only sees JSX attributes; this rule also catches
-// dangerouslySetInnerHTML hidden in objects that are later spread as props.
-// Destructuring patterns also contain `Property` nodes, so only object
-// literals are reported.
+// `react/no-danger` only sees JSX attributes and `createElement` props, and
+// `react/jsx-props-no-spreading` blocks JSX spreads. Neither sees
+// dangerouslySetInnerHTML nested in props objects that components forward to
+// DOM elements, such as MUI `slotProps`, so this rule reports every object
+// literal key. Destructuring patterns also contain `Property` nodes, so only
+// object literals are reported.
 const noDangerousHtmlProps = defineRule({
   meta: {
     messages: {
