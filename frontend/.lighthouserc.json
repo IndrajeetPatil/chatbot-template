@@ -3,26 +3,7 @@
     "collect": {
       "staticDistDir": "./dist",
       "url": ["http://localhost/"],
-      "//": "Use canonical Lighthouse mobile throttling and assert the median of three runs so CI does not pass on one lucky sample.",
-      "settings": {
-        "formFactor": "mobile",
-        "throttlingMethod": "simulate",
-        "throttling": {
-          "rttMs": 150,
-          "throughputKbps": 1638.4,
-          "requestLatencyMs": 562.5,
-          "downloadThroughputKbps": 1474.56,
-          "uploadThroughputKbps": 675,
-          "cpuSlowdownMultiplier": 4
-        },
-        "screenEmulation": {
-          "mobile": true,
-          "width": 412,
-          "height": 823,
-          "deviceScaleFactor": 1.75,
-          "disabled": false
-        }
-      },
+      "//": "Lighthouse's default mobile throttling applies; assert the median of three runs so CI does not pass on one lucky sample.",
       "numberOfRuns": 3
     },
     "assert": {
