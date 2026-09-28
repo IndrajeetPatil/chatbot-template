@@ -140,7 +140,7 @@ export default defineConfig({
       reportUnusedDisableDirectives: "error",
     },
     jsPlugins: [
-      { name: "vite-plus", specifier: "vite-plus/oxlint-plugin" },
+      "vite-plus/oxlint-plugin",
       "eslint-plugin-no-unsanitized",
       "./lint/security.js",
     ],
