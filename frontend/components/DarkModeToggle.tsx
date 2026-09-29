@@ -4,8 +4,8 @@ import { IconButton, Tooltip, useColorScheme } from "@mui/material";
 import type { ReactElement } from "react";
 
 function DarkModeToggle(): ReactElement {
-  const { mode, systemMode, setMode } = useColorScheme();
-  const isDark = (mode === "system" ? systemMode : mode) === "dark";
+  const { colorScheme, setMode } = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   return (
     <Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
