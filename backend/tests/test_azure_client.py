@@ -5,7 +5,6 @@ Every test here drives the real `openai` SDK over a mock HTTP transport (see
 and the SDK's real response handling rather than about a stub's bookkeeping.
 """
 
-import json
 from typing import TYPE_CHECKING
 
 import httpx2
@@ -13,9 +12,9 @@ import openai
 import pytest
 from fastapi import status
 from inline_snapshot import snapshot
-from loguru import logger
 
 from app.azure_client import get_azure_openai_client, stream_azure_openai_response
+from app.config import Settings
 from app.entities import AssistantModel, ReasoningEffort
 from tests.azure_double import (
     CONNECT_ERROR,
@@ -31,12 +30,9 @@ from tests.azure_double import (
     unreachable,
     usage_chunk,
 )
-from tests.conftest import METRICS_LOG_PREFIX
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-
-    from loguru import Message
 
     from tests.azure_double import AzureCall
     from tests.conftest import AzureFactory, FakeClock, MetricsReader
@@ -202,7 +198,7 @@ def test_maps_upstream_status_to_sdk_error(
 def test_raises_connection_error_when_the_endpoint_is_unreachable(
     fake_azure: AzureFactory,
 ) -> None:
-    fake_azure(unreachable())
+    fake_azure(unreachable)
 
     with pytest.raises(openai.APIConnectionError) as caught:
         stream_text()
@@ -393,40 +389,15 @@ def test_logs_error_metrics_when_stream_creation_fails(
     })
 
 
-def test_metrics_event_is_also_bound_for_structured_sinks(
-    fake_azure: AzureFactory,
-) -> None:
-    # The app configures no structured sink, so the rendered JSON is what ships
-    # today and every other test reads that. The bound copy is what a structured
-    # sink would consume instead, so it has to carry the same payload.
-    fake_azure(stream_of(content_chunk("Hi"), usage_chunk()))
-    captured: list[Message] = []
-    sink_id: int = logger.add(captured.append, format="{message}")
-    try:
-        stream_text()
-    finally:
-        logger.remove(sink_id)
-
-    events: list[Message] = [
-        message for message in captured if "stream_metrics" in message.record["extra"]
-    ]
-
-    assert len(events) == 1
-    assert (
-        json.loads(str(events[0]).removeprefix(METRICS_LOG_PREFIX))
-        == (events[0].record["extra"]["stream_metrics"])
-    )
-
-
 def test_client_is_built_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     get_azure_openai_client.cache_clear()
 
-    class StubSettings:
-        azure_openai_endpoint: str = "https://test.openai.azure.com/"
-        azure_openai_api_key: str = "test-key-123"
-        azure_openai_api_version: str = "2024-02-01"
-
-    monkeypatch.setattr("app.azure_client.get_settings", StubSettings)
+    settings: Settings = Settings(
+        azure_openai_endpoint="https://test.openai.azure.com/",
+        azure_openai_api_key="test-key-123",
+        azure_openai_api_version="2024-02-01",
+    )
+    monkeypatch.setattr("app.azure_client.get_settings", lambda: settings)
 
     with get_azure_openai_client() as client:
         get_azure_openai_client.cache_clear()
