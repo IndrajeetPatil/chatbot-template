@@ -1,5 +1,4 @@
-import { fc } from "@fast-check/vitest";
-import { describe, expect, test } from "vite-plus/test";
+import { expect, test } from "vite-plus/test";
 
 import {
   getModelDisplay,
@@ -35,40 +34,16 @@ test("preserves conversation text while removing SDK step markers", () => {
   ]);
 });
 
-const supportedModels = fc.constantFrom(...Object.values(AssistantModel));
-const supportedEfforts = fc.constantFrom(...Object.values(ReasoningEffort));
-
-describe(getModelDisplay, () => {
-  test.each([
-    [AssistantModel.ASTRA, "GPT-6 Astra"],
-    [AssistantModel.SOL, "GPT-5.6 Sol"],
-  ])("returns %s for model %s", (model, expected) => {
-    expect(getModelDisplay(model)).toBe(expected);
-  });
-
-  test("returns a non-empty label for every supported model", () => {
-    fc.assert(
-      fc.property(supportedModels, (model) => {
-        expect(getModelDisplay(model)).not.toBe("");
-      }),
-    );
-  });
+test("labels every supported model", () => {
+  const labels = Object.values(AssistantModel).map((model) =>
+    getModelDisplay(model),
+  );
+  expect(labels).toStrictEqual(["GPT-6 Astra", "GPT-5.6 Sol"]);
 });
 
-describe(getReasoningEffortDisplay, () => {
-  test.each([
-    [ReasoningEffort.LOW, "Low"],
-    [ReasoningEffort.MEDIUM, "Medium"],
-    [ReasoningEffort.HIGH, "High"],
-  ])("returns %s for reasoning effort %s", (temp, expected) => {
-    expect(getReasoningEffortDisplay(temp)).toBe(expected);
-  });
-
-  test("returns a non-empty label for every supported reasoning effort", () => {
-    fc.assert(
-      fc.property(supportedEfforts, (effort) => {
-        expect(getReasoningEffortDisplay(effort)).not.toBe("");
-      }),
-    );
-  });
+test("labels every supported reasoning effort", () => {
+  const labels = Object.values(ReasoningEffort).map((effort) =>
+    getReasoningEffortDisplay(effort),
+  );
+  expect(labels).toStrictEqual(["Low", "Medium", "High"]);
 });

@@ -1,10 +1,9 @@
 import type { UIMessage } from "@ai-sdk/react";
 import { createTheme, ThemeProvider } from "@mui/material";
+import type { PaletteMode } from "@mui/material";
 import { render } from "@testing-library/react";
 import type { RenderOptions, RenderResult } from "@testing-library/react";
 import type React from "react";
-
-type PaletteMode = "light" | "dark";
 
 // A MUI ThemeProvider wrapper shared across component tests. Pass a palette
 // `mode` to exercise light/dark behaviour; omit it for the default theme.
@@ -13,9 +12,7 @@ export function makeThemeWrapper(
 ): React.FC<{ children: React.ReactNode }> {
   function ThemeWrapper({ children }: { children: React.ReactNode }) {
     return (
-      <ThemeProvider
-        theme={createTheme(mode ? { palette: { mode } } : undefined)}
-      >
+      <ThemeProvider theme={createTheme({ palette: { mode } })}>
         {children}
       </ThemeProvider>
     );
