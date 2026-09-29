@@ -12,8 +12,7 @@ RUN vp build
 
 FROM debian:trixie-slim@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
 
-# Upgrade perl-base until the pinned base includes Debian's Perl security fixes.
-RUN apt-get update && apt-get install -y --no-install-recommends nginx-light perl-base \
+RUN apt-get update && apt-get install -y --no-install-recommends nginx-light \
     && rm -rf /var/lib/apt/lists/*
 
 COPY frontend.nginx.conf /etc/nginx/nginx.conf

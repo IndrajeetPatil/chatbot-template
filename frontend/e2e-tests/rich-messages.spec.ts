@@ -1,8 +1,12 @@
 import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-import { openChat, sendMessage } from "./chat-fixture";
-import { MARKDOWN_REPLY } from "./markdown-fixture";
+import {
+  MARKDOWN_REPLY,
+  mockChatReply,
+  openChat,
+  sendMessage,
+} from "./chat-fixture";
 
 const KEYWORD_COLORS = {
   light: "rgb(207, 48, 64)",
@@ -16,9 +20,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     test("renders colored syntax and math, including after a theme change", async ({
       page,
     }) => {
-      await page.route("**/api/v1/chat", async (route) =>
-        route.fulfill({ contentType: "text/plain", body: MARKDOWN_REPLY }),
-      );
+      await mockChatReply(page, MARKDOWN_REPLY);
       await openChat(page);
       await sendMessage(page, "Show code and an equation.");
       const keyword = page.locator(".hljs-keyword").first();
@@ -58,9 +60,7 @@ for (const width of [320, 390]) {
       (_term, index) => `x_{${index}}`,
     ).join(" + ");
     const reply = `\`\`\`python\nprint("${"wide code ".repeat(20)}")\n\`\`\`\n\n$$\n${equation}\n$$`;
-    await page.route("**/api/v1/chat", async (route) =>
-      route.fulfill({ contentType: "text/plain", body: reply }),
-    );
+    await mockChatReply(page, reply);
     await openChat(page);
     await sendMessage(page, "Show wide content.");
     await expect(page.locator(".katex-display")).toBeVisible();

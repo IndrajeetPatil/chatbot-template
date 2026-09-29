@@ -10,7 +10,7 @@ import {
   ReasoningEffortSchema,
 } from "@/client/types/assistant";
 
-import { openChat, sendMessage } from "./chat-fixture";
+import { CHAT_API_PATH, openChat, sendMessage } from "./chat-fixture";
 
 // Loose objects keep unexpected keys so assertions can still reject them.
 const TextPartSchema = z.looseObject({ type: z.string(), text: z.string() });
@@ -25,8 +25,6 @@ const ChatBodySchema = z.looseObject({
 });
 
 type ChatBody = z.infer<typeof ChatBodySchema>;
-
-const CHAT_API_PATH = "**/api/v1/chat";
 
 for (const model of Object.values(AssistantModel)) {
   for (const effort of Object.values(ReasoningEffort)) {

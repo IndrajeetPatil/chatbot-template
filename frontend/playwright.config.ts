@@ -35,8 +35,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
-  // Exercise the production build, including the lazy markdown chunk, with
-  // the same server as the `start` script.
+  // Exercise the production build, including the lazy markdown chunk.
   webServer: {
     command: `vp preview --host 0.0.0.0 --port ${PORT} --strictPort`,
     url: BASE_URL,

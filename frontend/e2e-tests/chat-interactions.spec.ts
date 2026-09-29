@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-import { openChat, sendMessage } from "./chat-fixture";
+import {
+  CHAT_API_PATH,
+  mockChatReply,
+  openChat,
+  sendMessage,
+  sendPendingMessage,
+} from "./chat-fixture";
 
 test("supports skip navigation and model selection by keyboard", async ({
   page,
@@ -27,9 +33,7 @@ test("supports skip navigation and model selection by keyboard", async ({
 test("a suggestion starts a conversation and removes the welcome screen", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", async (route) =>
-    route.fulfill({ contentType: "text/plain", body: "Let’s break it down." }),
-  );
+  await mockChatReply(page, "Let’s break it down.");
   await openChat(page);
   await page.getByRole("button", { name: /Explain a complex idea/u }).click();
   await expect(page.getByText("Let’s break it down.")).toBeVisible();
@@ -44,20 +48,13 @@ test("a suggestion starts a conversation and removes the welcome screen", async 
 test("stopping a pending response restores the composer for a follow-up", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", () => {
-    // Never fulfill the request, so the response stays pending.
-  });
   await openChat(page);
-  await page.getByRole("textbox").fill("Take your time.");
-  await page.getByRole("button", { name: "Send", exact: true }).click();
-  await expect(page.getByRole("status")).toBeVisible();
+  await sendPendingMessage(page);
   await page.getByRole("button", { name: "Stop generating" }).click();
   await expect(page.getByRole("textbox")).toBeEnabled();
   await expect(page.getByRole("status")).toHaveCount(0);
-  await page.unroute("**/api/v1/chat");
-  await page.route("**/api/v1/chat", async (route) =>
-    route.fulfill({ contentType: "text/plain", body: "Ready again." }),
-  );
+  await page.unroute(CHAT_API_PATH);
+  await mockChatReply(page, "Ready again.");
   await sendMessage(page, "A new question");
   await expect(page.getByText("Ready again.")).toBeVisible();
 });
@@ -65,9 +62,7 @@ test("stopping a pending response restores the composer for a follow-up", async 
 test("preserves multiline text and supports keyboard submission", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", async (route) =>
-    route.fulfill({ contentType: "text/plain", body: "Two lines received." }),
-  );
+  await mockChatReply(page, "Two lines received.");
   await openChat(page);
   const input = page.getByRole("textbox");
   await input.fill("First line");
@@ -89,9 +84,7 @@ test("follows replies, preserves reading position, and jumps to the latest messa
     (_paragraph, index) =>
       `Paragraph ${index + 1}: A little more detail to read.`,
   ).join("\n\n");
-  await page.route("**/api/v1/chat", async (route) =>
-    route.fulfill({ contentType: "text/plain", body: reply }),
-  );
+  await mockChatReply(page, reply);
   await openChat(page);
   await sendMessage(page, "Give me a detailed reply.");
   const conversation = page.getByRole("region", { name: "Chat conversation" });

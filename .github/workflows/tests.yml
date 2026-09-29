@@ -35,11 +35,6 @@ jobs:
         with:
           working-directory: ./backend
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y make
-
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
@@ -81,11 +76,6 @@ jobs:
           node-version-file: .node-version
           cache: true
           run-install: false
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y make
 
       - name: Install frontend dependencies
         working-directory: ./frontend

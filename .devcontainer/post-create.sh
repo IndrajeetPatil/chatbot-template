@@ -49,31 +49,7 @@ export PATH="$HOME/.vite-plus/bin:$PATH"
 # ──────────────────────────────────────────────────────────────────────────────
 # ls-lint — file-naming linter
 # ──────────────────────────────────────────────────────────────────────────────
-KERNEL=$(uname -s | tr '[:upper:]' '[:lower:]')
-MACHINE=$(uname -m)
-case "$MACHINE" in
-  x86_64)  ARCH="amd64" ;;
-  aarch64) ARCH="arm64" ;;
-  *) echo "Unsupported architecture: $MACHINE" && exit 1 ;;
-esac
-curl -fsSL --retry 3 --retry-delay 2 --retry-all-errors \
-  "https://github.com/loeffel-io/ls-lint/releases/download/v2.3.1/ls-lint-${KERNEL}-${ARCH}" \
-  -o /tmp/ls-lint
-case "${KERNEL}-${ARCH}" in
-  linux-amd64)
-    echo "b5a0d2e4427ad039fbc574551f17679f38f142b25d15e0e538769f8cf15af397  /tmp/ls-lint" | sha256sum -c
-    ;;
-  linux-arm64)
-    echo "2abdb71243c619f0bb29587be5c228bec84c107985f2c066139ef0ec35fd3a99  /tmp/ls-lint" | sha256sum -c
-    ;;
-  *)
-    echo "ERROR: no checksum available for ${KERNEL}-${ARCH}; refusing to install unverified binary" >&2
-    rm /tmp/ls-lint
-    exit 1
-    ;;
-esac
-sudo install -m 0755 /tmp/ls-lint /usr/local/bin/ls-lint
-rm /tmp/ls-lint
+bash scripts/install-ls-lint.sh
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Backend — Python dependencies (uv installs the pinned Python version too)
