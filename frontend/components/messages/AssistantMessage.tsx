@@ -14,18 +14,6 @@ const COPY_BUTTON_SX = {
   color: "text.secondary",
 } as const;
 
-const ASSISTANT_MESSAGE_CONTAINER_SX = {
-  display: "flex",
-  justifyContent: "flex-start",
-} as const;
-
-const ASSISTANT_MESSAGE_PAPER_SX = {
-  width: "100%",
-  minWidth: 0,
-  overflowWrap: "anywhere",
-  wordWrap: "break-word",
-} as const;
-
 interface CopyButtonProps {
   content: string;
 }
@@ -75,25 +63,23 @@ function AssistantMessage({
   isFirstMessage,
 }: AssistantMessageProps): ReactElement {
   return (
-    <Box sx={ASSISTANT_MESSAGE_CONTAINER_SX}>
-      <Box sx={ASSISTANT_MESSAGE_PAPER_SX}>
-        <Typography
-          component="div"
-          variant="caption"
-          sx={{ color: "primary.main", fontWeight: 600, mb: 1.5 }}
-        >
-          Assistant
-        </Typography>
-        <Typography
-          variant="body1"
-          component="div"
-        >
-          <Suspense fallback={content}>
-            <RichMarkdown content={content} />
-          </Suspense>
-        </Typography>
-        {!isFirstMessage && <CopyButton content={content} />}
-      </Box>
+    <Box sx={{ overflowWrap: "break-word" }}>
+      <Typography
+        component="div"
+        variant="caption"
+        sx={{ color: "primary.main", fontWeight: 600, mb: 1.5 }}
+      >
+        Assistant
+      </Typography>
+      <Typography
+        variant="body1"
+        component="div"
+      >
+        <Suspense fallback={content}>
+          <RichMarkdown content={content} />
+        </Suspense>
+      </Typography>
+      {!isFirstMessage && <CopyButton content={content} />}
     </Box>
   );
 }

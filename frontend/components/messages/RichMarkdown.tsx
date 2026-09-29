@@ -1,5 +1,6 @@
 import type { ComponentPropsWithoutRef, ReactElement } from "react";
 import Markdown from "react-markdown";
+import type { Options } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
@@ -9,9 +10,7 @@ import "@/app/markdown.css";
 import { useIsDark } from "@/client/hooks";
 
 const REMARK_PLUGINS = [remarkMath];
-const REHYPE_PLUGINS: NonNullable<
-  ComponentPropsWithoutRef<typeof Markdown>["rehypePlugins"]
-> = [
+const REHYPE_PLUGINS: Options["rehypePlugins"] = [
   // Render math before highlighting so fenced `math` is not treated as code.
   [
     rehypeKatex,

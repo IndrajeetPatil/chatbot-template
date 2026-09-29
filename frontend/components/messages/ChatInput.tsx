@@ -44,7 +44,6 @@ function SendButton({
       <Tooltip title="Stop generating">
         <IconButton
           type="button"
-          aria-label="Stop generating"
           onClick={onStop}
           sx={CHAT_INPUT_SEND_BUTTON_SX}
         >
@@ -167,9 +166,7 @@ function ChatInput({
         validationError={validationError}
         onChange={(value) => {
           setMessage(value);
-          if (validationError !== null) {
-            setValidationError(null);
-          }
+          setValidationError(null);
         }}
         onKeyDown={(event) => {
           if (isSendShortcut(event)) {

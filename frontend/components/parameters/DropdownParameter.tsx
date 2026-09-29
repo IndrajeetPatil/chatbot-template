@@ -41,7 +41,6 @@ function DropdownParameter<Value extends string | number>({
           onClick={(event) => {
             setAnchorEl(event.currentTarget);
           }}
-          aria-label={ariaLabel}
           aria-haspopup="menu"
           aria-controls={controlledMenuId}
           aria-expanded={isOpen}
@@ -71,7 +70,7 @@ function DropdownParameter<Value extends string | number>({
       >
         {options.map((option) => (
           <MenuItem
-            key={String(option.value)}
+            key={option.value}
             selected={option.value === value}
             onClick={() => {
               selectOption(option.value);
