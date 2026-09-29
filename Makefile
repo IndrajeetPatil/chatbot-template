@@ -41,8 +41,6 @@ update-deps:
 	@echo "$(COLOR_BLUE_BG)Updating prek hook revisions...$(COLOR_RESET)"
 	prek update --freeze
 
-upgrade-deps: update-deps
-
 # Aggregate targets
 lint: file-naming backend-lint frontend-lint markdown-lint
 format: backend-format frontend-format config-format markdown-format
@@ -186,7 +184,7 @@ e2e-test-docker: frontend-e2e-test-docker
 e2e-update:
 	$(MAKE) e2e-test-docker E2E_ARGS="--update-snapshots $(E2E_ARGS)"
 
-.PHONY: setup service update-deps upgrade-deps \
+.PHONY: setup service update-deps \
 	lint format type-check test type-coverage clean cache-clean docker-clean \
 	fallow css-quality contrast-audit lighthouse \
 	commitlint markdown-lint markdown-format security-scan secret-scan-ci codex-security file-naming hooks \

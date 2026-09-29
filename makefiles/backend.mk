@@ -35,7 +35,7 @@ backend-validate-api-schema:
 
 backend-test:
 	@echo "$(COLOR_BLUE_BG)Running backend unit tests...$(COLOR_RESET)"
-	cd $(BACKEND_DIR) && $(PYTEST) && $(PYCOVERAGE)
+	cd $(BACKEND_DIR) && $(PYCOVERAGE)
 
 backend-snapshot-update:
 	@echo "$(COLOR_BLUE_BG)Rewriting backend inline snapshots...$(COLOR_RESET)"
