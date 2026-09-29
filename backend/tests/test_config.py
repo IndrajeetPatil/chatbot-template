@@ -2,7 +2,7 @@ import re
 from typing import TYPE_CHECKING, NamedTuple
 
 import pytest
-from hypothesis import assume, given
+from hypothesis import given
 from hypothesis import strategies as st
 from inline_snapshot import snapshot
 from limits import parse
@@ -98,17 +98,21 @@ def test_settings_raises_on_missing_azure_credentials(case: _AzureCase) -> None:
         )
 
 
-@given(st.text(alphabet=st.characters(min_codepoint=33, max_codepoint=126), min_size=1))
-def test_settings_raises_on_invalid_chat_rate_limit(value: str) -> None:
-    is_valid_rate_limit: bool
+def _is_invalid_rate_limit(value: str) -> bool:
     try:
         parse(value)
     except ValueError:
-        is_valid_rate_limit = False  # genuinely invalid — exactly what we want
-    else:
-        is_valid_rate_limit = True
-    assume(not is_valid_rate_limit)  # skip strings that are a valid rate limit
+        return True
+    return False
 
+
+@given(
+    st.text(
+        alphabet=st.characters(min_codepoint=33, max_codepoint=126),
+        min_size=1,
+    ).filter(_is_invalid_rate_limit),
+)
+def test_settings_raises_on_invalid_chat_rate_limit(value: str) -> None:
     pattern: str = re.escape(f"Invalid rate limit format: {value}")
     with pytest.raises(ValueError, match=pattern):
         Settings(testing=True, chat_rate_limit=value)

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, cast
 import pytest
 from loguru import logger
 
-from app.azure_client import get_azure_openai_client
 from tests.azure_double import AzureCall, build_client
 
 if TYPE_CHECKING:
@@ -24,7 +23,7 @@ if TYPE_CHECKING:
 # `env` in pyproject.toml) before any app module is imported, so Settings() does
 # not reject missing Azure credentials during collection.
 
-METRICS_LOG_PREFIX: str = "Azure OpenAI stream metrics: "
+_METRICS_LOG_PREFIX: str = "Azure OpenAI stream metrics: "
 
 
 @pytest.fixture
@@ -35,12 +34,10 @@ def fake_azure(monkeypatch: pytest.MonkeyPatch) -> Iterator[AzureFactory]:
     the transport records, so tests can assert on the actual outbound request.
     """
     with ExitStack() as clients:
-        clients.callback(get_azure_openai_client.cache_clear)
 
         def build(responder: Responder) -> list[AzureCall]:
             calls: list[AzureCall] = []
             client: AzureOpenAI = clients.enter_context(build_client(responder, calls))
-            get_azure_openai_client.cache_clear()
             monkeypatch.setattr(
                 "app.azure_client.get_azure_openai_client",
                 lambda: client,
@@ -82,10 +79,10 @@ def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
 def stream_metrics() -> Iterator[MetricsReader]:
     """Capture the single stream-metrics log event emitted by a test.
 
-    Reads the payload back out of the *rendered* message rather than the bound
-    record, because the app configures no structured sink: that JSON is what
-    actually reaches a log aggregator today. A dedicated test in
-    `test_azure_client` pins the `logger.bind` half against it.
+    Returns the payload parsed from the *rendered* message, because the app
+    configures no structured sink: that JSON is what actually reaches a log
+    aggregator today. The bound copy is what a structured sink would consume
+    instead, so every read also checks that it carries the same payload.
     """
     messages: list[Message] = []
     sink_id: int = logger.add(messages.append, format="{message}")
@@ -99,10 +96,14 @@ def stream_metrics() -> Iterator[MetricsReader]:
         if len(events) != 1:
             msg: str = f"expected 1 stream_metrics event, captured {len(events)}"
             raise AssertionError(msg)
-        return cast(
+        rendered: dict[str, MetricValue] = cast(
             "dict[str, MetricValue]",
-            json.loads(str(events[0]).removeprefix(METRICS_LOG_PREFIX)),
+            json.loads(str(events[0]).removeprefix(_METRICS_LOG_PREFIX)),
         )
+        if rendered != events[0].record["extra"]["stream_metrics"]:
+            msg = "bound stream_metrics payload differs from the rendered one"
+            raise AssertionError(msg)
+        return rendered
 
     try:
         yield read

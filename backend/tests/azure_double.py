@@ -120,13 +120,9 @@ def error_status(status_code: int, message: str = "upstream failure") -> Respond
     return respond
 
 
-def unreachable() -> Responder:
+def unreachable(_request: httpx2.Request) -> httpx2.Response:
     """Fail at the transport layer, as an unresolvable endpoint would."""
-
-    def respond(_request: httpx2.Request) -> httpx2.Response:
-        raise httpx2.ConnectError(CONNECT_ERROR)
-
-    return respond
+    raise httpx2.ConnectError(CONNECT_ERROR)
 
 
 def record_request(client: AzureOpenAI, *, model: str) -> httpx2.Request:
@@ -137,14 +133,11 @@ def record_request(client: AzureOpenAI, *, model: str) -> httpx2.Request:
     configuration rather than read back off its attributes.
     """
     sent: list[httpx2.Request] = []
+    empty_stream: Responder = stream_of()
 
     def handler(request: httpx2.Request) -> httpx2.Response:
         sent.append(request)
-        return httpx2.Response(
-            status.HTTP_200_OK,
-            content=DONE,
-            headers={"content-type": "text/event-stream"},
-        )
+        return empty_stream(request)
 
     with client.copy(
         http_client=httpx2.Client(transport=httpx2.MockTransport(handler)),
