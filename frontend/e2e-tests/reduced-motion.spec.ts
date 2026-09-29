@@ -1,18 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-import { openChat } from "./chat-fixture";
+import { openChat, sendPendingMessage } from "./chat-fixture";
 
 test.use({ reducedMotion: "no-preference" });
 
 test("honors reduced motion for the loading indicator and controls", async ({
   page,
 }) => {
-  await page.route("**/api/v1/chat", () => {
-    // Never fulfill the request, so the response stays pending.
-  });
   await openChat(page);
-  await page.getByRole("textbox").fill("Take your time.");
-  await page.getByRole("button", { name: "Send", exact: true }).click();
+  await sendPendingMessage(page);
   const responseStatus = page.getByRole("status");
   await expect(responseStatus).toHaveText("Generating…");
   const runningAnimations = async () =>

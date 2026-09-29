@@ -1,7 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { openChat, sendMessage } from "./chat-fixture";
-import { MARKDOWN_REPLY } from "./markdown-fixture";
+import {
+  CHAT_API_PATH,
+  MARKDOWN_REPLY,
+  mockChatReply,
+  openChat,
+  sendMessage,
+  sendPendingMessage,
+} from "./chat-fixture";
 
 // Use the pinned Linux/amd64 renderer through make e2e-test-docker on macOS.
 test.skip(
@@ -48,12 +54,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       });
 
       test("markdown conversation", async ({ page }) => {
-        await page.route("**/api/v1/chat", async (route) =>
-          route.fulfill({
-            contentType: "text/plain; charset=utf-8",
-            body: MARKDOWN_REPLY,
-          }),
-        );
+        await mockChatReply(page, MARKDOWN_REPLY);
         await sendMessage(page, "Show me a short code example.");
         // The lazy markdown renderer must finish before capturing the page.
         await expect(page.getByTestId("code-block")).toBeVisible();
@@ -63,12 +64,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       });
 
       test("pending response", async ({ page }) => {
-        await page.route("**/api/v1/chat", () => {
-          // Keep the request pending; the browser context closes it at teardown.
-        });
-        await page.getByRole("textbox").fill("Take your time.");
-        await page.getByRole("button", { name: "Send", exact: true }).click();
-        await expect(page.getByRole("status")).toBeVisible();
+        await sendPendingMessage(page);
         await expect(page.getByRole("textbox")).toBeDisabled();
         await expect(
           page.getByRole("button", { name: "Regenerate response" }),
@@ -78,7 +74,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       });
 
       test("failed response", async ({ page }) => {
-        await page.route("**/api/v1/chat", async (route) =>
+        await page.route(CHAT_API_PATH, async (route) =>
           route.fulfill({
             status: 503,
             contentType: "text/plain",
