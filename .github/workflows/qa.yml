@@ -46,11 +46,6 @@ jobs:
           cache: true
           run-install: false
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y make
-
       - name: Install ls-lint
         run: bash scripts/install-ls-lint.sh
 
