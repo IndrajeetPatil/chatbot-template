@@ -29,10 +29,7 @@ const toBackendMessages = (messages: UIMessage[]): BackendMessage[] =>
     role,
     parts: parts
       .filter((part) => part.type === "text")
-      .map(({ text }) => ({
-        type: "text" as const,
-        text,
-      })),
+      .map(({ type, text }) => ({ type, text })),
   }));
 
 export { getModelDisplay, getReasoningEffortDisplay, toBackendMessages };

@@ -35,16 +35,15 @@ function useChatSetup(
   const assistantIsLoading = status === "submitted" || status === "streaming";
   const hasUserMessage = messages.some((message) => message.role === "user");
 
+  const requestOptions = { body: { model, reasoning_effort: reasoningEffort } };
+
   const handleSendMessage = async (message: string) => {
-    await sendMessage(
-      { text: message },
-      { body: { model, reasoning_effort: reasoningEffort } },
-    );
+    await sendMessage({ text: message }, requestOptions);
   };
 
   const handleRegenerateResponse = async () => {
     if (hasUserMessage) {
-      await regenerate({ body: { model, reasoning_effort: reasoningEffort } });
+      await regenerate(requestOptions);
     }
   };
 
