@@ -2,7 +2,7 @@ from functools import cache
 from typing import TYPE_CHECKING
 
 from limits import parse
-from pydantic import Field, field_validator, model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
@@ -16,9 +16,7 @@ class Settings(BaseSettings):
     azure_openai_endpoint: str = ""
     azure_openai_api_key: str = ""
     azure_openai_api_version: str = ""
-    cors_allowed_origins: list[str] = Field(
-        default_factory=lambda: ["http://localhost:3000"],
-    )
+    cors_allowed_origins: list[str] = ["http://localhost:3000"]
     chat_rate_limit: str = "10/minute"
     testing: bool = False
 
