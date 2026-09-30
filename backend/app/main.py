@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Annotated, Literal, cast
 
-import openai
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -15,7 +14,7 @@ from app.config import get_settings
 from app.entities import AssistantModel, OpenAIMessageRole, ReasoningEffort
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable
 
     from app.config import Settings
 
@@ -135,7 +134,7 @@ def chat(request: Request, body: ChatRequest) -> StreamingResponse:
     )
 
     return StreamingResponse(
-        _stream_chat(
+        stream_azure_openai_response(
             messages=messages,
             model=body.model,
             reasoning_effort=body.reasoning_effort,
@@ -161,22 +160,3 @@ def _to_openai_messages(messages: list[UIMessage]) -> list[ChatMessage]:
         {"role": "system", "content": RESPONSE_FORMAT_INSTRUCTIONS},
         *openai_messages,
     ]
-
-
-def _stream_chat(
-    *,
-    messages: list[ChatMessage],
-    model: AssistantModel,
-    reasoning_effort: ReasoningEffort,
-) -> Iterator[str]:
-    try:
-        yield from stream_azure_openai_response(
-            messages=messages,
-            model=model,
-            reasoning_effort=reasoning_effort,
-        )
-    except openai.APIError:
-        raise  # all openai.APIError subtypes are logged in azure_client.py
-    except Exception:
-        logger.exception("Unexpected error while streaming response")
-        raise
