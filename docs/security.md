@@ -20,7 +20,7 @@ See [backend configuration](backend.md#configuration) and the
 
 | Surface    | Enforced behavior                                                                    |
 | ---------- | ------------------------------------------------------------------------------------ |
-| Markdown   | Raw HTML disabled; Oxlint blocks `dangerouslySetInnerHTML` and unsanitized DOM sinks |
+| Markdown   | Raw HTML disabled; Oxlint blocks `dangerouslySetInnerHTML` and raw-HTML DOM sinks    |
 | KaTeX      | Trusted commands disabled; fonts/styles bundled locally                              |
 | Requests   | Message count and text length validated before streaming                             |
 | Rate limit | Configurable; defaults to 10 requests/minute per client address                      |

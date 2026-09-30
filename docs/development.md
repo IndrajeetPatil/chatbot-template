@@ -98,7 +98,7 @@ make qa
 | Import sorter            | Oxfmt                                                    | Ruff                 |
 | Type checker             | TypeScript (`vp check`)                                  | ty                   |
 | Type annotation coverage | type-coverage                                            | pyrefly              |
-| Security linting         | Oxlint (`react/no-danger`, `no-unsanitized`, local rule) | \-                   |
+| Security linting         | Oxlint (`react/no-danger`, `id-denylist`, DOM sink bans) | \-                   |
 | Codebase analysis        | Fallow                                                   | \-                   |
 | CSS code quality         | @projectwallace/css-code-quality                         | \-                   |
 | Contrast audit           | @axe-core/playwright (`color-contrast`), light and dark  | \-                   |
@@ -135,6 +135,12 @@ make qa
   and type checking. Switch a rule off only when it contradicts another rule, is
   obsolete for the stack, or is owned by a stricter tool, and explain why beside
   it; cyclomatic complexity is capped at 5.
+- Oxlint runs only its built-in Rust rules; do not add `jsPlugins`. JS plugins
+  run in a Node.js runtime beside the linter and pull ESLint into the
+  dependency tree. Express project policies through configurable built-ins
+  instead: `no-restricted-imports` requires Vite+ imports over `vite` and
+  `vitest`, `no-restricted-properties` bans HTML-parsing DOM sinks, and
+  `id-denylist` bans `dangerouslySetInnerHTML` keys in forwarded props objects.
 - Biome remains only because Oxlint cannot lint CSS; Oxfmt formats CSS.
 - Fallow, type-coverage, Playwright Test, Lighthouse CI, css-code-quality,
   prek, ls-lint, rumdl, and commitlint run outside Vite+.
@@ -230,8 +236,6 @@ package schema to match the lockfile.
   entry points through built-in plugins. Do not add QA scripts as runtime entries.
 - Limit dependency exceptions to `@emotion/react`, `@emotion/styled` (MUI peers),
   and `babel-plugin-react-compiler` (loaded by `reactCompilerPreset()`).
-- A custom `oxlint-js-plugins` framework entry marks `lint/*.js` and
-  `eslint-plugin-no-unsanitized` as Oxlint tooling rather than unused code.
 - Recheck exceptions after upgrades. Directly imported QA packages and deleted
   mock paths need no exemptions.
 - No blanket test exclusions or disabling unresolved-import checks.

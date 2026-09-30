@@ -139,13 +139,19 @@ export default defineConfig({
       typeCheck: true,
       reportUnusedDisableDirectives: "error",
     },
-    jsPlugins: [
-      "vite-plus/oxlint-plugin",
-      "eslint-plugin-no-unsanitized",
-      "./lint/security.js",
-    ],
     rules: {
-      "vite-plus/prefer-vite-plus-imports": "error",
+      // Vite+ re-exports Vite and Vitest; import them through it.
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              regex: "^(vite|vitest|@vitest/[^/]+)(/|$)",
+              message: "Import from the matching vite-plus entry point.",
+            },
+          ],
+        },
+      ],
 
       // Security: block XSS and code injection through escape hatches.
       "react/no-danger": "error",
@@ -153,9 +159,24 @@ export default defineConfig({
       "react/jsx-no-script-url": "error",
       "react/iframe-missing-sandbox": "error",
       "react/jsx-no-target-blank": "error",
-      "security/no-dangerous-html-props": "error",
-      "no-unsanitized/method": "error",
-      "no-unsanitized/property": "error",
+      // `react/no-danger` only sees JSX attributes and `createElement` props;
+      // this also catches the prop inside objects that components forward to
+      // DOM elements, such as MUI `slotProps`.
+      "id-denylist": ["error", "dangerouslySetInnerHTML"],
+      // DOM sinks that parse strings as HTML. React renders the UI, so no
+      // code needs them.
+      "no-restricted-properties": [
+        "error",
+        { property: "innerHTML" },
+        { property: "outerHTML" },
+        { property: "insertAdjacentHTML" },
+        { property: "createContextualFragment" },
+        { property: "setHTMLUnsafe" },
+        { object: "document", property: "write" },
+        { object: "document", property: "writeln" },
+      ],
+      // `import()` only loads literal specifiers.
+      "import/no-dynamic-require": ["error", { esmodule: true }],
       "no-eval": "error",
       "no-new-func": "error",
       "typescript/no-implied-eval": "error",
@@ -309,7 +330,7 @@ export default defineConfig({
       },
       {
         // Node-run tooling reads the environment and prints results.
-        files: ["*.config.ts", "scripts/**", "lint/**"],
+        files: ["*.config.ts", "scripts/**"],
         rules: {
           // Private scripts run as ES modules and are never `require`d.
           "node/no-top-level-await": "off",
