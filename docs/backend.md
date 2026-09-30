@@ -133,6 +133,31 @@ cannot carry final usage metadata. If budget controls are added, introduce a
 typed metadata stream and optional per-reply usage details together; do not mix
 metrics into assistant text or present token counts as a price estimate.
 
+## OpenTelemetry
+
+FastAPI's [native OpenTelemetry support](https://fastapi.tiangolo.com/advanced/opentelemetry/)
+is on by default and needs no application code. It exports nothing until an OTLP
+endpoint is set. It reads process environment variables, not the settings loader;
+`make service` and Docker Compose both load `backend/.env` into the process, and
+variables exported in the shell take precedence under `make service`.
+
+| Variable                      | Meaning                                                                |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| `OTEL_SERVICE_NAME`           | Service name on exported signals; defaults to `unknown_service:python` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Collector's OTLP HTTP/protobuf base URL, e.g. `http://localhost:4318`  |
+| `OTEL_EXPORTER_OTLP_HEADERS`  | Collector authentication headers, when required                        |
+
+- Each request gets a server span named after its route, with child spans for
+  dependency resolution, the endpoint, and serialization. The chat span stays
+  open until the last streamed byte, so its duration covers the whole reply.
+- Metrics are `http.server.request.duration` and `http.server.active_requests`.
+- Log records cover request validation failures and unhandled exceptions. A
+  failure mid-stream sets `error.type` on the span even though the status is 200.
+- These signals are HTTP-level only. TTFT and token usage remain in the
+  `azure_openai_stream` log event above and are not exported.
+- Unsupported exporter settings, such as `OTEL_TRACES_EXPORTER=console`, log a
+  warning and leave the server running without export.
+
 ## Tests
 
 Tests exercise the real `openai` SDK over a mock HTTP transport instead of

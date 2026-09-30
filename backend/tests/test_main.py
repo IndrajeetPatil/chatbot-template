@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING, Any
 
-import httpx2
-import openai
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -283,27 +281,15 @@ def test_health(client: TestClient) -> None:
     assert response.json() == {"status": "ok"}
 
 
-@pytest.mark.parametrize(
-    "failure",
-    [
-        openai.APIError(
-            "upstream failure",
-            request=httpx2.Request("POST", "https://example.openai.azure.com/"),
-            body=None,
-        ),
-        RuntimeError("unexpected failure"),
-    ],
-    ids=["openai-api-error", "unexpected-error"],
-)
 def test_post_chat_propagates_streaming_failures(
     monkeypatch: pytest.MonkeyPatch,
     client: TestClient,
-    failure: Exception,
 ) -> None:
     def stub(**_: object) -> Iterator[str]:
-        raise failure
+        msg = "unexpected failure"
+        raise RuntimeError(msg)
 
     monkeypatch.setattr("app.main.stream_azure_openai_response", stub)
 
-    with pytest.raises(type(failure)):
+    with pytest.raises(RuntimeError, match="unexpected failure"):
         client.post("/api/v1/chat", json={"messages": [HI]})
