@@ -1,5 +1,5 @@
 # Vite+ provisions Node from .node-version and pnpm from packageManager.
-FROM ghcr.io/voidzero-dev/vite-plus:1.0.0-rc.1@sha256:6e65aa316696591c8eb52eb23ba48003805836bcd77aa84a08a2f26da30a5b42 AS builder
+FROM ghcr.io/voidzero-dev/vite-plus:1.0.0@sha256:8d788678fb9783ba8994c4fe5652af3316bfc414f7ef6ead0136932ee6075b8b AS builder
 
 WORKDIR /app
 

@@ -28,7 +28,7 @@ PY
 )
 curl -fsSLO --retry 3 --retry-delay 2 --retry-all-errors \
   "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-installer.sh"
-echo "e62a5ea089de9c6a9b1f767166c9f33194e18d350e9f375c6355fac3ba0fb42b  uv-installer.sh" | sha256sum -c
+echo "61b349611f1b6e1ba33645f30c36da5287df2609dd7af8605d96a031435eb35b  uv-installer.sh" | sha256sum -c
 UV_VERSION="${UV_VERSION}" sh uv-installer.sh
 rm uv-installer.sh
 export PATH="$HOME/.local/bin:$PATH"
