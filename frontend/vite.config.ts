@@ -1,7 +1,5 @@
-import babel from "@rolldown/plugin-babel";
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
-import type { PluginOption } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
 
 const isCI = Boolean(process.env.CI);
@@ -14,17 +12,11 @@ const CHAT_API_PROXY = {
   },
 };
 
-// The React Compiler auto-memoizes components and hooks, so manual useMemo/
-// useCallback/React.memo is unnecessary. It runs as a build-time Babel pass
-// (Vite 8 drives React Refresh through Oxc, so the compiler is wired in
-// separately via @rolldown/plugin-babel). We skip it under Vitest: memoization
-// is a performance optimization with no bearing on behavior, and running tests
-// against the un-compiled source keeps coverage measuring the code we wrote
-// rather than the compiler's injected memo-cache guards.
+// The React plugin's native Oxc compiler auto-memoizes components and hooks.
+// Keep unit coverage on our source rather than generated memo-cache guards.
+// Native React Compiler support is experimental; production browser and
+// visual tests exercise its output.
 const isTest = process.env.VITEST === "true";
-const reactCompiler: PluginOption[] = isTest
-  ? []
-  : [babel({ presets: [reactCompilerPreset()] })];
 
 // Generated output never gets formatted or linted.
 const GENERATED = [
@@ -56,8 +48,52 @@ const LINT_PLUGINS = [
 const TEST_FILES = ["**/*.test.{ts,tsx}", "**/*.bench.ts", "vitest.setup.ts"];
 
 export default defineConfig({
-  // `lazyPlugins` keeps `vp check`, `vp lint`, and `vp fmt` from loading Babel.
-  plugins: lazyPlugins(() => [react(), ...reactCompiler]),
+  // Static checks do not need to initialize the React build plugins.
+  plugins: lazyPlugins(() => [react({ compiler: !isTest })]),
+  run: {
+    tasks: {
+      // Fixing source files must always execute, even with `vp run --cache`.
+      check: { command: "vp check", cache: false },
+      build: {
+        command: "vp build",
+        cache: { env: ["CHAT_API_PROXY_TARGET"] },
+      },
+      qa: {
+        command: [
+          "vp run check --fix",
+          "vp run lint:css",
+          "vp test --coverage",
+          "vp pm audit -- --audit-level=moderate",
+          "vp run fallow",
+          "vp run css-quality",
+          "vp run type-coverage",
+          "vp run contrast-audit",
+        ],
+        // Tests and registry audits need fresh results on every QA run.
+        cache: false,
+      },
+      "test:e2e": {
+        command: "playwright test",
+        dependsOn: ["build"],
+        cache: false,
+      },
+      "contrast-audit": {
+        command: "PLAYWRIGHT_PORT=3100 playwright test contrast.spec.ts",
+        dependsOn: ["build"],
+        cache: false,
+      },
+      preview: {
+        command: "vp preview --host 127.0.0.1 --strictPort",
+        dependsOn: ["build"],
+        cache: false,
+      },
+      lighthouse: {
+        command: "vp dlx @lhci/cli@0.15.1 autorun",
+        dependsOn: ["build"],
+        cache: false,
+      },
+    },
+  },
   publicDir: "app/favicon",
   // `host: true` binds every interface so the devcontainer port forward works.
   // Neither server sets `strictPort`: `make qa` must not fail just because a

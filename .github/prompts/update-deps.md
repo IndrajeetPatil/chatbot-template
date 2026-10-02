@@ -7,7 +7,10 @@ description: Update dependencies and ensure the codebase is compatible with the 
 
 Run `make update-deps` to refresh backend uv dependencies, frontend pnpm
 dependencies (through `vp update`), registry package revisions, and prek hook
-revisions. Then iterate until the full local quality gate passes:
+revisions. It then runs `make frontend-toolchain-align`, using the project-local
+`vp migrate` to reconcile Vite+, its Vite alias, and the Vitest ecosystem pins
+without changing hooks, editor settings, or agent files. Then iterate until the
+full local quality gate passes:
 
 - `make qa`
 - `make frontend-build`
@@ -27,9 +30,9 @@ then rerun `make e2e-test-docker` without updating.
 `make update-deps` does not upgrade the Vite+ CLI itself. When a new Vite+
 release is adopted, update every pin together:
 
-- `frontend/pnpm-workspace.yaml` (the `vite-plus` catalog entry, the `vite`
-  alias to `@voidzero-dev/vite-plus-core` at the same version, and the `vitest`
-  and `@vitest/*` versions that release bundles)
+- `frontend/pnpm-workspace.yaml` (the `vite-plus` catalog entry; after installing
+  the target version, run `make frontend-toolchain-align` to align the `vite`
+  alias and `vitest` / `@vitest/*` catalog entries automatically)
 - `frontend/scripts/install-vp.sh` (`VP_VERSION` and the four per-platform
   SHA256 checksums from the release's `vp-checksums.txt`)
 - `frontend/Dockerfile` (`ghcr.io/voidzero-dev/vite-plus:<version>` tag and its

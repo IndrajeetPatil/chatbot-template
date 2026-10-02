@@ -32,9 +32,10 @@ if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
     (
         echo "::group::Production build details"
         trap 'echo "::endgroup::"' EXIT
-        vp build
+        vp run build
     )
 else
-    vp build
+    vp run build
 fi
-vp run test:e2e "$@"
+# Build details are grouped above; the task dependency has already succeeded.
+vp run --ignore-depends-on test:e2e "$@"

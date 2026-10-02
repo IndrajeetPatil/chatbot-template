@@ -68,17 +68,20 @@ jobs:
       - name: Backend lint and format
         run: make backend-format backend-lint
 
-      - name: Frontend and configuration format
-        run: make frontend-format config-format FMT_ARGS=--check
+      - name: Configuration format
+        run: make config-format FMT_ARGS=--check
 
-      - name: Frontend lint
-        run: make frontend-lint LINT_ARGS=
+      - name: Frontend format, lint, and types
+        run: make frontend-check CHECK_ARGS=
+
+      - name: CSS lint
+        run: make frontend-css-lint
 
       - name: Markdown lint
         run: make markdown-lint
 
-      - name: Python and TypeScript types
-        run: make type-check
+      - name: Python types
+        run: make backend-type-check
 
       - name: Backend dependency audit
         run: make backend-audit
