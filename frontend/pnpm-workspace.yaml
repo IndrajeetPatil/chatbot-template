@@ -3,10 +3,10 @@ allowBuilds:
 minimumReleaseAge: 0
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-  vitest: 5.0.1
+  vitest: 5.0.2
   vite-plus: 1.0.0
-  "@vitest/browser-playwright": 5.0.1
-  "@vitest/coverage-v8": 5.0.1
+  "@vitest/browser-playwright": 5.0.2
+  "@vitest/coverage-v8": 5.0.2
 overrides:
   vite@*: "catalog:"
   vitest@*: "catalog:"
