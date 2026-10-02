@@ -7,34 +7,40 @@
 Run commands from the repository root. Start with `make setup` and `make service`;
 see [getting started](getting-started.md) for service selection and configuration.
 
-| Command                                      | Purpose                                                         |
-| -------------------------------------------- | --------------------------------------------------------------- |
-| `make qa`                                    | Format, lint, types, schema, coverage, audits, Checkov          |
-| `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit          |
-| `make format` / `make lint`                  | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl  |
-| `make type-check` / `make type-coverage`     | Static types / 100% type coverage                               |
-| `make test`                                  | Backend and frontend unit tests with coverage                   |
-| `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                     |
-| `make frontend-bench`                        | Optional frontend request-preparation benchmarks                |
-| `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials               |
-| `make backend-load-test`                     | Start the backend and Locust against it                         |
-| `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                                |
-| `make contrast-audit` / `make lighthouse`    | Build and audit the frontend                                    |
-| `make e2e-test` / `make e2e-test-docker`     | Local browser behavior / pinned visual renderer                 |
-| `make e2e-update`                            | Regenerate visual baselines for review                          |
-| `make file-naming` / `make markdown-lint`    | Repository naming / Markdown checks                             |
-| `make hooks`                                 | All pre-commit hooks across tracked files                       |
-| `make update-deps`                           | Refresh dependencies, package revisions, and hook pins          |
-| `make security-scan` / `make secret-scan-ci` | Checkov / full-history Gitleaks with Docker                     |
-| `make docker-build`                          | Build both service images                                       |
-| `make setup` / `make service`                | Restore dependencies / run selected development services        |
-| `make frontend-preview`                      | Build and preview the frontend                                  |
-| `make docker-up` / `make docker-down`        | Build/start / stop Compose services                             |
-| `make markdown-format`                       | Format Markdown and align tables                                |
-| `make clean`                                 | Remove generated output and local / unused shared caches        |
+| Command                                      | Purpose                                                        |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| `make qa`                                    | Format, lint, types, schema, coverage, audits, Checkov         |
+| `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit         |
+| `make format` / `make lint`                  | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl |
+| `make type-check` / `make type-coverage`     | Static types / 100% type coverage                              |
+| `make test`                                  | Backend and frontend unit tests with coverage                  |
+| `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                    |
+| `make frontend-bench`                        | Optional frontend request-preparation benchmarks               |
+| `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials              |
+| `make backend-load-test`                     | Start the backend and Locust against it                        |
+| `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                               |
+| `make contrast-audit` / `make lighthouse`    | Build and audit the frontend                                   |
+| `make e2e-test` / `make e2e-test-docker`     | Local browser behavior / pinned visual renderer                |
+| `make e2e-update`                            | Regenerate visual baselines for review                         |
+| `make file-naming` / `make markdown-lint`    | Repository naming / Markdown checks                            |
+| `make hooks`                                 | All pre-commit hooks across tracked files                      |
+| `make update-deps`                           | Refresh dependencies, package revisions, and hook pins         |
+| `make frontend-toolchain-align`              | Align Vite+ aliases and Vitest packages with the local CLI     |
+| `make frontend-check CHECK_ARGS=`            | Verify frontend format, lint, and types together               |
+| `make security-scan` / `make secret-scan-ci` | Checkov / full-history Gitleaks with Docker                    |
+| `make docker-build`                          | Build both service images                                      |
+| `make setup` / `make service`                | Restore dependencies / run selected development services       |
+| `make frontend-preview`                      | Build and preview the frontend                                 |
+| `make docker-up` / `make docker-down`        | Build/start / stop Compose services                            |
+| `make markdown-format`                       | Format Markdown and align tables                               |
+| `make clean`                                 | Remove generated output and local / unused shared caches       |
 
 Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
 [frontend.mk](../makefiles/frontend.mk). Frontend targets run through Vite+ (`vp`).
+Frontend QA runs `vp run qa`: one `vp check --fix` replaces separate format,
+lint, and type-check passes. CI uses `vp check` without fixes, followed by the
+remaining gates in separate steps. Individual format, lint, and type-check
+Make targets remain available for focused work.
 `make format` includes Markdown and, through `make config-format`, root YAML,
 JSON, and TOML files formatted by the frontend's Oxfmt; CI checks both with
 `FMT_ARGS=--check`. rumdl enforces aligned table columns in lint, QA, and hooks.
@@ -142,8 +148,31 @@ make qa
   `vitest`, `no-restricted-properties` bans HTML-parsing DOM sinks, and
   `id-denylist` bans `dangerouslySetInnerHTML` keys in forwarded props objects.
 - Biome remains only because Oxlint cannot lint CSS; Oxfmt formats CSS.
+- The React plugin uses `oxc-transform-react` through `react({ compiler: true })`
+  for native automatic memoization, without Babel. This compiler is experimental;
+  keep production browser and visual tests when changing it. Unit tests disable
+  the compiler so coverage measures source rather than generated memo guards.
+- Browser compatibility uses Vite's default `build.target`; there is no
+  Browserslist configuration or legacy transpiler integration.
 - Fallow, type-coverage, Playwright Test, Lighthouse CI, css-code-quality,
   prek, ls-lint, rumdl, and commitlint run outside Vite+.
+
+### Frontend tasks
+
+The `run.tasks` block in `vite.config.ts` owns QA orchestration and the build
+dependencies of `test:e2e`, `contrast-audit`, `preview`, and `lighthouse`.
+These tasks build production assets before running, including when invoked
+directly with `vp run`. Pass Playwright arguments after `vp run test:e2e`.
+Make remains the entry point for backend, frontend, and repository checks.
+
+Only the build task is cached. Vite Task tracks its file inputs and outputs;
+`CHAT_API_PROXY_TARGET` is included in its environment fingerprint. Checks,
+autofixes, tests, audits, and servers always execute. `vp cache clean` clears
+task results; `make frontend-clean` also removes them with `node_modules`.
+
+`make frontend-type-check` retains `vp check --no-fmt` because
+[`--no-lint` still ignores disable comments](https://github.com/voidzero-dev/vite-plus/issues/2830)
+in Vite+ 1.0.0. QA's combined check needs no workaround or duplicate lint pass.
 
 ## Frontend unit tests and benchmarks
 
@@ -235,7 +264,7 @@ package schema to match the lockfile.
 - Keep `src/main.tsx` as the runtime entry; discover package scripts and test/tool
   entry points through built-in plugins. Do not add QA scripts as runtime entries.
 - Limit dependency exceptions to `@emotion/react`, `@emotion/styled` (MUI peers),
-  and `babel-plugin-react-compiler` (loaded by `reactCompilerPreset()`).
+  and `oxc-transform-react` (loaded by the React plugin's `compiler` option).
 - Recheck exceptions after upgrades. Directly imported QA packages and deleted
   mock paths need no exemptions.
 - No blanket test exclusions or disabling unresolved-import checks.
@@ -315,5 +344,9 @@ Never rely on CI reporter exit codes alone.
   `frontend/pnpm-workspace.yaml`, `VP_VERSION` and checksums in
   `frontend/scripts/install-vp.sh`, the builder image tag and digest in
   `frontend/Dockerfile`, and the `voidzero-dev/setup-vp` action pin.
+- After dependency updates, `make frontend-toolchain-align` runs the local
+  CLI's `vp migrate` to reconcile the Vite alias, Vitest pin, and browser/coverage
+  packages. It preserves existing hook, editor, and agent configuration.
+  Installer checksums and image digests still require explicit updates.
 - Unless requested, do not wait for hosted CI after pushing; provide the PR or
   workflow link and distinguish local results from live checks.

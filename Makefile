@@ -38,6 +38,7 @@ update-deps:
 	cd ./frontend && $(VP) update
 	@echo "$(COLOR_BLUE_BG)Refreshing registry package revisions...$(COLOR_RESET)"
 	cd ./frontend && $(VP) update -- --patches
+	$(MAKE) frontend-toolchain-align
 	@echo "$(COLOR_BLUE_BG)Updating prek hook revisions...$(COLOR_RESET)"
 	prek update --freeze
 
@@ -65,8 +66,8 @@ docker-clean:
 # Convenience aliases for frontend-only tools
 fallow: frontend-fallow
 css-quality: frontend-css-quality
-contrast-audit: frontend-build frontend-contrast-audit
-lighthouse: frontend-build frontend-lighthouse
+contrast-audit: frontend-contrast-audit
+lighthouse: frontend-lighthouse
 
 # Project-wide tools
 commitlint:
@@ -158,8 +159,8 @@ hooks:
 
 # Quality assurance suites
 qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
-qa-frontend: file-naming frontend-lint frontend-format frontend-type-check frontend-test frontend-build frontend-audit frontend-fallow frontend-css-quality frontend-contrast-audit frontend-type-coverage
-qa: format lint type-check backend-validate-api-schema backend-audit test fallow css-quality frontend-build frontend-contrast-audit type-coverage security-scan
+qa-frontend: file-naming frontend-qa
+qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint backend-type-check backend-validate-api-schema backend-audit backend-test backend-type-coverage frontend-qa security-scan
 
 # Run targets
 run: service

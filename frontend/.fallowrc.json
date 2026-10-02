@@ -5,7 +5,7 @@
   "ignoreDependencies": [
     "@emotion/react",
     "@emotion/styled",
-    "babel-plugin-react-compiler"
+    "oxc-transform-react"
   ],
   "rules": {
     "unused-files": "error",

@@ -6,10 +6,8 @@
   "scripts": {
     "bench": "vp test bench --run",
     "lint:css": "biome lint --error-on-warnings",
-    "test:e2e": "playwright test",
     "fallow": "fallow doctor --quiet && fallow --fail-on-issues --quiet",
     "css-quality": "node scripts/css-quality.ts",
-    "contrast-audit": "PLAYWRIGHT_PORT=3100 playwright test contrast.spec.ts",
     "type-coverage": "type-coverage --strict --at-least 100"
   },
   "dependencies": {
@@ -30,43 +28,28 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@babel/core": "^8.0.6",
     "@biomejs/biome": "2.5.8",
     "@fast-check/vitest": "^0.5.0",
     "@playwright/test": "^1.63.0",
     "@projectwallace/css-code-quality": "^3.1.4",
-    "@rolldown/plugin-babel": "^0.2.4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
-    "@types/babel__core": "^7.20.5",
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/browser-playwright": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "babel-plugin-react-compiler": "1.0.0",
     "fallow": "^3.30.0",
     "http-status-codes": "^2.3.0",
+    "oxc-transform-react": "0.145.0",
     "playwright": "^1.63.0",
     "type-coverage": "^2.30.2",
     "typescript": "^6.0.3",
     "vite": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "packageManager": "pnpm@12.4.1+sha512.2e81e399d73fe8390dab25e06aa788ab7a5908248d2f5a370f82b481147a6a7a367bf8048f9a6fdb6460f21a66f0542dedb8b94ca2c8723596741920b1656d4c"
 }
