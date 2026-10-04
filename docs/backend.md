@@ -5,19 +5,12 @@
 FastAPI validates requests and streams Azure OpenAI text to the frontend.
 Run it with `make service SERVICE=backend`; see [getting started](getting-started.md).
 
-```mermaid
-sequenceDiagram
-    participant UI as React via proxy
-    participant API as FastAPI
-    participant Azure as Azure OpenAI
-    UI->>API: POST /api/v1/chat
-    API->>API: Validate messages and rate limit
-    API->>Azure: Messages and reasoning effort
-    loop Text chunks
-        Azure-->>API: Completion text
-        API-->>UI: Plain-text stream
-    end
-```
+![Chatbot architecture: FastAPI validates requests, calls Azure OpenAI, and streams replies through the frontend proxy](images/chatbot-template-architecture.webp)
+
+For `POST /api/v1/chat`, FastAPI validates messages and enforces the rate limit
+before streaming starts. It adds formatting instructions and forwards the
+messages, model, and reasoning effort to Azure OpenAI. Completion text streams
+back through the frontend proxy as plain text.
 
 ## Source map
 

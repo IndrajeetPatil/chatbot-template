@@ -7,6 +7,19 @@ streaming replies from Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 - Model and reasoning choices, streamed responses, stop, regenerate, and copy.
 - Syntax-highlighted code and LaTeX equations in Markdown replies.
 
+## Architecture
+
+![React browser, Vite or nginx proxy, FastAPI backend, and Azure OpenAI request and reply flow](docs/images/chatbot-template-architecture.webp)
+
+The browser sends messages, model, and reasoning effort to `/api/v1/chat`
+through the same-origin Vite or nginx proxy. FastAPI validates and rate-limits
+requests, adds formatting instructions, and calls Azure OpenAI with server-side
+credentials. Text deltas return through the proxy as a plain-text stream for
+the React interface to render as Markdown, highlighted code, and LaTeX.
+
+See [request routing](docs/getting-started.md#request-routing) and the
+[backend API](docs/backend.md#api) for configuration and the request contract.
+
 ## See it in action
 
 A local conversation turns projectile-motion equations into a typed Python

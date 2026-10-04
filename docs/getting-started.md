@@ -67,12 +67,11 @@ stay in the backend; never commit `backend/.env`.
 
 ## Request routing
 
-```mermaid
-flowchart LR
-    Browser[Browser] -->|same-origin /api/v1/chat| Frontend[Vite or nginx]
-    Frontend -->|proxy /api| Backend[FastAPI]
-    Backend -->|server-side credentials| Azure[Azure OpenAI]
-```
+![Chatbot architecture: browser requests pass through Vite or nginx to FastAPI and Azure OpenAI](images/chatbot-template-architecture.webp)
+
+The browser uses the same-origin `/api/v1/chat` endpoint. Vite or nginx proxies
+`/api` to FastAPI, which calls Azure OpenAI with server-side credentials and
+returns a plain-text reply stream through the proxy.
 
 | Mode                        | Proxy target            | Configuration                                                             |
 | --------------------------- | ----------------------- | ------------------------------------------------------------------------- |
