@@ -135,7 +135,7 @@ export default defineConfig({
       },
     },
     exclude: ["**/node_modules/**", "**/dist/**", "**/e2e-tests/**"],
-    // Undo `vi.spyOn` after each test so spies on browser APIs cannot leak.
+    // Undo `vi.spyOn` before each test so spies on browser APIs cannot leak.
     restoreMocks: true,
     setupFiles: ["./vitest.setup.ts"],
   },
@@ -258,7 +258,7 @@ export default defineConfig({
       // the type-aware variant accepts those that return a promise directly.
       "require-await": "off",
       "typescript/require-await": "error",
-      // `mockResolvedValue(undefined)` needs its argument to type-check.
+      // Resolving `Promise<undefined>` still requires an explicit argument.
       "unicorn/no-useless-undefined": ["error", { checkArguments: false }],
       // `void promise` marks a deliberately unawaited promise.
       "no-void": ["error", { allowAsStatement: true }],

@@ -12,13 +12,9 @@ type ChatHelpers = UseChatHelpers<UIMessage>;
 
 vi.mock(import("@ai-sdk/react"), { spy: true });
 
-const mockSendMessage = vi
-  .fn<ChatHelpers["sendMessage"]>()
-  .mockResolvedValue(undefined);
-const mockRegenerate = vi
-  .fn<ChatHelpers["regenerate"]>()
-  .mockResolvedValue(undefined);
-const mockStop = vi.fn<ChatHelpers["stop"]>().mockResolvedValue(undefined);
+const mockSendMessage = vi.fn<ChatHelpers["sendMessage"]>().mockResolvedValue();
+const mockRegenerate = vi.fn<ChatHelpers["regenerate"]>().mockResolvedValue();
+const mockStop = vi.fn<ChatHelpers["stop"]>().mockResolvedValue();
 
 const INITIAL_MESSAGES = [
   makeTextMessage(
