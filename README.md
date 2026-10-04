@@ -58,6 +58,20 @@ Open [localhost:3000/chat](http://localhost:3000/chat). Press Ctrl+C to stop.
 See [getting started](docs/getting-started.md) for configuration and Docker,
 and [security](docs/security.md) before deployment.
 
+## Quality harness
+
+![Local tools and CI enforce code, type, structure, test, browser, security, and convention checks with coverage floors](docs/images/chatbot-template-quality-harness.webp)
+
+`make qa`, prek hooks, and GitHub Actions check code and architectural quality.
+Fallow rejects dependency cycles, dead code, duplication, and complexity
+violations. Tests, coverage floors, type coverage, CSS quality, accessibility,
+and security scans provide complementary checks and review evidence.
+
+The diagram uses blue, orange, and purple accents with numbered groups and dark
+text on white; its meaning does not depend on distinguishing colors.
+See [development](docs/development.md#quality-harness) for the gates and
+thresholds, and [security scans](docs/security.md#automated-scans) for scan scope.
+
 ## Documentation
 
 | Guide                                      | What you will find                                      |
