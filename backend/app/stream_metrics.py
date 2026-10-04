@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Literal
 from loguru import logger
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
 
     from openai.types.chat import ChatCompletionChunk
     from openai.types.completion_usage import CompletionUsage
@@ -65,7 +65,7 @@ class StreamMetrics:
 def measure_stream(
     model: AssistantModel,
     reasoning_effort: ReasoningEffort,
-) -> Iterator[StreamMetrics]:
+) -> Generator[StreamMetrics]:
     metrics: StreamMetrics = StreamMetrics(
         model=model,
         reasoning_effort=reasoning_effort,
