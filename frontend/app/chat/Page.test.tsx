@@ -2,26 +2,21 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, expect, test, vi } from "vite-plus/test";
 
 import { AssistantModel, ReasoningEffort } from "@/client/types/assistant";
-import type { useChatSetup } from "@/client/useChatSetup";
+import { useChatSetup } from "@/client/useChatSetup";
 
 import Home from "./Page";
 
 type ChatSetup = ReturnType<typeof useChatSetup>;
 
-const { mockUseChatSetup, send, regenerate } = vi.hoisted(() => ({
-  mockUseChatSetup: vi.fn<typeof useChatSetup>(),
-  send: vi.fn<ChatSetup["handleSendMessage"]>().mockResolvedValue(undefined),
-  regenerate: vi
-    .fn<ChatSetup["handleRegenerateResponse"]>()
-    .mockResolvedValue(undefined),
-}));
+vi.mock(import("@/client/useChatSetup"), { spy: true });
 
-vi.mock(import("@/client/useChatSetup"), () => ({
-  useChatSetup: mockUseChatSetup,
-}));
+const send = vi.fn<ChatSetup["handleSendMessage"]>().mockResolvedValue();
+const regenerate = vi
+  .fn<ChatSetup["handleRegenerateResponse"]>()
+  .mockResolvedValue();
 
 function setupChat({ hasUserMessage }: Pick<ChatSetup, "hasUserMessage">) {
-  mockUseChatSetup.mockReturnValue({
+  vi.mocked(useChatSetup).mockReturnValue({
     messages: [],
     assistantIsLoading: false,
     hasUserMessage,
@@ -38,7 +33,7 @@ beforeEach(() => {
 
 test("connects model, reasoning, send and regeneration to the chat hook", () => {
   render(<Home />);
-  expect(mockUseChatSetup).toHaveBeenLastCalledWith(
+  expect(useChatSetup).toHaveBeenLastCalledWith(
     AssistantModel.ASTRA,
     ReasoningEffort.LOW,
   );
@@ -51,7 +46,7 @@ test("connects model, reasoning, send and regeneration to the chat hook", () => 
     screen.getByRole("button", { name: /Select reasoning effort/u }),
   );
   fireEvent.click(screen.getAllByRole("menuitem")[2]);
-  expect(mockUseChatSetup).toHaveBeenLastCalledWith(
+  expect(useChatSetup).toHaveBeenLastCalledWith(
     AssistantModel.SOL,
     ReasoningEffort.HIGH,
   );

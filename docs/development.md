@@ -180,9 +180,15 @@ The frontend uses [Vitest 5](https://vitest.dev/blog/vitest-5.html), bundled by
 Vite+, with the matching V8 coverage provider. Unit tests run in real Chromium
 through Vitest browser mode (`vite-plus/test/browser-playwright`), so layout,
 storage, and clipboard behave as they do for users; tests import from
-`vite-plus/test`. `@fast-check/vitest` 0.5 retains the property tests. Mocks are
-restored after each test, the coverage thresholds above apply, and coverage
+`vite-plus/test`. `@fast-check/vitest` 0.5 retains the property tests. Spies are
+restored before each test, the coverage thresholds above apply, and coverage
 artifacts stay in `frontend/coverage/` for CI uploads.
+
+Vitest 5 clears mock call history before each test by default. Configure hook
+return values in `beforeEach`, since clearing calls preserves implementations.
+Use `vi.mock(import("..."), { spy: true })` and `vi.mocked()` for module exports
+instead of a hoisted factory when only their return values need replacing.
+Typed mocks returning `Promise<void>` can use `.mockResolvedValue()` directly.
 
 The [benchmarking API](https://vitest.dev/guide/benchmarking) is useful for pure
 frontend work whose cost grows with a conversation. The initial benchmark calls
