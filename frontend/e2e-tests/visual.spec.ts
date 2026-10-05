@@ -57,7 +57,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         await mockChatReply(page, MARKDOWN_REPLY);
         await sendMessage(page, "Show me a short code example.");
         // The lazy markdown renderer must finish before capturing the page.
-        await expect(page.getByTestId("code-block")).toBeVisible();
+        await expect(page.locator(".markdown pre > code")).toBeVisible();
         await expect(page.locator(".katex-display")).toBeVisible();
         await page.evaluate(async () => document.fonts.ready);
         await expect(page).toHaveScreenshot(snapshot("conversation"));

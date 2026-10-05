@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ReactElement } from "react";
+import type { ReactElement } from "react";
 import Markdown from "react-markdown";
 import type { Options } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -19,12 +19,6 @@ const REHYPE_PLUGINS: Options["rehypePlugins"] = [
   [rehypeHighlight, { detect: false }],
 ];
 
-function CodeBlock({ children }: ComponentPropsWithoutRef<"pre">) {
-  return <pre data-testid="code-block">{children}</pre>;
-}
-
-const COMPONENTS = { pre: CodeBlock };
-
 export default function RichMarkdown({
   content,
 }: {
@@ -39,7 +33,6 @@ export default function RichMarkdown({
       <Markdown
         remarkPlugins={REMARK_PLUGINS}
         rehypePlugins={REHYPE_PLUGINS}
-        components={COMPONENTS}
       >
         {content}
       </Markdown>

@@ -1,4 +1,3 @@
-import { screen } from "@testing-library/react";
 import { expect, test } from "vite-plus/test";
 
 import { renderWithTheme } from "@/client/testUtils";
@@ -16,7 +15,9 @@ test.each([
       <RichMarkdown content={`\`\`\`${language}\n${source}\n\`\`\``} />,
     );
     expect(container.querySelector(".hljs-keyword")).toHaveTextContent(keyword);
-    expect(screen.getByTestId("code-block").textContent).toBe(`${source}\n`);
+    expect(container.querySelector("pre > code")?.textContent).toBe(
+      `${source}\n`,
+    );
   },
 );
 
@@ -28,7 +29,7 @@ test.each(["", "unknown-language", "text"])(
         content={`\`\`\`${language}\n$literal$ <b>code</b>\n\`\`\``}
       />,
     );
-    expect(screen.getByTestId("code-block").textContent).toBe(
+    expect(container.querySelector("pre > code")?.textContent).toBe(
       "$literal$ <b>code</b>\n",
     );
     expect(container.querySelector(".katex, .hljs-string, b")).toBeNull();

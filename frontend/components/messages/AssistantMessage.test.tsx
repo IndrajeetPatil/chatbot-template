@@ -13,7 +13,7 @@ test.each(["light", "dark"] as const)(
     const writeText = vi
       .spyOn(navigator.clipboard, "writeText")
       .mockResolvedValue();
-    renderWithTheme(
+    const { container } = renderWithTheme(
       <AssistantMessage
         content={content}
         isFirstMessage={false}
@@ -22,7 +22,7 @@ test.each(["light", "dark"] as const)(
     );
     // Flush the lazy import before querying; appearance is covered by Playwright.
     await act(async () => vi.dynamicImportSettled());
-    await expect(screen.findAllByTestId("code-block")).resolves.toHaveLength(2);
+    expect(container.querySelectorAll("pre > code")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button"));
     fireEvent.click(screen.getByRole("button"));
     expect(writeText).toHaveBeenCalledTimes(2);
