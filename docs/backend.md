@@ -48,6 +48,14 @@ from the endpoint functions and Pydantic models. Visit
 `http://localhost:8000/docs` while the backend is running to explore the
 endpoints and request schemas.
 
+Note these runtime constraints which are not represented in the schema:
+
+- A message must provide either `content` or `parts`; if both are provided,
+  `content` takes precedence.
+- The joined text of all parts cannot exceed 32,000 characters.
+- Messages that are entirely whitespace are dropped. If the resulting
+  conversation is empty, the server returns HTTP 400.
+- Exceeding the rate limit returns HTTP 429.
 - Validate before starting the stream so invalid input retains its HTTP status.
 - The server prepends formatting instructions for the [frontend renderer](frontend.md).
 - `TextStreamChatTransport` consumes plain text; the response is not SSE or JSON.
