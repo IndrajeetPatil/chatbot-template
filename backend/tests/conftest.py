@@ -5,18 +5,19 @@ from typing import TYPE_CHECKING, cast
 import pytest
 from loguru import logger
 
-from tests.azure_double import AzureCall, build_client
+from tests.azure_double import build_client
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
+    from httpx2 import Response
     from loguru import Message
     from openai import AzureOpenAI
 
     from app.stream_metrics import MetricValue
     from tests.azure_double import Responder
 
-    type AzureFactory = Callable[[Responder], list[AzureCall]]
+    type AzureFactory = Callable[[Responder], list[Response]]
     type MetricsReader = Callable[[], dict[str, MetricValue]]
 
 # TESTING=true is set declaratively via pytest-env (see [tool.pytest.ini_options]
@@ -30,19 +31,21 @@ _METRICS_LOG_PREFIX: str = "Azure OpenAI stream metrics: "
 def fake_azure(monkeypatch: pytest.MonkeyPatch) -> Iterator[AzureFactory]:
     """Point `app.azure_client` at a real SDK client backed by a mock transport.
 
-    Returns a factory that takes a responder and hands back the list of calls
-    the transport records, so tests can assert on the actual outbound request.
+    Returns a factory that takes a responder and hands back the responses
+    the transport returns, so tests can assert on the actual outbound request.
     """
     with ExitStack() as clients:
 
-        def build(responder: Responder) -> list[AzureCall]:
-            calls: list[AzureCall] = []
-            client: AzureOpenAI = clients.enter_context(build_client(responder, calls))
+        def build(responder: Responder) -> list[Response]:
+            responses: list[Response] = []
+            client: AzureOpenAI = clients.enter_context(
+                build_client(responder, responses),
+            )
             monkeypatch.setattr(
                 "app.azure_client.get_azure_openai_client",
                 lambda: client,
             )
-            return calls
+            return responses
 
         yield build
 

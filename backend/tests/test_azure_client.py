@@ -5,6 +5,7 @@ Every test here drives the real `openai` SDK over a mock HTTP transport (see
 and the SDK's real response handling rather than about a stub's bookkeeping.
 """
 
+import json
 from typing import TYPE_CHECKING
 
 import httpx2
@@ -34,7 +35,6 @@ from tests.azure_double import (
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
 
-    from tests.azure_double import AzureCall
     from tests.conftest import AzureFactory, FakeClock, MetricsReader
 
 PROMPT: list[dict[str, str]] = [{"role": "user", "content": "Test prompt"}]
@@ -102,11 +102,17 @@ def test_posts_to_the_model_deployment(
     model: AssistantModel,
     expected: object,
 ) -> None:
-    calls: list[AzureCall] = fake_azure(stream_of(content_chunk("Hi")))
+    responses: list[httpx2.Response] = fake_azure(stream_of(content_chunk("Hi")))
 
     stream_text(model=model)
 
-    assert [{"url": call.url, "body": call.body} for call in calls] == expected
+    assert [
+        {
+            "url": str(response.request.url),
+            "body": json.loads(response.request.content),
+        }
+        for response in responses
+    ] == expected
 
 
 @pytest.mark.parametrize("reasoning_effort", list(ReasoningEffort))
@@ -114,11 +120,14 @@ def test_forwards_the_requested_reasoning_effort(
     fake_azure: AzureFactory,
     reasoning_effort: ReasoningEffort,
 ) -> None:
-    calls: list[AzureCall] = fake_azure(stream_of(content_chunk("Hi")))
+    responses: list[httpx2.Response] = fake_azure(stream_of(content_chunk("Hi")))
 
     stream_text(reasoning_effort=reasoning_effort)
 
-    assert calls[0].body["reasoning_effort"] == reasoning_effort.value
+    assert (
+        json.loads(responses[0].request.content)["reasoning_effort"]
+        == reasoning_effort.value
+    )
 
 
 def test_yields_text_deltas_and_drops_everything_else(
@@ -150,14 +159,14 @@ def test_releases_the_upstream_response_when_the_consumer_disconnects(
         clock.advance(250)
         yield sse_bytes(content_chunk("Hi"), content_chunk(" there"))
 
-    calls: list[AzureCall] = fake_azure(raw_stream(body))
+    responses: list[httpx2.Response] = fake_azure(raw_stream(body))
     stream: Generator[str] = open_stream()
     assert next(stream) == "Hi"
     clock.advance(250)
 
     stream.close()
 
-    assert calls[0].response.is_closed
+    assert responses[0].is_closed
     # Abandoning the stream must still report the progress made before the
     # disconnect, under the `interrupted` status rather than `completed`.
     assert stream_metrics() == snapshot({
