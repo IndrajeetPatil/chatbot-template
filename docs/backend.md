@@ -43,43 +43,10 @@ backend directory. Azure values must be nonempty unless `TESTING=true`.
 
 ## API
 
-| Endpoint            | Behavior                                                      |
-| ------------------- | ------------------------------------------------------------- |
-| `GET /health`       | Returns `{"status":"ok"}`; does not contact Azure             |
-| `POST /api/v1/chat` | Streams the assistant response as `text/plain; charset=utf-8` |
-| `GET /docs`         | Interactive Swagger UI                                        |
-| `GET /openapi.json` | Generated OpenAPI schema                                      |
-
-Example request body:
-
-```json
-{
-  "messages": [{ "role": "user", "content": "Explain Python generators." }],
-  "model": "gpt-6-astra",
-  "reasoning_effort": "low"
-}
-```
-
-The frontend's AI SDK messages can instead provide text parts:
-
-```json
-{
-  "messages": [
-    { "role": "user", "parts": [{ "type": "text", "text": "Explain gravity." }] }
-  ]
-}
-```
-
-| Request field                  | Contract                                                      |
-| ------------------------------ | ------------------------------------------------------------- |
-| Messages                       | 1–50 messages; roles: `system`, `user`, `assistant`           |
-| Text parts                     | Up to 50 per message                                          |
-| Text length                    | At most 32,000 characters per message, including joined parts |
-| `content` and `parts` together | `content` takes precedence                                    |
-| Whitespace-only messages       | Omitted; an entirely empty conversation returns HTTP 400      |
-| Schema violations / rate limit | HTTP 422 / HTTP 429                                           |
-| Model                          | `gpt-6-astra` (default), `gpt-5.6-sol`                        |
-| Reasoning effort               | `low` (default), `medium`, `high`                             |
+FastAPI automatically generates the OpenAPI schema and an interactive Swagger UI
+from the endpoint functions and Pydantic models. Visit
+`http://localhost:8000/docs` while the backend is running to explore the
+endpoints and request schemas.
 
 - Validate before starting the stream so invalid input retains its HTTP status.
 - The server prepends formatting instructions for the [frontend renderer](frontend.md).
