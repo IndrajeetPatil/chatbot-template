@@ -8,8 +8,7 @@ can only ever echo back the arguments it was handed.
 """
 
 import json
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import httpx2
 from fastapi import status
@@ -27,14 +26,6 @@ AZURE_API_KEY: str = "test-key"
 CONNECT_ERROR: str = "connection refused"
 
 type Responder = Callable[[httpx2.Request], httpx2.Response]
-type RequestBody = dict[str, Any]
-
-
-@dataclass(frozen=True)
-class AzureCall:
-    url: str
-    body: RequestBody
-    response: httpx2.Response
 
 
 def _chunk(
@@ -132,34 +123,23 @@ def record_request(client: AzureOpenAI, *, model: str) -> httpx2.Request:
     public `copy`, so the request is assembled from that client's real
     configuration rather than read back off its attributes.
     """
-    sent: list[httpx2.Request] = []
-    empty_stream: Responder = stream_of()
-
-    def handler(request: httpx2.Request) -> httpx2.Response:
-        sent.append(request)
-        return empty_stream(request)
-
-    with client.copy(
-        http_client=httpx2.Client(transport=httpx2.MockTransport(handler)),
-    ) as probe:
+    with (
+        client.copy(
+            http_client=httpx2.Client(transport=httpx2.MockTransport(stream_of())),
+        ) as probe,
         probe.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "probe"}],
             stream=True,
-        ).close()
-    return sent[0]
+        ) as stream,
+    ):
+        return stream.response.request
 
 
-def build_client(responder: Responder, calls: list[AzureCall]) -> AzureOpenAI:
+def build_client(responder: Responder, responses: list[httpx2.Response]) -> AzureOpenAI:
     def handler(request: httpx2.Request) -> httpx2.Response:
         response: httpx2.Response = responder(request)
-        calls.append(
-            AzureCall(
-                url=str(request.url),
-                body=json.loads(request.content),
-                response=response,
-            ),
-        )
+        responses.append(response)
         return response
 
     return AzureOpenAI(
