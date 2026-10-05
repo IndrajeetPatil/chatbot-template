@@ -2,6 +2,21 @@
 
 [Documentation](README.md) · [Project overview](../README.md)
 
+## Quality harness
+
+![Quality harness: local entry points and GitHub Actions cover code and types, structure, behavior, browser quality, security, and review evidence](images/chatbot-template-quality-harness.webp)
+
+Local targets and hooks run their configured checks; GitHub Actions also runs
+browser and visual tests, workflow and secret scans, dependency audits, and
+container build checks. Gate violations fail the relevant check, while
+annotations, summaries, coverage reports, traces, and visual diffs support review.
+
+The numbered groups and dark text on white preserve meaning independently of
+the blue, orange, and purple accents. See [automated checks](#automated-checks),
+[Fallow policy](#frontend-code-quality-with-fallow),
+[browser tests](#browser-and-visual-tests), and
+[security scans](security.md#automated-scans) for the enforced scope and thresholds.
+
 ## Command reference
 
 Run commands from the repository root. Start with `make setup` and `make service`;
