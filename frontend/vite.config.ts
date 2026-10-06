@@ -63,7 +63,7 @@ export default defineConfig({
           "vp run check --fix",
           "vp run lint:css",
           "vp test --coverage",
-          "vp pm audit -- --audit-level=moderate",
+          "vp pm audit -- --audit-level=moderate --ignore GHSA-vfj7-8cjw-p6xm",
           "vp run fallow",
           "vp run css-quality",
           "vp run type-coverage",

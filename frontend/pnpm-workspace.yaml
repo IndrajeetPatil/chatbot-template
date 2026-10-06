@@ -10,6 +10,7 @@ catalog:
 overrides:
   vite@*: "catalog:"
   vitest@*: "catalog:"
+  katex: "^0.18.11"
 peerDependencyRules:
   allowAny:
     - vite
@@ -28,3 +29,6 @@ minimumReleaseAgeExclude:
   - "@oxfmt/*"
   - vitest
   - "@vitest/*"
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm

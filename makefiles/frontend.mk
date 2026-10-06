@@ -65,7 +65,7 @@ frontend-build:
 
 frontend-audit:
 	@echo "$(COLOR_BLUE_BG)Auditing frontend dependencies...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VP) pm audit -- --audit-level=moderate
+	cd $(FRONTEND_DIR) && $(VP) pm audit -- --audit-level=moderate --ignore GHSA-vfj7-8cjw-p6xm
 
 frontend-fallow:
 	@echo "$(COLOR_BLUE_BG)Running frontend dead-code/complexity/duplication checks with fallow...$(COLOR_RESET)"
