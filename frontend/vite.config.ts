@@ -67,7 +67,7 @@ export default defineConfig({
           "vp run fallow",
           "vp run css-quality",
           "vp run type-coverage",
-          "vp run contrast-audit",
+          "vp run accessibility-audit",
         ],
         // Tests and registry audits need fresh results on every QA run.
         cache: false,
@@ -77,8 +77,8 @@ export default defineConfig({
         dependsOn: ["build"],
         cache: false,
       },
-      "contrast-audit": {
-        command: "PLAYWRIGHT_PORT=3100 playwright test contrast.spec.ts",
+      "accessibility-audit": {
+        command: "PLAYWRIGHT_PORT=3100 playwright test accessibility.spec.ts",
         dependsOn: ["build"],
         cache: false,
       },
@@ -351,7 +351,7 @@ export default defineConfig({
           "vitest/prefer-importing-vitest-globals": "off",
           "vitest/consistent-test-filename": "off",
           "vitest/prefer-each": "off",
-          // Viewport sizes, timeouts, and contrast ratios are test fixtures.
+          // Viewport sizes and timeouts are test fixtures.
           "no-magic-numbers": "off",
           // Playwright steps must run sequentially within a page.
           "no-await-in-loop": "off",

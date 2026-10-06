@@ -13,6 +13,9 @@ const theme = createTheme({
     dark: {
       palette: {
         primary: { main: "#a6d7be", contrastText: "#17271f" },
+        // MUI's dark default (#f44336) fails WCAG AA for validation text on
+        // the paper background.
+        error: { main: "#ff7a6e" },
         background: { default: "#171b18", paper: "#202621" },
         text: { primary: "#edf0e8", secondary: "#adb6a9" },
         divider: "#3b443c",

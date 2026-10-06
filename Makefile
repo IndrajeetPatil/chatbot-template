@@ -66,7 +66,7 @@ docker-clean:
 # Convenience aliases for frontend-only tools
 fallow: frontend-fallow
 css-quality: frontend-css-quality
-contrast-audit: frontend-contrast-audit
+accessibility-audit: frontend-accessibility-audit
 lighthouse: frontend-lighthouse
 
 # Project-wide tools
@@ -187,7 +187,7 @@ e2e-update:
 
 .PHONY: setup service update-deps \
 	lint format type-check test type-coverage clean cache-clean docker-clean \
-	fallow css-quality contrast-audit lighthouse \
+	fallow css-quality accessibility-audit lighthouse \
 	commitlint markdown-lint markdown-format security-scan secret-scan-ci codex-security file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \

@@ -34,7 +34,8 @@ see [getting started](getting-started.md) for service selection and configuratio
 | `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials              |
 | `make backend-load-test`                     | Start the backend and Locust against it                        |
 | `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                               |
-| `make contrast-audit` / `make lighthouse`    | Build and audit the frontend                                   |
+| `make accessibility-audit`                   | Build and run the axe-core audit                               |
+| `make lighthouse`                            | Build and run Lighthouse CI                                    |
 | `make e2e-test` / `make e2e-test-docker`     | Local browser behavior / pinned visual renderer                |
 | `make e2e-update`                            | Regenerate visual baselines for review                         |
 | `make file-naming` / `make markdown-lint`    | Repository naming / Markdown checks                            |
@@ -107,7 +108,7 @@ make qa
 | Type annotation coverage | 100% on both sides                                                                                                     |
 | Lighthouse               | Three mobile-throttled samples; assert the median                                                                      |
 | Lighthouse failures      | Performance, accessibility, best practices, SEO, LCP, CLS, TBT; no unresolved `runWarnings` or warn-only assertions    |
-| Contrast                 | WCAG AA in both themes                                                                                                 |
+| Accessibility audit      | No axe-core violations (WCAG 2.0–2.2 A/AA, best practices) per UI state, theme, and layout                             |
 | Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance |
 
 | Step                     | Frontend                                                 | Backend              |
@@ -122,7 +123,7 @@ make qa
 | Security linting         | Oxlint (`react/no-danger`, `id-denylist`, DOM sink bans) | \-                   |
 | Codebase analysis        | Fallow                                                   | \-                   |
 | CSS code quality         | @projectwallace/css-code-quality                         | \-                   |
-| Contrast audit           | @axe-core/playwright (`color-contrast`), light and dark  | \-                   |
+| Accessibility audit      | @axe-core/playwright (WCAG A/AA, best practices)         | \-                   |
 | Markdown linting         | rumdl                                                    | rumdl                |
 | File naming              | ls-lint                                                  | ls-lint              |
 | Pre-commit hooks         | prek                                                     | prek                 |
@@ -175,7 +176,7 @@ make qa
 ### Frontend tasks
 
 The `run.tasks` block in `vite.config.ts` owns QA orchestration and the build
-dependencies of `test:e2e`, `contrast-audit`, `preview`, and `lighthouse`.
+dependencies of `test:e2e`, `accessibility-audit`, `preview`, and `lighthouse`.
 These tasks build production assets before running, including when invoked
 directly with `vp run`. Pass Playwright arguments after `vp run test:e2e`.
 Make remains the entry point for backend, frontend, and repository checks.
@@ -280,7 +281,7 @@ package schema to match the lockfile.
 | Duplication              | Strict mode; minimum 50 tokens and 4 lines; built-in generated/test/mock exclusions retained                |
 | Complexity               | Cyclomatic and cognitive complexity each ≤5, including application code, scripts, and tests                 |
 | Execution                | `doctor` first, then all analyses with `--fail-on-issues`; standalone `make fallow`, also in both QA suites |
-| CSS                      | Separate CSS quality and contrast gates                                                                     |
+| CSS                      | Separate CSS quality and accessibility gates                                                                |
 
 - Keep `src/main.tsx` as the runtime entry; discover package scripts and test/tool
   entry points through built-in plugins. Do not add QA scripts as runtime entries.

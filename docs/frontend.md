@@ -54,7 +54,37 @@ reviewing new or changed UI; automated scores do not establish full compliance.
 | Manual     | Keyboard operation, visible focus, loading/error states, reduced motion, resilient layout, semantic controls, concise copy |
 | WCAG       | Check Perceivable, Operable, Understandable, and Robust criteria                                                           |
 | Lighthouse | Accessibility, best practices, SEO: 100%; performance: ≥85%, all enforced                                                  |
-| Contrast   | Separate axe-powered WCAG AA audit in light and dark mode                                                                  |
+| axe-core   | Every WCAG 2.0–2.2 A/AA rule and axe best practice, per UI state, theme, and layout; see below                             |
+
+### Automated accessibility audit
+
+`make accessibility-audit` (also part of `make qa` and CI) builds the frontend
+and runs [axe-core](https://github.com/dequelabs/axe-core) through
+`@axe-core/playwright` in
+[`accessibility.spec.ts`](../frontend/e2e-tests/accessibility.spec.ts). Lighthouse
+runs a subset of axe rules on the first render only, so this audit covers:
+
+| Dimension | Coverage                                                                                                 |
+| --------- | -------------------------------------------------------------------------------------------------------- |
+| Rules     | Tags `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `best-practice`                             |
+| UI states | Initial, validation error, model and reasoning menus, Markdown conversation, pending reply, failed reply |
+| Themes    | Light and dark                                                                                           |
+| Layouts   | Desktop (1280×800) and mobile (390×844)                                                                  |
+
+Any violation fails the gate with its rule, impact, and CSS targets. When UI
+adds a state (a dialog, a new error, a new popup), add it to `STATES` in the
+spec rather than relaxing a rule.
+
+- MUI portals menus and tooltips outside every landmark. The audit counts
+  `role="menu"` and `role="tooltip"` as regions; an open menu is modal, and a
+  tooltip belongs to its control. This is the only rule option changed.
+- Code blocks and display equations scroll horizontally, so a rehype step in
+  `RichMarkdown.tsx` makes them focusable (`tabindex="0"`) with a visible focus
+  outline, letting keyboard users scroll them.
+- Theme colors must hold WCAG AA contrast in both modes, including error and
+  disabled helper text; the dark palette overrides MUI's default error red.
+
+Automated rules catch only part of WCAG; keep the manual review above.
 
 [The Website Specification](https://specification.website/checklist/) also
 informs the web foundations:

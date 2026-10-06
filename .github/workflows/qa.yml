@@ -119,8 +119,8 @@ jobs:
           trap 'echo "::endgroup::"' EXIT
           make frontend-build
 
-      - name: Contrast in light and dark mode
-        run: make frontend-contrast-audit
+      - name: Accessibility audit (axe-core)
+        run: make frontend-accessibility-audit
 
       - name: Python and TypeScript type coverage
         run: make type-coverage

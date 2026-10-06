@@ -51,6 +51,13 @@
   padding-block: 0.25rem;
 }
 
+/* Scrollable blocks are focusable so the keyboard can scroll them. */
+.markdown pre:focus-visible,
+.markdown .katex-display:focus-visible {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
 /* highlight.js tokens, using its GitHub palettes with AA contrast adjustments
    for our light and dark code backgrounds. */
 .hljs-doctag,
