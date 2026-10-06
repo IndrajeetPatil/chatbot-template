@@ -24,6 +24,9 @@ const CHAT_INPUT_FIELD_SX = {
   "& .MuiInputBase-root": { padding: 0 },
   "& .MuiInputBase-input::placeholder": { color: "text.secondary", opacity: 1 },
   "& .MuiFormHelperText-root": { mx: 0, mt: 1.5, fontSize: "0.7rem" },
+  // The shortcut hint stays readable while a reply is pending; MUI's disabled
+  // color fails WCAG AA contrast.
+  "& .MuiFormHelperText-root.Mui-disabled": { color: "text.secondary" },
 } as const;
 
 const CHAT_INPUT_SEND_BUTTON_SX = {

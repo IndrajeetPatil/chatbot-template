@@ -80,6 +80,11 @@ for (const width of [320, 390]) {
         await block.evaluate((element) => element.scrollLeft),
       ).toBeGreaterThan(0);
     }
+    const { violations } = await new AxeBuilder({ page })
+      .include(".markdown")
+      .withRules(["scrollable-region-focusable"])
+      .analyze();
+    expect(violations).toEqual([]);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBe(width);

@@ -75,9 +75,9 @@ frontend-css-quality:
 	@echo "$(COLOR_BLUE_BG)Running frontend CSS code quality checks...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) run css-quality
 
-frontend-contrast-audit:
-	@echo "$(COLOR_BLUE_BG)Running frontend contrast audit in light and dark mode...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VP) run contrast-audit
+frontend-accessibility-audit:
+	@echo "$(COLOR_BLUE_BG)Running frontend axe accessibility audit across UI states, themes, and layouts...$(COLOR_RESET)"
+	cd $(FRONTEND_DIR) && $(VP) run accessibility-audit
 
 frontend-type-coverage:
 	@echo "$(COLOR_BLUE_BG)Running frontend type coverage check...$(COLOR_RESET)"
@@ -128,5 +128,5 @@ frontend-preview:
 .PHONY: frontend-setup frontend-toolchain-align frontend-check frontend-qa frontend-css-lint \
 	frontend-lint frontend-format config-format frontend-type-check \
 	frontend-test frontend-bench frontend-build frontend-audit frontend-fallow \
-	frontend-css-quality frontend-contrast-audit frontend-type-coverage \
+	frontend-css-quality frontend-accessibility-audit frontend-type-coverage \
 	frontend-lighthouse frontend-e2e-test frontend-e2e-test-docker frontend-clean run-frontend frontend-preview

@@ -57,6 +57,21 @@ $$
   expect(container.querySelector(".katex-error")).toBeNull();
 });
 
+test("lets the keyboard reach scrollable code and display math", () => {
+  const { container } = renderWithTheme(
+    <RichMarkdown
+      content={"Inline $x$ and `code`.\n\n```\ncode\n```\n\n$$\nx^2\n$$"}
+    />,
+  );
+  expect(container.querySelector("pre")).toHaveAttribute("tabindex", "0");
+  expect(container.querySelector(".katex-display")).toHaveAttribute(
+    "tabindex",
+    "0",
+  );
+  // Inline code and math stay out of the tab order.
+  expect(container.querySelectorAll("[tabindex]")).toHaveLength(2);
+});
+
 test("recovers as an incomplete streamed equation becomes valid", () => {
   const { container, rerender } = renderWithTheme(
     <RichMarkdown content={"$$\n\\frac{1}{"} />,

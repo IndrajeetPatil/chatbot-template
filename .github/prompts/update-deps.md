@@ -16,7 +16,7 @@ full local quality gate passes:
 - `make frontend-build`
 - `make e2e-test-docker`
 - `make lighthouse`
-- `make contrast-audit`
+- `make accessibility-audit`
 - `make docker-build`
 
 Fix any breaking API changes, type errors, lockfile drift, Docker build
