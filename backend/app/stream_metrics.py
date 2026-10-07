@@ -32,7 +32,7 @@ class StreamMetrics:
         """Fold `chunk` into the running metrics and return its text delta."""
         if chunk.usage is not None:
             self.usage = chunk.usage
-        content: str | None = chunk.choices[0].delta.content if chunk.choices else None
+        content: str = (chunk.choices[0].delta.content if chunk.choices else None) or ""
         if not content:
             return ""
         if self.ttft_ms is None:

@@ -16,7 +16,7 @@ types_or = ["python", "pyi", "jupyter", "markdown"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ty-pre-commit"
-rev = "6972e4c5a7e9f45f05a2f30b668f221f43b770c9" # frozen: v0.0.84
+rev = "55b90b9b17c398bf664dd80a913668780e29a812" # frozen: v0.0.85
 
 [[repos.hooks]]
 id = "ty"
