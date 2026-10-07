@@ -2,15 +2,15 @@ allowBuilds:
   fallow: true
 minimumReleaseAge: 0
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-  vitest: 5.0.1
-  vite-plus: 1.0.0
-  "@vitest/browser-playwright": 5.0.1
-  "@vitest/coverage-v8": 5.0.1
+  vite: npm:@voidzero-dev/vite-plus-core@1.1.0
+  vitest: 5.0.3
+  vite-plus: 1.1.0
+  "@vitest/browser-playwright": 5.0.3
+  "@vitest/coverage-v8": 5.0.3
 overrides:
   vite@*: "catalog:"
   vitest@*: "catalog:"
-  katex: "^0.18.11"
+  katex: "^0.19.0"
 peerDependencyRules:
   allowAny:
     - vite

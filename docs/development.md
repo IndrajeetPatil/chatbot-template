@@ -186,9 +186,8 @@ Only the build task is cached. Vite Task tracks its file inputs and outputs;
 autofixes, tests, audits, and servers always execute. `vp cache clean` clears
 task results; `make frontend-clean` also removes them with `node_modules`.
 
-`make frontend-type-check` retains `vp check --no-fmt` because
-[`--no-lint` still ignores disable comments](https://github.com/voidzero-dev/vite-plus/issues/2830)
-in Vite+ 1.0.0. QA's combined check needs no workaround or duplicate lint pass.
+`make frontend-type-check` runs `vp check --no-fmt --no-lint`, a type check
+only; `make frontend-check` and `make frontend-lint` run the lint rules.
 
 ## Frontend unit tests and benchmarks
 
@@ -358,8 +357,8 @@ Never rely on CI reporter exit codes alone.
   Synchronize Docker, installer checksum, and documentation.
   Do not substitute a local hook.
 - prek CI uses cached hook environments and the upstream hook's uv, with no
-  separate uv setup. prek 0.4.11 is the newest version covered by prek-action
-  v3.0.0's SHA256 table; CI runs pre-commit, while local commit-msg and pre-push
+  separate uv setup. prek 0.5.5 is the newest version covered by prek-action
+  v3.0.1's SHA256 table; CI runs pre-commit, while local commit-msg and pre-push
   stages remain configured.
 - Pin and SHA256-verify downloaded tools; see [security](security.md).
 - Upgrade Vite+ in one change: the `vite-plus` catalog entry in
