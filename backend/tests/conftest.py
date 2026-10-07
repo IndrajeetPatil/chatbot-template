@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, cast
 import pytest
 from loguru import logger
 
+from app.azure_client import get_azure_openai_client
+from app.config import get_settings
 from tests.azure_double import build_client
 
 if TYPE_CHECKING:
@@ -25,6 +27,20 @@ if TYPE_CHECKING:
 # not reject missing Azure credentials during collection.
 
 _METRICS_LOG_PREFIX: str = "Azure OpenAI stream metrics: "
+
+
+@pytest.fixture(autouse=True)
+def _clear_cached_singletons() -> Iterator[None]:
+    """Give every test fresh `get_settings` and `get_azure_openai_client` caches.
+
+    Clearing on teardown too means a test that fails mid-way cannot leak its
+    cached instance into whichever test random ordering runs next.
+    """
+    get_settings.cache_clear()
+    get_azure_openai_client.cache_clear()
+    yield
+    get_settings.cache_clear()
+    get_azure_openai_client.cache_clear()
 
 
 @pytest.fixture

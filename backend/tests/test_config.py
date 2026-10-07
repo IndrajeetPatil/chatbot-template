@@ -119,10 +119,7 @@ def test_settings_raises_on_invalid_chat_rate_limit(value: str) -> None:
 
 
 def test_get_settings_returns_cached_instance() -> None:
-    get_settings.cache_clear()
-
     first: Settings = get_settings()
     second: Settings = get_settings()
 
     assert first is second
-    get_settings.cache_clear()

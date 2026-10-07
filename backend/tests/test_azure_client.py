@@ -35,6 +35,8 @@ from tests.azure_double import (
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
 
+    from openai.types.chat import ChatCompletionChunk
+
     from tests.conftest import AzureFactory, FakeClock, MetricsReader
 
 PROMPT: list[dict[str, str]] = [{"role": "user", "content": "Test prompt"}]
@@ -65,7 +67,7 @@ def stream_text(
 @pytest.mark.parametrize(
     ("model", "expected"),
     [
-        (
+        pytest.param(
             AssistantModel.ASTRA,
             snapshot([
                 {
@@ -79,8 +81,9 @@ def stream_text(
                     },
                 },
             ]),
+            id="astra",
         ),
-        (
+        pytest.param(
             AssistantModel.SOL,
             snapshot([
                 {
@@ -94,6 +97,7 @@ def stream_text(
                     },
                 },
             ]),
+            id="sol",
         ),
     ],
 )
@@ -187,10 +191,26 @@ def test_releases_the_upstream_response_when_the_consumer_disconnects(
 @pytest.mark.parametrize(
     ("status_code", "expected_error"),
     [
-        (status.HTTP_401_UNAUTHORIZED, openai.AuthenticationError),
-        (status.HTTP_429_TOO_MANY_REQUESTS, openai.RateLimitError),
-        (status.HTTP_400_BAD_REQUEST, openai.BadRequestError),
-        (status.HTTP_500_INTERNAL_SERVER_ERROR, openai.InternalServerError),
+        pytest.param(
+            status.HTTP_401_UNAUTHORIZED,
+            openai.AuthenticationError,
+            id="unauthorized",
+        ),
+        pytest.param(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            openai.RateLimitError,
+            id="rate-limited",
+        ),
+        pytest.param(
+            status.HTTP_400_BAD_REQUEST,
+            openai.BadRequestError,
+            id="bad-request",
+        ),
+        pytest.param(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            openai.InternalServerError,
+            id="server-error",
+        ),
     ],
 )
 def test_maps_upstream_status_to_sdk_error(
@@ -306,65 +326,66 @@ def test_logs_metrics_for_a_completed_stream(
     })
 
 
-def test_stream_without_text_deltas_records_no_ttft(
+@pytest.mark.parametrize(
+    ("chunks", "expected"),
+    [
+        # TTFT marks the first *delta*, not the first chunk: a stream that only
+        # ever carries empty and choiceless chunks has no first token to time.
+        pytest.param(
+            [keepalive_chunk(), content_chunk(None), content_chunk("")],
+            snapshot({
+                "event": "azure_openai_stream",
+                "status": "completed",
+                "model": "gpt-6-astra",
+                "reasoning_effort": "medium",
+                "duration_ms": 250.0,
+                "ttft_ms": None,
+                "output_chars": 0,
+                "usage_received": False,
+                "prompt_tokens": None,
+                "completion_tokens": None,
+                "total_tokens": None,
+            }),
+            id="no-text-deltas-records-no-ttft",
+        ),
+        # A provider reporting zero tokens has reported usage. Deriving
+        # `usage_received` from the counts' truthiness would file a real answer
+        # under the same value as "Azure told us nothing".
+        pytest.param(
+            [usage_chunk(0)],
+            snapshot({
+                "event": "azure_openai_stream",
+                "status": "completed",
+                "model": "gpt-6-astra",
+                "reasoning_effort": "medium",
+                "duration_ms": 250.0,
+                "ttft_ms": None,
+                "output_chars": 0,
+                "usage_received": True,
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            }),
+            id="zero-token-usage-counts-as-a-report",
+        ),
+    ],
+)
+def test_logs_metrics_for_a_stream_without_text(
     fake_azure: AzureFactory,
     clock: FakeClock,
     stream_metrics: MetricsReader,
+    chunks: list[ChatCompletionChunk],
+    expected: object,
 ) -> None:
-    # TTFT marks the first *delta*, not the first chunk: a stream that only
-    # ever carries empty and choiceless chunks has no first token to time.
     def body() -> Iterator[bytes]:
         clock.advance(250)
-        yield sse_bytes(keepalive_chunk(), content_chunk(None), content_chunk(""))
+        yield sse_bytes(*chunks)
         yield DONE
 
     fake_azure(raw_stream(body))
 
     assert stream_text() == []
-    assert stream_metrics() == snapshot({
-        "event": "azure_openai_stream",
-        "status": "completed",
-        "model": "gpt-6-astra",
-        "reasoning_effort": "medium",
-        "duration_ms": 250.0,
-        "ttft_ms": None,
-        "output_chars": 0,
-        "usage_received": False,
-        "prompt_tokens": None,
-        "completion_tokens": None,
-        "total_tokens": None,
-    })
-
-
-def test_zero_token_usage_still_counts_as_a_usage_report(
-    fake_azure: AzureFactory,
-    clock: FakeClock,
-    stream_metrics: MetricsReader,
-) -> None:
-    # A provider reporting zero tokens has reported usage. Deriving
-    # `usage_received` from the counts' truthiness would file a real answer
-    # under the same value as "Azure told us nothing".
-    def body() -> Iterator[bytes]:
-        clock.advance(250)
-        yield sse_bytes(usage_chunk(0))
-        yield DONE
-
-    fake_azure(raw_stream(body))
-
-    assert stream_text() == []
-    assert stream_metrics() == snapshot({
-        "event": "azure_openai_stream",
-        "status": "completed",
-        "model": "gpt-6-astra",
-        "reasoning_effort": "medium",
-        "duration_ms": 250.0,
-        "ttft_ms": None,
-        "output_chars": 0,
-        "usage_received": True,
-        "prompt_tokens": 0,
-        "completion_tokens": 0,
-        "total_tokens": 0,
-    })
+    assert stream_metrics() == expected
 
 
 def test_logs_error_metrics_when_stream_creation_fails(
@@ -399,8 +420,6 @@ def test_logs_error_metrics_when_stream_creation_fails(
 
 
 def test_client_is_built_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
-    get_azure_openai_client.cache_clear()
-
     settings: Settings = Settings(
         azure_openai_endpoint="https://test.openai.azure.com/",
         azure_openai_api_key="test-key-123",
@@ -409,7 +428,6 @@ def test_client_is_built_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("app.azure_client.get_settings", lambda: settings)
 
     with get_azure_openai_client() as client:
-        get_azure_openai_client.cache_clear()
         request: httpx2.Request = record_request(client, model="gpt-6-astra")
         wiring: dict[str, object] = {
             "url": str(request.url),

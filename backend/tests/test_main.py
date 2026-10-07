@@ -78,25 +78,48 @@ def rejection_reasons(response: TestClientResponse) -> list[Payload]:
 
 
 @pytest.mark.parametrize(
-    ("message", "expected_conversation"),
+    ("message", "expected"),
     [
-        (parts_message("Hi"), snapshot([{"role": "user", "content": "Hi"}])),
-        (
-            parts_message("Hello ", "world"),
-            snapshot([{"role": "user", "content": "Hello world"}]),
+        pytest.param(
+            parts_message("Hi"),
+            snapshot([
+                {
+                    "conversation": [{"role": "user", "content": "Hi"}],
+                    "model": "gpt-5.6-sol",
+                    "reasoning_effort": "medium",
+                },
+            ]),
+            id="single-part",
         ),
-        (
+        pytest.param(
+            parts_message("Hello ", "world"),
+            snapshot([
+                {
+                    "conversation": [{"role": "user", "content": "Hello world"}],
+                    "model": "gpt-5.6-sol",
+                    "reasoning_effort": "medium",
+                },
+            ]),
+            id="joined-parts",
+        ),
+        pytest.param(
             content_message("Hello from content"),
-            snapshot([{"role": "user", "content": "Hello from content"}]),
+            snapshot([
+                {
+                    "conversation": [{"role": "user", "content": "Hello from content"}],
+                    "model": "gpt-5.6-sol",
+                    "reasoning_effort": "medium",
+                },
+            ]),
+            id="content-field",
         ),
     ],
-    ids=["single-part", "joined-parts", "content-field"],
 )
 def test_post_chat_streams_and_forwards_the_conversation(
     client: TestClient,
     forwarded: list[Payload],
     message: Payload,
-    expected_conversation: object,
+    expected: object,
 ) -> None:
     response: TestClientResponse = client.post(
         "/api/v1/chat",
@@ -110,9 +133,12 @@ def test_post_chat_streams_and_forwards_the_conversation(
     assert response.status_code == status.HTTP_200_OK
     assert response.text == "Hello world"
     assert response.headers["content-type"].startswith("text/plain")
-    assert forwarded[0]["conversation"] == expected_conversation
-    assert forwarded[0]["model"] == "gpt-5.6-sol"
-    assert forwarded[0]["reasoning_effort"] == "medium"
+    # The system prompt has its own test below; snapshotting everything else
+    # also catches a field the endpoint starts forwarding unnoticed.
+    assert [
+        {key: value for key, value in call.items() if key != "system"}
+        for call in forwarded
+    ] == expected
 
 
 def test_post_chat_prepends_the_response_format_system_prompt(
@@ -130,7 +156,7 @@ def test_post_chat_prepends_the_response_format_system_prompt(
 @pytest.mark.parametrize(
     ("payload", "expected"),
     [
-        (
+        pytest.param(
             {"messages": []},
             snapshot([
                 {
@@ -139,8 +165,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "List should have at least 1 item after validation, not 0",
                 },
             ]),
+            id="no-messages",
         ),
-        (
+        pytest.param(
             {"messages": [HI] * 51},
             snapshot([
                 {
@@ -149,8 +176,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "List should have at most 50 items after validation, not 51",
                 },
             ]),
+            id="too-many-messages",
         ),
-        (
+        pytest.param(
             {"messages": [{"role": "user"}]},
             snapshot([
                 {
@@ -159,8 +187,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "Value error, At least one of 'content' or 'parts' must be provided.",
                 },
             ]),
+            id="neither-content-nor-parts",
         ),
-        (
+        pytest.param(
             {"messages": [{"role": "bard", "content": "Hi"}]},
             snapshot([
                 {
@@ -169,8 +198,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "Input should be 'system', 'user' or 'assistant'",
                 },
             ]),
+            id="unknown-role",
         ),
-        (
+        pytest.param(
             {"messages": [content_message("x" * 32_001)]},
             snapshot([
                 {
@@ -179,8 +209,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "String should have at most 32000 characters",
                 },
             ]),
+            id="content-too-long",
         ),
-        (
+        pytest.param(
             {"messages": [parts_message(*["x"] * 51)]},
             snapshot([
                 {
@@ -189,8 +220,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "List should have at most 50 items after validation, not 51",
                 },
             ]),
+            id="too-many-parts",
         ),
-        (
+        pytest.param(
             {"messages": [parts_message(*["x" * 10_000] * 4)]},
             snapshot([
                 {
@@ -199,8 +231,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "Value error, Joined message text must not exceed 32000 characters.",
                 },
             ]),
+            id="joined-parts-too-long",
         ),
-        (
+        pytest.param(
             {"messages": [HI], "model": "gpt-7-nova"},
             snapshot([
                 {
@@ -209,8 +242,9 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "Input should be 'gpt-6-astra' or 'gpt-5.6-sol'",
                 },
             ]),
+            id="unknown-model",
         ),
-        (
+        pytest.param(
             {"messages": [HI], "reasoning_effort": "HOT"},
             snapshot([
                 {
@@ -219,18 +253,8 @@ def test_post_chat_prepends_the_response_format_system_prompt(
                     "msg": "Input should be 'low', 'medium' or 'high'",
                 },
             ]),
+            id="unknown-reasoning-effort",
         ),
-    ],
-    ids=[
-        "no-messages",
-        "too-many-messages",
-        "neither-content-nor-parts",
-        "unknown-role",
-        "content-too-long",
-        "too-many-parts",
-        "joined-parts-too-long",
-        "unknown-model",
-        "unknown-reasoning-effort",
     ],
 )
 def test_post_chat_rejects_invalid_request(
