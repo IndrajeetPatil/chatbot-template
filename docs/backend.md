@@ -143,6 +143,10 @@ parsing, and status-to-exception mapping stay inside the system under test.
   Regenerate them with `make backend-snapshot-update` and review the diff; do not
   hand-edit snapshots or replace them with values the test recomputes itself.
   Snapshots inside `@pytest.mark.parametrize` are rewritten per case.
+- Give each parametrized case its id with `pytest.param(..., id=...)` beside the
+  case, not a separate positional `ids=[...]` list that can drift out of order.
+- `conftest.py` clears the `get_settings` and `get_azure_openai_client` caches
+  around every test, so tests need not call `cache_clear()` themselves.
 - Prefer asserting the recorded request and the emitted metrics event over
   asserting that a stub was called. Add faults to `azure_double.py` rather than
   patching the SDK internals.

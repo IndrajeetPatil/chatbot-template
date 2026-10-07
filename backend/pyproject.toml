@@ -21,7 +21,7 @@ dev = [
   "deptry>=0.25.1",
   "httpx2>=2.13.1",
   "hypothesis>=6.168.1",
-  "inline-snapshot[black]>=0.35.4",
+  "inline-snapshot>=0.35.4",
   "locust>=2.46.6",
   "prek>=0.5.3",
   "pyrefly>=1.3.1",
@@ -71,6 +71,10 @@ max-statements = 20
   # load-test input selection is not security-sensitive
   "suspicious-non-cryptographic-random-usage",
 ]
+"conftest.py" = [
+  # autouse fixtures are intentional for test isolation
+  "pytest-fixture-autouse",
+]
 "test_*.py" = [
   # autouse fixtures are intentional for test isolation
   "pytest-fixture-autouse",
@@ -117,6 +121,10 @@ source = ["app"]
 
 [tool.coverage.report]
 fail_under = 100
+
+[tool.inline-snapshot]
+# Format rewritten snapshots with the project's own formatter instead of Black.
+format-command = "ruff format --stdin-filename {filename}"
 
 [tool.pytest]
 # Strict mode enables strict_config, strict_markers, strict_parametrization_ids,
