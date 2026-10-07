@@ -118,12 +118,12 @@ source = ["app"]
 [tool.coverage.report]
 fail_under = 100
 
-[tool.pytest.ini_options]
+[tool.pytest]
+# Strict mode enables strict_config, strict_markers, strict_parametrization_ids,
+# and strict_xfail, plus any strictness options future pytest releases add. uv.lock
+# pins pytest, so new options only arrive through a reviewed dependency update.
+strict = true
 addopts = [
-  # error on problems parsing pytest configuration
-  "--strict-config",
-  # error on using unregistered marker
-  "--strict-markers",
   # show extra test summary info for everything
   "-ra",
   # include more verbose output
@@ -136,7 +136,6 @@ testpaths = ["tests"]
 # not reject missing Azure credentials during collection. The `D:` (default)
 # prefix only sets it when absent, mirroring os.environ.setdefault.
 env = ["D:TESTING=true"]
-xfail_strict = true
 filterwarnings = [
   "error",
   # slowapi 0.1.10 calls asyncio.iscoroutinefunction, deprecated in Python 3.14

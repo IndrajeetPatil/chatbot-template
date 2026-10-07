@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     type AzureFactory = Callable[[Responder], list[Response]]
     type MetricsReader = Callable[[], dict[str, MetricValue]]
 
-# TESTING=true is set declaratively via pytest-env (see [tool.pytest.ini_options]
+# TESTING=true is set declaratively via pytest-env (see [tool.pytest]
 # `env` in pyproject.toml) before any app module is imported, so Settings() does
 # not reject missing Azure credentials during collection.
 
