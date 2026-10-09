@@ -22,7 +22,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      TRIVY_VERSION: v0.74.0
+      TRIVY_VERSION: v0.75.0
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

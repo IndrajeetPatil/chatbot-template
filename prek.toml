@@ -24,7 +24,7 @@ args = ["--directory=backend", "--isolated"]
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "83cecb6b523a053d7d3dfdc4798d705b505a88f9" # frozen: v0.2.78
+rev = "3429bee0c8870bff7874f898c6e8659d1ffe9645" # frozen: v0.2.79
 
 [[repos.hooks]]
 id = "rumdl"
