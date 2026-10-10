@@ -1,9 +1,9 @@
 from functools import cache
 from typing import TYPE_CHECKING
 
-from limits import parse
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+lazy from limits import parse
 
 if TYPE_CHECKING:
     from typing import ClassVar

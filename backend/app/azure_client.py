@@ -1,12 +1,12 @@
 from functools import cache
 from typing import TYPE_CHECKING, cast
 
-import openai
-from loguru import logger
-from openai import AzureOpenAI
+lazy import openai
+lazy from loguru import logger
+lazy from openai import AzureOpenAI
 
-from app.config import get_settings
-from app.stream_metrics import StreamMetrics, measure_stream
+lazy from app.config import get_settings
+lazy from app.stream_metrics import StreamMetrics, measure_stream
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator, Sequence
