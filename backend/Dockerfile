@@ -1,4 +1,4 @@
-FROM python:3.15-slim-trixie AS builder
+FROM python:3.15-rc-slim-trixie AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /bin/uv
 
@@ -8,7 +8,7 @@ COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen --no-dev
 
-FROM python:3.15-slim-trixie AS runtime
+FROM python:3.15-rc-slim-trixie AS runtime
 
 WORKDIR /app
 
