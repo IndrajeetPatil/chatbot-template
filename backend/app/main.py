@@ -1,17 +1,20 @@
 from typing import TYPE_CHECKING, Annotated, Literal, cast
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
-from loguru import logger
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, model_validator
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+lazy from fastapi import HTTPException, Request, status
+lazy from fastapi.responses import JSONResponse
+lazy from loguru import logger
 
-from app.azure_client import ChatMessage, stream_azure_openai_response
 from app.config import get_settings
-from app.entities import AssistantModel, OpenAIMessageRole, ReasoningEffort
+from app.entities import AssistantModel, ReasoningEffort
+lazy from app.azure_client import ChatMessage, stream_azure_openai_response
+lazy from app.entities import OpenAIMessageRole
 
 if TYPE_CHECKING:
     from collections.abc import Callable

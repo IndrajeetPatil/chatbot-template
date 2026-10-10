@@ -1,10 +1,10 @@
-import json
 from contextlib import contextmanager
 from dataclasses import dataclass
-from time import perf_counter
 from typing import TYPE_CHECKING, Literal
+lazy import json
+lazy from time import perf_counter
 
-from loguru import logger
+lazy from loguru import logger
 
 if TYPE_CHECKING:
     from collections.abc import Generator
