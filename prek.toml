@@ -4,7 +4,7 @@ default_stages = ["pre-commit"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ruff-pre-commit"
-rev = "38bfb07c0c64c304f47eb52090f8288150c77730" # frozen: v0.17.1
+rev = "f368fb366ff7f2f808dd324b83a6d32267799e19" # frozen: v0.17.2
 
 [[repos.hooks]]
 id = "ruff-check"
@@ -16,7 +16,7 @@ types_or = ["python", "pyi", "jupyter", "markdown"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ty-pre-commit"
-rev = "033aa05ea3f6f5f7cd39bcb6a31fd66f6efbed2f" # frozen: v0.0.89
+rev = "44e0d809f7977451fe65f3697106f594b0a02492" # frozen: v0.0.91
 
 [[repos.hooks]]
 id = "ty"

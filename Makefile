@@ -9,7 +9,7 @@ endif
 include makefiles/backend.mk
 include makefiles/frontend.mk
 
-CHECKOV_VERSION := 3.3.29
+CHECKOV_VERSION := 3.3.30
 # Pinned by digest to prevent tag drift.
 GITLEAKS_IMAGE := zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
 # Minimum codex-security CLI the codex-security target was validated against. The

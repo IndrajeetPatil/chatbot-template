@@ -10,10 +10,10 @@ container, which installs the toolchain for you.
 | Runtime / tool | Current version | Source of truth                                                           |
 | -------------- | --------------- | ------------------------------------------------------------------------- |
 | Python         | 3.15            | `backend/.python-version`, `backend/pyproject.toml`                       |
-| uv             | 0.13.1          | `backend/pyproject.toml`; Docker and installer pins must match            |
-| Vite+ (`vp`)   | 1.3.0           | `frontend/pnpm-workspace.yaml`; installer, Docker, and CI pins must match |
-| Node.js        | 26.12.0         | `frontend/.node-version`; Vite+ provisions it                             |
-| pnpm           | 12.14.0         | `frontend/package.json` (`packageManager`); Vite+ provisions it           |
+| uv             | 0.13.5          | `backend/pyproject.toml`; Docker and installer pins must match            |
+| Vite+ (`vp`)   | 1.4.0           | `frontend/pnpm-workspace.yaml`; installer, Docker, and CI pins must match |
+| Node.js        | 26.12.1         | `frontend/.node-version`; Vite+ provisions it                             |
+| pnpm           | 12.15.0         | `frontend/package.json` (`packageManager`); Vite+ provisions it           |
 | Make and Bash  | System tools    | Required by the development commands                                      |
 | C compiler     | System tool     | Builds Brotli for Locust; see below                                       |
 
