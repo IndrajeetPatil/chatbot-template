@@ -79,6 +79,8 @@ jobs:
         with:
           working-directory: ./frontend
           node-version-file: .node-version
+          # Needs exact versions: Vite+ from the catalog, Node from .node-version.
+          cache-toolchain: true
           run-install: false
 
       - name: Audit production dependencies
