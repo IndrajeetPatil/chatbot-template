@@ -34,7 +34,7 @@ frontend-css-lint:
 
 frontend-lint:
 	@echo "$(COLOR_BLUE_BG)Running frontend linting with Oxlint and Biome (CSS)...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VP) lint $(LINT_ARGS) && $(VP) run lint:css
+	cd $(FRONTEND_DIR) && $(VP) lint --deny-warnings $(LINT_ARGS) && $(VP) run lint:css
 
 frontend-format:
 	@echo "$(COLOR_BLUE_BG)Running frontend formatting with Oxfmt...$(COLOR_RESET)"

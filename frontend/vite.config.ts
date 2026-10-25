@@ -53,7 +53,8 @@ export default defineConfig({
   run: {
     tasks: {
       // Fixing source files must always execute, even with `vp run --cache`.
-      check: { command: "vp check", cache: false },
+      // Lint warnings fail the check like errors, matching Biome CSS lint.
+      check: { command: "vp check --deny-warnings", cache: false },
       build: {
         command: "vp build",
         cache: { env: ["CHAT_API_PROXY_TARGET"] },
