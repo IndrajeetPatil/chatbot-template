@@ -54,9 +54,10 @@ see [getting started](getting-started.md) for service selection and configuratio
 Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
 [frontend.mk](../makefiles/frontend.mk). Frontend targets run through Vite+ (`vp`).
 Frontend QA runs `vp run qa`: one `vp check --fix` replaces separate format,
-lint, and type-check passes. CI uses `vp check` without fixes, followed by the
-remaining gates in separate steps. Individual format, lint, and type-check
-Make targets remain available for focused work.
+lint, and type-check passes, and lint warnings fail it like errors. CI uses
+`vp check` without fixes, followed by the remaining gates in separate steps.
+Individual format, lint, and type-check Make targets remain available for
+focused work.
 `make format` includes Markdown and, through `make config-format`, root YAML,
 JSON, and TOML files formatted by the frontend's Oxfmt; CI checks both with
 `FMT_ARGS=--check`. rumdl enforces aligned table columns in lint, QA, and hooks.
