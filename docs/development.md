@@ -153,6 +153,7 @@ make qa
 | API client               | Vercel AI SDK                                            | openai               |
 | API server               | \-                                                       | FastAPI              |
 | UI toolkit               | Material UI                                              | \-                   |
+| UI runtime               | Redact (React API)                                       | \-                   |
 | Logger                   | \-                                                       | loguru               |
 
 - [Vite+](https://viteplus.dev) configures linting, formatting, and tests in
@@ -176,6 +177,14 @@ make qa
   for native automatic memoization, without Babel. This compiler is experimental;
   keep production browser and visual tests when changing it. Unit tests disable
   the compiler so coverage measures source rather than generated memo guards.
+- [Redact](https://github.com/TanStack/redact) replaces React and React DOM at
+  build time, for production, development, and unit tests alike, while source
+  still imports `react`. Its rendering is synchronous: no time slicing or
+  priority scheduling, so `useTransition` and `useDeferredValue` keep their
+  state semantics but never interrupt a render. Hydration is disabled because
+  the SPA mounts with `createRoot`. Streaming replies cost more main-thread
+  time than on React, so benchmark streaming under CPU throttling, and keep
+  production browser and visual tests, when changing it or its feature flags.
 - Browser compatibility uses Vite's default `build.target`; there is no
   Browserslist configuration or legacy transpiler integration.
 - Fallow, type-coverage, Playwright Test, Lighthouse CI, css-code-quality,

@@ -2,8 +2,9 @@
 
 [Documentation](README.md) · [Project overview](../README.md)
 
-React/Vite provides the interface; the Vercel AI SDK manages chat state and
-streaming. See [request routing](getting-started.md#request-routing) and the
+React/Vite provides the interface, rendered by the
+[Redact](development.md#automated-checks) runtime; the Vercel AI SDK manages
+chat state and streaming. See [request routing](getting-started.md#request-routing) and the
 [backend contract](backend.md#api).
 
 ## Interface

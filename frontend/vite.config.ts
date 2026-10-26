@@ -1,4 +1,6 @@
+import { redact } from "@tanstack/redact/vite";
 import react from "@vitejs/plugin-react";
+import type { Plugin } from "vite-plus";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
 
@@ -49,7 +51,14 @@ const TEST_FILES = ["**/*.test.{ts,tsx}", "**/*.bench.ts", "vitest.setup.ts"];
 
 export default defineConfig({
   // Static checks do not need to initialize the React build plugins.
-  plugins: lazyPlugins(() => [react({ compiler: !isTest })]),
+  // Redact swaps React and React DOM for a smaller synchronous runtime while
+  // imports keep naming `react`. This SPA mounts with `createRoot`, so the
+  // hydration machinery is dropped; `hydrateRoot` would throw.
+  plugins: lazyPlugins(() => [
+    react({ compiler: !isTest }),
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Redact declares its plugin factory as returning `any`; it returns a `Plugin[]`
+    ...(redact({ features: { hydration: false } }) as Plugin[]),
+  ]),
   run: {
     tasks: {
       // Fixing source files must always execute, even with `vp run --cache`.
