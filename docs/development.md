@@ -53,9 +53,9 @@ see [getting started](getting-started.md) for service selection and configuratio
 
 Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
 [frontend.mk](../makefiles/frontend.mk). Frontend targets run through Vite+ (`vp`).
-Frontend QA runs `vp run qa`: one `vp check --fix` replaces separate format,
-lint, and type-check passes, and lint warnings fail it like errors. CI uses
-`vp check` without fixes, followed by the remaining gates in separate steps.
+Frontend QA runs `vp run qa`: `vp check --fix` formats and lints, then `tsrs`
+type-checks. Lint warnings fail the check like errors. CI uses `vp check`
+without fixes, followed by `tsrs` and the remaining gates in separate steps.
 Individual format, lint, and type-check Make targets remain available for
 focused work.
 `make format` includes Markdown and, through `make config-format`, root YAML,
@@ -126,7 +126,7 @@ make qa
 | Formatter                | Oxfmt                                                    | Ruff                 |
 | Linter                   | Oxlint (type-aware); Biome for CSS only                  | Ruff                 |
 | Import sorter            | Oxfmt                                                    | Ruff                 |
-| Type checker             | TypeScript (`vp check`)                                  | ty                   |
+| Type checker             | tsrs (`vp run type-check`)                               | ty                   |
 | Type annotation coverage | type-coverage                                            | pyrefly              |
 | Security linting         | Oxlint (`react/no-danger`, `id-denylist`, DOM sink bans) | \-                   |
 | Codebase analysis        | Fallow                                                   | \-                   |
@@ -161,10 +161,11 @@ make qa
   `vp test`, `vp check`, `vp lint`, and `vp fmt` directly; `vp run <script>`,
   `vp exec <bin>`, and `vp pm <command>` cover the remaining scripts, binaries,
   and pnpm commands.
-- Oxlint enables every stable category as an error, including type-aware rules
-  and type checking. Switch a rule off only when it contradicts another rule, is
-  obsolete for the stack, or is owned by a stricter tool, and explain why beside
-  it; cyclomatic complexity is capped at 5.
+- Oxlint enables every stable category as an error, including type-aware rules.
+  `tsrs` owns type diagnostics; Oxlint still uses its Go-based backend to run
+  type-aware lint rules. Switch a rule off only when it contradicts another
+  rule, is obsolete for the stack, or is owned by a stricter tool, and explain
+  why beside it; cyclomatic complexity is capped at 5.
 - Oxlint runs only its built-in Rust rules; do not add `jsPlugins`. JS plugins
   run in a Node.js runtime beside the linter and pull ESLint into the
   dependency tree. Express project policies through configurable built-ins
@@ -194,8 +195,10 @@ Only the build task is cached. Vite Task tracks its file inputs and outputs;
 autofixes, tests, audits, and servers always execute. `vp cache clean` clears
 task results; `make frontend-clean` also removes them with `node_modules`.
 
-`make frontend-type-check` runs `vp check --no-fmt --no-lint`, a type check
-only; `make frontend-check` and `make frontend-lint` run the lint rules.
+`make frontend-type-check` runs the pinned Rust `tsrs` checker through Vite+.
+`make frontend-check` runs formatting, linting, and `tsrs`; `make frontend-lint`
+runs the lint rules. `tsrs` currently targets TypeScript 7.1 beta, while the
+project retains TypeScript 6 for tools that use its JavaScript API.
 
 ## Frontend unit tests and benchmarks
 

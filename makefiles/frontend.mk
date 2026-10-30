@@ -24,7 +24,7 @@ frontend-toolchain-align:
 
 frontend-check:
 	@echo "$(COLOR_BLUE_BG)Checking frontend format, lint, and types with Vite+...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VP) run check $(CHECK_ARGS)
+	cd $(FRONTEND_DIR) && $(VP) run check $(CHECK_ARGS) && $(VP) run type-check
 
 frontend-qa:
 	cd $(FRONTEND_DIR) && $(VP) run qa
@@ -45,8 +45,8 @@ config-format:
 	@cd $(FRONTEND_DIR) && $(VP) fmt $(FMT_ARGS) $(addprefix $(CURDIR)/,$(CONFIG_FILES))
 
 frontend-type-check:
-	@echo "$(COLOR_BLUE_BG)Running frontend static type checking with TypeScript...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VP) check --no-fmt --no-lint
+	@echo "$(COLOR_BLUE_BG)Running frontend static type checking with tsrs...$(COLOR_RESET)"
+	cd $(FRONTEND_DIR) && $(VP) run type-check
 
 frontend-test:
 	@echo "$(COLOR_BLUE_BG)Running frontend unit tests in Chromium...$(COLOR_RESET)"

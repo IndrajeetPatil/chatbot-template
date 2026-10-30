@@ -55,6 +55,7 @@ export default defineConfig({
       // Fixing source files must always execute, even with `vp run --cache`.
       // Lint warnings fail the check like errors, matching Biome CSS lint.
       check: { command: "vp check --deny-warnings", cache: false },
+      "type-check": { command: "vp exec tsrs --noEmit", cache: false },
       build: {
         command: "vp build",
         cache: { env: ["CHAT_API_PROXY_TARGET"] },
@@ -62,6 +63,7 @@ export default defineConfig({
       qa: {
         command: [
           "vp run check --fix",
+          "vp run type-check",
           "vp run lint:css",
           "vp test --coverage",
           "vp pm audit -- --audit-level=moderate --ignore GHSA-vfj7-8cjw-p6xm",
@@ -176,7 +178,8 @@ export default defineConfig({
     ignorePatterns: GENERATED,
     options: {
       typeAware: true,
-      typeCheck: true,
+      // Tsrs owns type diagnostics; keep Go-backed type-aware lint rules.
+      typeCheck: false,
       reportUnusedDisableDirectives: "error",
     },
     rules: {
