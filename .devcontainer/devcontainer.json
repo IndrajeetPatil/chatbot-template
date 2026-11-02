@@ -1,6 +1,6 @@
 {
   "name": "Chatbot Template",
-  "image": "mcr.microsoft.com/devcontainers/base:3.0.10-ubuntu26.04@sha256:91eff046d5c12318fc98e59258982b87ba896c467427ed8b5dab5a02107a5db7",
+  "image": "mcr.microsoft.com/devcontainers/base:3.0.12-ubuntu26.04@sha256:b1e3b08610ae0b2599f57c3a492eebc93d1d26dbaefb4a0bad0caa7149e4ec95",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:4": {}
   },
