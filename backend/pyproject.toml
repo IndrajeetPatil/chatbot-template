@@ -55,7 +55,7 @@ select = ["ALL"]
 ignore = [
   # No copyright headers in this template.
   "CPY",
-  # A Returns section is not required in every docstring, as in stock-dashboard.
+  # A Returns section is not required in every docstring.
   "docstring-missing-returns",
 ]
 
@@ -63,8 +63,8 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.flake8-tidy-imports]
-# Every import is lazy (PEP 810), as on the owner's website: a module loads on
-# first use, so the app and each test file import only what they touch.
+# Every import is lazy (PEP 810): a module loads on first use, so the app and
+# each test file import only what they touch.
 require-lazy = "all"
 
 [tool.ruff.lint.mccabe]

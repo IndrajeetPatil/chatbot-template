@@ -3,8 +3,8 @@
     "collect": {
       "staticDistDir": "./dist",
       "url": ["http://localhost/"],
-      "//": "Lighthouse's default mobile throttling applies; assert the median of three runs so CI does not pass on one lucky sample.",
-      "numberOfRuns": 3
+      "//": "Lighthouse's default mobile throttling applies; assert the median of five runs so CI neither passes on one lucky sample nor fails on one or two slow ones (shared runners occasionally stall a run's main thread).",
+      "numberOfRuns": 5
     },
     "assert": {
       "aggregationMethod": "median",
