@@ -136,8 +136,10 @@ export default defineConfig({
       },
     },
     exclude: ["**/node_modules/**", "**/dist/**", "**/e2e-tests/**"],
-    // Undo `vi.spyOn` before each test so spies on browser APIs cannot leak.
+    // Undo `vi.spyOn` and `vi.stubGlobal` before each test so spies and stubs
+    // on browser APIs cannot leak.
     restoreMocks: true,
+    unstubGlobals: true,
     // Shuffle files and tests on every run, like the backend's
     // `--random-order`, so order dependencies surface in CI.
     sequence: { shuffle: true },
@@ -156,10 +158,10 @@ export default defineConfig({
     ignorePatterns: [...GENERATED, "pnpm-lock.yaml"],
   },
   lint: {
-    // Every rule in every stable category is an error. Nursery rules are
-    // excluded because they are unfinished and may report false positives.
-    // Rules below are only switched off when they contradict another enabled
-    // rule, are obsolete for this stack, or duplicate a stricter tool.
+    // Every rule in every category is an error. Vite+ pins Oxlint, so new
+    // nursery rules arrive only with an upgrade. Rules below are only switched
+    // off when they contradict another enabled rule, are obsolete for this
+    // stack, or duplicate a stricter tool.
     plugins: [...LINT_PLUGINS],
     categories: {
       correctness: "error",
@@ -168,6 +170,7 @@ export default defineConfig({
       perf: "error",
       style: "error",
       restriction: "error",
+      nursery: "error",
     },
     env: {
       browser: true,
@@ -370,7 +373,10 @@ export default defineConfig({
       },
       {
         // Node-run tooling reads the environment and prints results.
-        files: ["*.config.ts", "scripts/**"],
+        files: ["*.config.ts", "scripts/**", "e2e-tests/**"],
+        env: {
+          node: true,
+        },
         rules: {
           // Private scripts run as ES modules and are never `require`d.
           "node/no-top-level-await": "off",
