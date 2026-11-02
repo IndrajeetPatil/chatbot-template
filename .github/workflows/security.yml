@@ -60,7 +60,7 @@ jobs:
         uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
 
       - name: Run zizmor
-        run: uvx zizmor@1.30.1 --color=always .github/workflows/
+        run: uvx zizmor@1.31.1 --color=always .github/workflows/
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
