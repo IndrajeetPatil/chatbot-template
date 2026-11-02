@@ -98,6 +98,10 @@ workflow-lint:
 # Pass a GitHub token when one is available so github.com links are not rate-limited.
 link-check:
 	@echo "$(COLOR_BLUE_BG)Checking links with lychee...$(COLOR_RESET)"
+	@command -v lychee >/dev/null 2>&1 || { \
+		echo "lychee is not on PATH: run 'bash scripts/install-lychee.sh' (Linux) or 'brew install lychee' (macOS)." >&2; \
+		exit 1; \
+	}
 	@token="$${GITHUB_TOKEN:-$$(gh auth token 2>/dev/null || true)}"; \
 	if [ -n "$$token" ]; then export GITHUB_TOKEN="$$token"; fi; \
 	lychee --no-progress .
