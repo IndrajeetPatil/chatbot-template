@@ -1,3 +1,5 @@
+"""Application settings, read from the environment and `.env`."""
+
 lazy from functools import cache
 lazy from typing import TYPE_CHECKING
 
@@ -10,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class Settings(BaseSettings):
+    """Runtime configuration; Azure credentials are required outside tests."""
+
     # pydantic-settings reads each field from its upper-cased name as the env var
     # (AZURE_OPENAI_ENDPOINT, CHAT_RATE_LIMIT, TESTING, …) case-insensitively, so
     # no explicit aliases are needed.
@@ -29,6 +33,11 @@ class Settings(BaseSettings):
     @field_validator("chat_rate_limit", mode="after")
     @classmethod
     def validate_rate_limit(cls, v: str) -> str:
+        """Check that the rate limit parses as a `limits` expression.
+
+        Raises:
+            ValueError: if it does not.
+        """
         try:
             parse(v)
         except ValueError as e:
@@ -38,6 +47,11 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_azure_settings(self) -> Settings:
+        """Require the Azure OpenAI endpoint, key and API version outside tests.
+
+        Raises:
+            ValueError: naming every missing setting.
+        """
         if not self.testing:
             missing: list[str] = [
                 name
@@ -58,4 +72,5 @@ class Settings(BaseSettings):
 
 @cache
 def get_settings() -> Settings:
+    """Return the settings, read once per process."""
     return Settings()

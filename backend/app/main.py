@@ -1,3 +1,5 @@
+"""FastAPI application: health check and the streaming chat endpoint."""
+
 lazy from typing import TYPE_CHECKING, Annotated, Literal
 
 lazy from fastapi import FastAPI, HTTPException, Request, status
@@ -44,17 +46,26 @@ app.add_middleware(
 
 
 class TextPart(BaseModel):
+    """A text part of an AI SDK UI message."""
+
     type: Literal["text"]
     text: Annotated[str, Field(max_length=_MAX_MESSAGE_CHARS)]
 
 
 class UIMessage(BaseModel):
+    """A chat message from the frontend, as text content or text parts."""
+
     role: OpenAIMessageRole
     content: str | None = Field(default=None, max_length=_MAX_MESSAGE_CHARS)
     parts: list[TextPart] = Field(default_factory=list, max_length=_MAX_PARTS)
 
     @model_validator(mode="after")
     def validate_content_or_parts(self) -> UIMessage:
+        """Require content or parts, and cap the joined length of parts.
+
+        Raises:
+            ValueError: if both are missing or the joined parts are too long.
+        """
         # `content` is already length-capped by its field and takes precedence
         # over `parts`, so only a parts-only message needs further checks.
         if self.content is not None:
@@ -76,12 +87,15 @@ class UIMessage(BaseModel):
 
     @property
     def text(self) -> str:
+        """The message text: its content, else its parts joined."""
         if self.content is not None:
             return self.content
         return "".join(part.text for part in self.parts)
 
 
 class ChatRequest(BaseModel):
+    """A chat request: the conversation, model and reasoning effort."""
+
     messages: Annotated[list[UIMessage], Field(min_length=1, max_length=_MAX_MESSAGES)]
     model: AssistantModel = AssistantModel.ASTRA
     reasoning_effort: ReasoningEffort = ReasoningEffort.LOW
@@ -100,6 +114,7 @@ def _enforce_rate_limit(request: Request) -> None:
 
 @app.get("/health")
 def health() -> dict[str, str]:
+    """Report that the service is up."""
     return {"status": "ok"}
 
 
@@ -114,6 +129,7 @@ def health() -> dict[str, str]:
     },
 )
 def chat(request: Request, body: ChatRequest) -> StreamingResponse:
+    """Stream the assistant's reply to the conversation as plain text."""
     _enforce_rate_limit(request)
     messages: list[ChatMessage] = _to_openai_messages(body.messages)
     logger.debug(

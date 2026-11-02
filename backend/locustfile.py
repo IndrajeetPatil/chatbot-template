@@ -1,3 +1,5 @@
+"""Locust load test for the chat endpoint."""
+
 lazy from random import choice
 lazy from typing import TYPE_CHECKING
 
@@ -18,11 +20,14 @@ PROMPTS: list[str] = [
 
 
 class ChatAPIUser(HttpUser):
+    """A simulated user sending a random prompt every few seconds."""
+
     wait_time: Callable[..., float] = between(1, 5)
 
     # Locust reports any 4xx/5xx status or connection error as a failure.
     @task
     def chat_request(self) -> None:
+        """Send one chat request with a random prompt, model and effort."""
         self.client.post(
             "api/v1/chat",
             json={

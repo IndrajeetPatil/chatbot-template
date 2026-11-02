@@ -1,3 +1,5 @@
+"""Shared fixtures: settings isolation, a mock Azure client, a clock and log capture."""
+
 lazy import json
 lazy from contextlib import ExitStack
 lazy from typing import TYPE_CHECKING, cast
@@ -47,8 +49,9 @@ def _clear_cached_singletons() -> Iterator[None]:
 def fake_azure(monkeypatch: pytest.MonkeyPatch) -> Iterator[AzureFactory]:
     """Point `app.azure_client` at a real SDK client backed by a mock transport.
 
-    Returns a factory that takes a responder and hands back the responses
-    the transport returns, so tests can assert on the actual outbound request.
+    Yields:
+        A factory that takes a responder and hands back the responses the
+        transport returns, so tests can assert on the actual outbound request.
     """
     with ExitStack() as clients:
 
@@ -78,17 +81,21 @@ class FakeClock:
     """
 
     def __init__(self) -> None:
+        """Start the clock at zero."""
         self._now: float = 0.0
 
     def advance(self, ms: float) -> None:
+        """Move the clock forward by `ms` milliseconds."""
         self._now += ms / 1000
 
     def __call__(self) -> float:
+        """Return the current time in seconds, like `perf_counter`."""
         return self._now
 
 
 @pytest.fixture
 def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
+    """Replace the stream metrics' `perf_counter` with a `FakeClock`."""
     fake: FakeClock = FakeClock()
     monkeypatch.setattr("app.stream_metrics.perf_counter", fake)
     return fake
@@ -98,10 +105,13 @@ def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
 def stream_metrics() -> Iterator[MetricsReader]:
     """Capture the single stream-metrics log event emitted by a test.
 
-    Returns the payload parsed from the *rendered* message, because the app
+    The payload is parsed from the *rendered* message, because the app
     configures no structured sink: that JSON is what actually reaches a log
     aggregator today. The bound copy is what a structured sink would consume
     instead, so every read also checks that it carries the same payload.
+
+    Yields:
+        A reader that returns the event's payload.
     """
     messages: list[Message] = []
     sink_id: int = logger.add(messages.append, format="{message}")

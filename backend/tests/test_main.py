@@ -1,3 +1,5 @@
+"""Tests for the FastAPI endpoints."""
+
 lazy from typing import TYPE_CHECKING, Any
 
 lazy import pytest
@@ -288,8 +290,10 @@ def low_rate_limit(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 async def _without_client_address(scope: Scope, receive: Receive, send: Send) -> None:
-    """Serve `app` as an ASGI server that omits the client address would, such as
-    one listening on a Unix socket."""
+    """Serve `app` without a client address.
+
+    An ASGI server listening on a Unix socket, for example, omits it.
+    """
     await app({**scope, "client": None}, receive, send)
 
 

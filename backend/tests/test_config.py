@@ -1,3 +1,5 @@
+"""Tests for the settings model and its validators."""
+
 lazy import re
 lazy from typing import TYPE_CHECKING, NamedTuple
 

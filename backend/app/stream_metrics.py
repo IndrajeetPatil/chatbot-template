@@ -1,3 +1,5 @@
+"""Timing and token metrics for one Azure OpenAI response stream."""
+
 lazy import json
 lazy from contextlib import contextmanager
 lazy from dataclasses import dataclass
@@ -21,6 +23,8 @@ type MetricValue = str | float | int | bool | None
 
 @dataclass
 class StreamMetrics:
+    """Running metrics for one stream: time to first token, output and usage."""
+
     model: AssistantModel
     reasoning_effort: ReasoningEffort
     started_at: float
@@ -41,6 +45,7 @@ class StreamMetrics:
         return content
 
     def log(self, status: StreamStatus) -> None:
+        """Log the metrics as one structured event with the stream's outcome."""
         metrics: dict[str, MetricValue] = {
             "event": "azure_openai_stream",
             "status": status,
@@ -66,6 +71,14 @@ def measure_stream(
     model: AssistantModel,
     reasoning_effort: ReasoningEffort,
 ) -> Generator[StreamMetrics]:
+    """Time a stream and log its metrics once it completes, fails or is closed.
+
+    Yields:
+        The metrics to record each chunk into.
+
+    Raises:
+        GeneratorExit: re-raised after logging when the consumer closes the stream.
+    """
     metrics: StreamMetrics = StreamMetrics(
         model=model,
         reasoning_effort=reasoning_effort,
