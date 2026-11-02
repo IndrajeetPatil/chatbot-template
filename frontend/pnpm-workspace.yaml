@@ -31,9 +31,6 @@ minimumReleaseAgeExclude:
   - "@oxfmt/*"
   - vitest
   - "@vitest/*"
-auditConfig:
-  ignoreGhsas:
-    - GHSA-vfj7-8cjw-p6xm
 
 # Refuse to install under a Node or pnpm older than package.json's `engines`;
 # pnpm only warns otherwise. pnpm 11+ ignores this setting in .npmrc.
