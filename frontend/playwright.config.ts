@@ -4,9 +4,9 @@ import { defineConfig } from "@playwright/test";
 // ephemeral port. Default to the development port and let callers move off it:
 // the accessibility audit runs inside the required `make qa` gate, which must not
 // fail just because a development server already holds 3000.
-const PORT = process.env.PLAYWRIGHT_PORT ?? "3000";
+const PORT = process.env["PLAYWRIGHT_PORT"] ?? "3000";
 const BASE_URL = `http://localhost:${PORT}`;
-const isCI = Boolean(process.env.CI);
+const isCI = Boolean(process.env["CI"]);
 
 export default defineConfig({
   testDir: "./e2e-tests",

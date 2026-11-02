@@ -41,11 +41,11 @@ test("connects model, reasoning, send and regeneration to the chat hook", () => 
   fireEvent.click(
     screen.getByRole("button", { name: /Select assistant model/u }),
   );
-  fireEvent.click(screen.getAllByRole("menuitem")[1]);
+  fireEvent.click(screen.getByRole("menuitem", { name: "GPT-5.6 Sol" }));
   fireEvent.click(
     screen.getByRole("button", { name: /Select reasoning effort/u }),
   );
-  fireEvent.click(screen.getAllByRole("menuitem")[2]);
+  fireEvent.click(screen.getByRole("menuitem", { name: "High" }));
   expect(useChatSetup).toHaveBeenLastCalledWith(
     AssistantModel.SOL,
     ReasoningEffort.HIGH,

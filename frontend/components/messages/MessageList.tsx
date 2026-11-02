@@ -52,7 +52,7 @@ interface MessageListProps {
   messages: UIMessage[];
   assistantIsLoading: boolean;
   error: Error | undefined;
-  welcome?: ReactElement;
+  welcome?: ReactElement | undefined;
 }
 
 function ResponseStatus({

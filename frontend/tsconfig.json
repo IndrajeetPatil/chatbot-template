@@ -1,5 +1,12 @@
 {
   "compilerOptions": {
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "erasableSyntaxOnly": true,
+    "noUncheckedSideEffectImports": true,
     "allowJs": false,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,

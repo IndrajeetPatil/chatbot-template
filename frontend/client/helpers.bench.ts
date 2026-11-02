@@ -4,22 +4,21 @@ import { expect, test } from "vite-plus/test";
 import { toBackendMessages } from "./helpers";
 
 function makeConversation(messageCount: number) {
-  const expected = Array.from({ length: messageCount }, (_slot, index) => ({
+  const conversation = Array.from({ length: messageCount }, (_slot, index) => ({
     role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
-    parts: [
-      {
-        type: "text" as const,
-        text: `Message ${index}: ${"text ".repeat(50)}`,
-      },
-    ],
+    text: `Message ${index}: ${"text ".repeat(50)}`,
   }));
-  const messages: UIMessage[] = expected.map((message, index) => ({
+  const expected = conversation.map(({ role, text }) => ({
+    role,
+    parts: [{ type: "text" as const, text }],
+  }));
+  const messages: UIMessage[] = conversation.map(({ role, text }, index) => ({
     id: String(index),
-    role: message.role,
+    role,
     parts:
-      message.role === "assistant"
-        ? [{ type: "step-start" }, { ...message.parts[0], state: "done" }]
-        : message.parts,
+      role === "assistant"
+        ? [{ type: "step-start" }, { type: "text", text, state: "done" }]
+        : [{ type: "text", text }],
   }));
   return { expected, messages };
 }

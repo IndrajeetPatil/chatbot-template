@@ -2,9 +2,9 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
 
-const isCI = Boolean(process.env.CI);
+const isCI = Boolean(process.env["CI"]);
 const CHAT_API_PROXY_TARGET =
-  process.env.CHAT_API_PROXY_TARGET ?? "http://localhost:8000";
+  process.env["CHAT_API_PROXY_TARGET"] ?? "http://localhost:8000";
 const CHAT_API_PROXY = {
   "/api": {
     target: CHAT_API_PROXY_TARGET,
@@ -16,7 +16,7 @@ const CHAT_API_PROXY = {
 // Keep unit coverage on our source rather than generated memo-cache guards.
 // Native React Compiler support is experimental; production browser and
 // visual tests exercise its output.
-const isTest = process.env.VITEST === "true";
+const isTest = process.env["VITEST"] === "true";
 
 // Generated output never gets formatted or linted.
 const GENERATED = [
@@ -49,7 +49,7 @@ const TEST_FILES = ["**/*.test.{ts,tsx}", "**/*.bench.ts", "vitest.setup.ts"];
 
 export default defineConfig({
   // Static checks do not need to initialize the React build plugins.
-  plugins: lazyPlugins(() => [react({ compiler: !isTest })]),
+  plugins: lazyPlugins(() => [react({ compiler: !isTest })]) ?? [],
   run: {
     tasks: {
       // Fixing source files must always execute, even with `vp run --cache`.

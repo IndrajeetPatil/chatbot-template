@@ -97,7 +97,7 @@ test("follow-up and regeneration send text-only conversation history", async ({
   await expect(
     page.getByRole("button", { name: "Copy entire message" }),
   ).toHaveCount(2);
-  expect(requests[1].messages.slice(1)).toEqual([
+  expect(requests[1]?.messages.slice(1)).toEqual([
     { role: "user", parts: [{ type: "text", text: "First question" }] },
     { role: "assistant", parts: [{ type: "text", text: "Response 1" }] },
     { role: "user", parts: [{ type: "text", text: "Follow-up" }] },
@@ -112,5 +112,5 @@ test("follow-up and regeneration send text-only conversation history", async ({
   ).toHaveCount(2);
   await expect(page.getByRole("alert")).toHaveCount(0);
   expect(requests).toHaveLength(3);
-  expect(requests[2].messages).toEqual(requests[1].messages);
+  expect(requests[2]?.messages).toEqual(requests[1]?.messages);
 });
