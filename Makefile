@@ -79,11 +79,11 @@ commitlint:
 
 markdown-lint:
 	@echo "$(COLOR_BLUE_BG)Running markdown linting with rumdl...$(COLOR_RESET)"
-	uv tool run --from rumdl==0.3.0 rumdl check .
+	uv tool run --from rumdl==0.3.2 rumdl check .
 
 markdown-format:
 	@echo "$(COLOR_BLUE_BG)Formatting Markdown with rumdl...$(COLOR_RESET)"
-	uv tool run --from rumdl==0.3.0 rumdl fmt .
+	uv tool run --from rumdl==0.3.2 rumdl fmt .
 
 spell-check:
 	@echo "$(COLOR_BLUE_BG)Checking spelling with typos...$(COLOR_RESET)"
