@@ -25,6 +25,9 @@ container, which installs the toolchain for you.
   `cd frontend && vp exec playwright install --with-deps chromium`.
 - Contributor hooks also need the pinned `ls-lint` binary on `PATH`; see
   [tooling requirements](development.md#file-naming).
+- `make qa` checks links with lychee. Install it with
+  `bash scripts/install-lychee.sh` (Linux, pinned and checksum-verified) or
+  `brew install lychee` (macOS); the development container already has it.
 - Brotli, which Locust needs through `geventhttpclient`, publishes no CPython 3.15
   wheels yet, so `make setup` builds it from source
   ([google/brotli#1583](https://github.com/google/brotli/pull/1583)). Install a

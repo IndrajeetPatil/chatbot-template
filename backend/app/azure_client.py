@@ -1,5 +1,7 @@
-from functools import cache
-from typing import TYPE_CHECKING, cast
+"""Azure OpenAI client and the streaming chat completion it serves."""
+
+lazy from functools import cache
+lazy from typing import TYPE_CHECKING, cast
 
 lazy import openai
 lazy from loguru import logger
@@ -9,13 +11,13 @@ lazy from app.config import get_settings
 lazy from app.stream_metrics import StreamMetrics, measure_stream
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator, Sequence
+    lazy from collections.abc import Generator, Iterator, Sequence
 
-    from openai import Stream
-    from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
+    lazy from openai import Stream
+    lazy from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 
-    from app.config import Settings
-    from app.entities import AssistantModel, ReasoningEffort
+    lazy from app.config import Settings
+    lazy from app.entities import AssistantModel, ReasoningEffort
 
     type OpenAIChatMessages = Sequence[ChatCompletionMessageParam]
 
@@ -24,6 +26,7 @@ type ChatMessage = dict[str, str]
 
 @cache
 def get_azure_openai_client() -> AzureOpenAI:
+    """Return the Azure OpenAI client, built once from the settings."""
     settings: Settings = get_settings()
     return AzureOpenAI(
         azure_endpoint=settings.azure_openai_endpoint,
@@ -88,6 +91,11 @@ def stream_azure_openai_response(
     model: AssistantModel,
     reasoning_effort: ReasoningEffort,
 ) -> Generator[str]:
+    """Stream the assistant's reply to `messages`, logging the stream's metrics.
+
+    Yields:
+        Each non-empty text delta.
+    """
     client: AzureOpenAI = get_azure_openai_client()
     with (
         measure_stream(model, reasoning_effort) as metrics,

@@ -5,19 +5,19 @@ Every test here drives the real `openai` SDK over a mock HTTP transport (see
 and the SDK's real response handling rather than about a stub's bookkeeping.
 """
 
-import json
-from typing import TYPE_CHECKING
+lazy import json
+lazy from typing import TYPE_CHECKING
 
-import httpx2
-import openai
-import pytest
-from fastapi import status
-from inline_snapshot import snapshot
+lazy import httpx2
+lazy import openai
+lazy import pytest
+lazy from fastapi import status
+lazy from inline_snapshot import snapshot
 
-from app.azure_client import get_azure_openai_client, stream_azure_openai_response
-from app.config import Settings
-from app.entities import AssistantModel, ReasoningEffort
-from tests.azure_double import (
+lazy from app.azure_client import get_azure_openai_client, stream_azure_openai_response
+lazy from app.config import Settings
+lazy from app.entities import AssistantModel, ReasoningEffort
+lazy from tests.azure_double import (
     CONNECT_ERROR,
     DONE,
     content_chunk,
@@ -33,11 +33,11 @@ from tests.azure_double import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    lazy from collections.abc import Generator, Iterator
 
-    from openai.types.chat import ChatCompletionChunk
+    lazy from openai.types.chat import ChatCompletionChunk
 
-    from tests.conftest import AzureFactory, FakeClock, MetricsReader
+    lazy from tests.conftest import AzureFactory, FakeClock, MetricsReader
 
 PROMPT: list[dict[str, str]] = [{"role": "user", "content": "Test prompt"}]
 _MID_STREAM_FAILURE: str = "mid-stream failure"

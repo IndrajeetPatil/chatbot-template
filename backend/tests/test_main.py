@@ -1,21 +1,23 @@
-from typing import TYPE_CHECKING, Any
+"""Tests for the FastAPI endpoints."""
 
-import pytest
-from fastapi import status
-from fastapi.testclient import TestClient
-from inline_snapshot import snapshot
+lazy from typing import TYPE_CHECKING, Any
 
-from app.config import Settings
-from app.main import RESPONSE_FORMAT_INSTRUCTIONS, app, limiter
+lazy import pytest
+lazy from fastapi import status
+lazy from fastapi.testclient import TestClient
+lazy from inline_snapshot import snapshot
+
+lazy from app.config import Settings
+lazy from app.main import RESPONSE_FORMAT_INSTRUCTIONS, app, limiter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    lazy from collections.abc import Iterator
 
-    from httpx2 import Response as TestClientResponse
-    from starlette.types import ASGIApp, Receive, Scope, Send
+    lazy from httpx2 import Response as TestClientResponse
+    lazy from starlette.types import ASGIApp, Receive, Scope, Send
 
-    from app.azure_client import ChatMessage
-    from app.entities import AssistantModel, ReasoningEffort
+    lazy from app.azure_client import ChatMessage
+    lazy from app.entities import AssistantModel, ReasoningEffort
 
 type Payload = dict[str, Any]
 
@@ -288,8 +290,10 @@ def low_rate_limit(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 async def _without_client_address(scope: Scope, receive: Receive, send: Send) -> None:
-    """Serve `app` as an ASGI server that omits the client address would, such as
-    one listening on a Unix socket."""
+    """Serve `app` without a client address.
+
+    An ASGI server listening on a Unix socket, for example, omits it.
+    """
     await app({**scope, "client": None}, receive, send)
 
 

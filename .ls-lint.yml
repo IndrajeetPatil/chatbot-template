@@ -7,7 +7,7 @@ ls:
   .yml: kebab-case
   .yaml: kebab-case
   .json: kebab-case
-  .toml: kebab-case
+  .toml: kebab-case | regex:_typos
   .mjs: kebab-case
   .config.mjs: kebab-case
   .png: kebab-case

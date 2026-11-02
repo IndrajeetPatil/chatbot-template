@@ -34,7 +34,7 @@ describe(DropdownParameter, () => {
     const { onChange } = renderDropdown();
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("Select an option"));
-    fireEvent.click(screen.getAllByRole("menuitem")[1]);
+    fireEvent.click(screen.getByRole("menuitem", { name: "Option 2" }));
     expect(onChange).toHaveBeenCalledWith("opt2");
   });
 

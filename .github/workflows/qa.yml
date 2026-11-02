@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  statuses: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -25,6 +24,10 @@ env:
 jobs:
   qa:
     runs-on: ubuntu-latest
+    # Lighthouse CI posts its results as commit statuses.
+    permissions:
+      contents: read
+      statuses: write
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -184,3 +187,32 @@ jobs:
             backend/htmlcov
             frontend/coverage
             frontend/playwright-report
+
+  repo-lint:
+    name: Spelling, workflows and links
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+
+      - name: Spelling (typos)
+        run: make spell-check
+
+      # The runner's shellcheck also checks the shell in every `run:` block.
+      - name: Workflow lint (actionlint)
+        run: make workflow-lint
+
+      # Reads lychee.toml from the repository root.
+      - name: Link check (lychee)
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: --no-progress .
+          fail: true
+          jobSummary: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

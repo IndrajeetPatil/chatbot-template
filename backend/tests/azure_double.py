@@ -7,18 +7,18 @@ mapping — inside the system under test instead of being replaced by a stub tha
 can only ever echo back the arguments it was handed.
 """
 
-import json
-from typing import TYPE_CHECKING
+lazy import json
+lazy from typing import TYPE_CHECKING
 
-import httpx2
-from fastapi import status
-from openai import AzureOpenAI
-from openai.types.chat import ChatCompletionChunk
-from openai.types.chat.chat_completion_chunk import Choice, ChoiceDelta
-from openai.types.completion_usage import CompletionUsage
+lazy import httpx2
+lazy from fastapi import status
+lazy from openai import AzureOpenAI
+lazy from openai.types.chat import ChatCompletionChunk
+lazy from openai.types.chat.chat_completion_chunk import Choice, ChoiceDelta
+lazy from openai.types.completion_usage import CompletionUsage
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    lazy from collections.abc import Callable, Iterator
 
 AZURE_ENDPOINT: str = "https://example.openai.azure.com/"
 AZURE_API_VERSION: str = "2024-02-01"
@@ -45,6 +45,7 @@ def _chunk(
 
 
 def content_chunk(content: str | None) -> ChatCompletionChunk:
+    """A chunk carrying one text delta."""
     return _chunk([Choice(index=0, delta=ChoiceDelta(content=content))])
 
 
@@ -72,6 +73,7 @@ def error_event(message: str) -> bytes:
 
 
 def sse_bytes(*chunks: ChatCompletionChunk) -> bytes:
+    """Encode `chunks` as SSE frames."""
     # `indent=None` keeps each frame on one line; SSE frames are newline-delimited.
     return "".join(
         f"data: {chunk.to_json(indent=None)}\n\n" for chunk in chunks
@@ -105,6 +107,8 @@ def stream_of(*chunks: ChatCompletionChunk) -> Responder:
 
 
 def error_status(status_code: int, message: str = "upstream failure") -> Responder:
+    """Answer every request with `status_code` and an error body."""
+
     def respond(_request: httpx2.Request) -> httpx2.Response:
         return httpx2.Response(status_code, json={"error": {"message": message}})
 
@@ -112,7 +116,11 @@ def error_status(status_code: int, message: str = "upstream failure") -> Respond
 
 
 def unreachable(_request: httpx2.Request) -> httpx2.Response:
-    """Fail at the transport layer, as an unresolvable endpoint would."""
+    """Fail at the transport layer, as an unresolvable endpoint would.
+
+    Raises:
+        ConnectError: always.
+    """
     raise httpx2.ConnectError(CONNECT_ERROR)
 
 
@@ -137,6 +145,11 @@ def record_request(client: AzureOpenAI, *, model: str) -> httpx2.Request:
 
 
 def build_client(responder: Responder, responses: list[httpx2.Response]) -> AzureOpenAI:
+    """Build an Azure client whose transport answers with `responder`.
+
+    Every response it returns is also appended to `responses`.
+    """
+
     def handler(request: httpx2.Request) -> httpx2.Response:
         response: httpx2.Response = responder(request)
         responses.append(response)

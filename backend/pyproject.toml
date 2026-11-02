@@ -52,7 +52,20 @@ indent-width = 4
 select = ["ALL"]
 # Keep missing-trailing-comma enabled to preserve intentional multiline layouts.
 # backend-format applies its fixes before the formatter can collapse those lines.
-ignore = ["CPY", "D", "DOC"]
+ignore = [
+  # No copyright headers in this template.
+  "CPY",
+  # A Returns section is not required in every docstring, as in stock-dashboard.
+  "docstring-missing-returns",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports]
+# Every import is lazy (PEP 810), as on the owner's website: a module loads on
+# first use, so the app and each test file import only what they touch.
+require-lazy = "all"
 
 [tool.ruff.lint.mccabe]
 max-complexity = 5
@@ -72,6 +85,8 @@ max-statements = 20
   "pytest-fixture-autouse",
 ]
 "test_*.py" = [
+  # test functions are named for what they check
+  "undocumented-public-function",
   # autouse fixtures are intentional for test isolation
   "pytest-fixture-autouse",
   # tests can have asserts

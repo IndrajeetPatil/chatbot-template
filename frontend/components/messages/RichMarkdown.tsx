@@ -20,7 +20,7 @@ interface HastNode {
 }
 
 function isScrollableBlock(node: HastNode): boolean {
-  const className = node.properties?.className;
+  const className = node.properties?.["className"];
   return (
     node.tagName === "pre" ||
     (Array.isArray(className) && className.includes("katex-display"))

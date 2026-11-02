@@ -6,10 +6,19 @@ import type { KeyboardEvent, ReactElement, Ref } from "react";
 
 import { ChatMessageTextSchema } from "@/client/chatConstants";
 
+/**
+ * The message to show for a failed validation.
+ * @param issues - The validation issues; a failed parse always has one.
+ * @returns The first issue's message.
+ */
+function firstIssueMessage(issues: readonly { message: string }[]): string {
+  return issues[0]?.message ?? "Invalid message.";
+}
+
 interface ChatInputProps {
   onSendMessage: (message: string) => void | Promise<void>;
   disabled?: boolean;
-  onStop?: () => void;
+  onStop?: (() => void) | undefined;
 }
 
 const CHAT_INPUT_FORM_SX = {
@@ -142,8 +151,7 @@ function ChatInput({
     const result = ChatMessageTextSchema.safeParse(message);
 
     if (!result.success) {
-      const [firstIssue] = result.error.issues;
-      setValidationError(firstIssue.message);
+      setValidationError(firstIssueMessage(result.error.issues));
       inputRef.current?.focus();
       return;
     }

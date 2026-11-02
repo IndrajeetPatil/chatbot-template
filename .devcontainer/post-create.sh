@@ -52,6 +52,11 @@ export PATH="$HOME/.vite-plus/bin:$PATH"
 bash scripts/install-ls-lint.sh
 
 # ──────────────────────────────────────────────────────────────────────────────
+# lychee — link checker for `make link-check`
+# ──────────────────────────────────────────────────────────────────────────────
+bash scripts/install-lychee.sh
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Backend — Python dependencies (uv installs the pinned Python version too)
 # ──────────────────────────────────────────────────────────────────────────────
 cd backend

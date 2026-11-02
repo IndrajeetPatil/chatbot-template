@@ -10,6 +10,8 @@ include makefiles/backend.mk
 include makefiles/frontend.mk
 
 CHECKOV_VERSION := 3.3.30
+TYPOS_VERSION := 1.51.1
+ACTIONLINT_VERSION := 1.7.12.25
 # Pinned by digest to prevent tag drift.
 GITLEAKS_IMAGE := zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
 # Minimum codex-security CLI the codex-security target was validated against. The
@@ -43,7 +45,7 @@ update-deps:
 	prek update --freeze
 
 # Aggregate targets
-lint: file-naming backend-lint frontend-lint markdown-lint
+lint: file-naming backend-lint frontend-lint markdown-lint spell-check workflow-lint
 format: backend-format frontend-format config-format markdown-format
 type-check: backend-type-check frontend-type-check
 test: backend-test frontend-test
@@ -82,6 +84,27 @@ markdown-lint:
 markdown-format:
 	@echo "$(COLOR_BLUE_BG)Formatting Markdown with rumdl...$(COLOR_RESET)"
 	uv tool run --from rumdl==0.3.0 rumdl fmt .
+
+spell-check:
+	@echo "$(COLOR_BLUE_BG)Checking spelling with typos...$(COLOR_RESET)"
+	uv tool run typos@$(TYPOS_VERSION)
+
+# actionlint checks workflow syntax and, through shellcheck when it is on PATH,
+# the shell in every `run:` block; zizmor covers the security side.
+workflow-lint:
+	@echo "$(COLOR_BLUE_BG)Linting GitHub Actions workflows with actionlint...$(COLOR_RESET)"
+	uv tool run --from actionlint-py==$(ACTIONLINT_VERSION) actionlint -color
+
+# Pass a GitHub token when one is available so github.com links are not rate-limited.
+link-check:
+	@echo "$(COLOR_BLUE_BG)Checking links with lychee...$(COLOR_RESET)"
+	@command -v lychee >/dev/null 2>&1 || { \
+		echo "lychee is not on PATH: run 'bash scripts/install-lychee.sh' (Linux) or 'brew install lychee' (macOS)." >&2; \
+		exit 1; \
+	}
+	@token="$${GITHUB_TOKEN:-$$(gh auth token 2>/dev/null || true)}"; \
+	if [ -n "$$token" ]; then export GITHUB_TOKEN="$$token"; fi; \
+	lychee --no-progress .
 
 security-scan:
 	@echo "$(COLOR_BLUE_BG)Running security scanning with Checkov...$(COLOR_RESET)"
@@ -160,7 +183,7 @@ hooks:
 # Quality assurance suites
 qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
 qa-frontend: file-naming frontend-qa
-qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint backend-type-check backend-validate-api-schema backend-audit backend-test backend-type-coverage frontend-qa security-scan
+qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint spell-check workflow-lint link-check backend-type-check backend-validate-api-schema backend-audit backend-test backend-type-coverage frontend-qa security-scan
 
 # Run targets
 run: service
@@ -188,7 +211,7 @@ e2e-update:
 .PHONY: setup service update-deps \
 	lint format type-check test type-coverage clean cache-clean docker-clean \
 	fallow css-quality accessibility-audit lighthouse \
-	commitlint markdown-lint markdown-format security-scan secret-scan-ci codex-security file-naming hooks \
+	commitlint markdown-lint markdown-format spell-check workflow-lint link-check security-scan secret-scan-ci codex-security file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \
 	docker-build docker-up docker-down \

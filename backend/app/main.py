@@ -1,22 +1,22 @@
-from typing import TYPE_CHECKING, Annotated, Literal
+"""FastAPI application: health check and the streaming chat endpoint."""
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
-from limits.storage import MemoryStorage
-from limits.strategies import FixedWindowRateLimiter
-from pydantic import BaseModel, Field, model_validator
-lazy from fastapi import HTTPException, Request, status
+lazy from typing import TYPE_CHECKING, Annotated, Literal
+
+lazy from fastapi import FastAPI, HTTPException, Request, status
+lazy from fastapi.middleware.cors import CORSMiddleware
+lazy from fastapi.responses import StreamingResponse
 lazy from limits import parse
+lazy from limits.storage import MemoryStorage
+lazy from limits.strategies import FixedWindowRateLimiter
 lazy from loguru import logger
+lazy from pydantic import BaseModel, Field, model_validator
 
-from app.config import get_settings
-from app.entities import AssistantModel, ReasoningEffort
 lazy from app.azure_client import ChatMessage, stream_azure_openai_response
-lazy from app.entities import OpenAIMessageRole
+lazy from app.config import get_settings
+lazy from app.entities import AssistantModel, OpenAIMessageRole, ReasoningEffort
 
 if TYPE_CHECKING:
-    from app.config import Settings
+    lazy from app.config import Settings
 
 _MAX_MESSAGES = 50
 _MAX_MESSAGE_CHARS = 32_000
@@ -46,17 +46,26 @@ app.add_middleware(
 
 
 class TextPart(BaseModel):
+    """A text part of an AI SDK UI message."""
+
     type: Literal["text"]
     text: Annotated[str, Field(max_length=_MAX_MESSAGE_CHARS)]
 
 
 class UIMessage(BaseModel):
+    """A chat message from the frontend, as text content or text parts."""
+
     role: OpenAIMessageRole
     content: str | None = Field(default=None, max_length=_MAX_MESSAGE_CHARS)
     parts: list[TextPart] = Field(default_factory=list, max_length=_MAX_PARTS)
 
     @model_validator(mode="after")
     def validate_content_or_parts(self) -> UIMessage:
+        """Require content or parts, and cap the joined length of parts.
+
+        Raises:
+            ValueError: if both are missing or the joined parts are too long.
+        """
         # `content` is already length-capped by its field and takes precedence
         # over `parts`, so only a parts-only message needs further checks.
         if self.content is not None:
@@ -78,12 +87,15 @@ class UIMessage(BaseModel):
 
     @property
     def text(self) -> str:
+        """The message text: its content, else its parts joined."""
         if self.content is not None:
             return self.content
         return "".join(part.text for part in self.parts)
 
 
 class ChatRequest(BaseModel):
+    """A chat request: the conversation, model and reasoning effort."""
+
     messages: Annotated[list[UIMessage], Field(min_length=1, max_length=_MAX_MESSAGES)]
     model: AssistantModel = AssistantModel.ASTRA
     reasoning_effort: ReasoningEffort = ReasoningEffort.LOW
@@ -102,6 +114,7 @@ def _enforce_rate_limit(request: Request) -> None:
 
 @app.get("/health")
 def health() -> dict[str, str]:
+    """Report that the service is up."""
     return {"status": "ok"}
 
 
@@ -116,6 +129,7 @@ def health() -> dict[str, str]:
     },
 )
 def chat(request: Request, body: ChatRequest) -> StreamingResponse:
+    """Stream the assistant's reply to the conversation as plain text."""
     _enforce_rate_limit(request)
     messages: list[ChatMessage] = _to_openai_messages(body.messages)
     logger.debug(

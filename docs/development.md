@@ -22,34 +22,36 @@ the blue, orange, and purple accents. See [automated checks](#automated-checks),
 Run commands from the repository root. Start with `make setup` and `make service`;
 see [getting started](getting-started.md) for service selection and configuration.
 
-| Command                                      | Purpose                                                        |
-| -------------------------------------------- | -------------------------------------------------------------- |
-| `make qa`                                    | Format, lint, types, schema, coverage, audits, Checkov         |
-| `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit         |
-| `make format` / `make lint`                  | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl |
-| `make type-check` / `make type-coverage`     | Static types / 100% type coverage                              |
-| `make test`                                  | Backend and frontend unit tests with coverage                  |
-| `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                    |
-| `make frontend-bench`                        | Optional frontend request-preparation benchmarks               |
-| `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials              |
-| `make backend-load-test`                     | Start the backend and Locust against it                        |
-| `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                               |
-| `make accessibility-audit`                   | Build and run the axe-core audit                               |
-| `make lighthouse`                            | Build and run Lighthouse CI                                    |
-| `make e2e-test` / `make e2e-test-docker`     | Local browser behavior / pinned visual renderer                |
-| `make e2e-update`                            | Regenerate visual baselines for review                         |
-| `make file-naming` / `make markdown-lint`    | Repository naming / Markdown checks                            |
-| `make hooks`                                 | All pre-commit hooks across tracked files                      |
-| `make update-deps`                           | Refresh dependencies, package revisions, and hook pins         |
-| `make frontend-toolchain-align`              | Align Vite+ aliases and Vitest packages with the local CLI     |
-| `make frontend-check CHECK_ARGS=`            | Verify frontend format, lint, and types together               |
-| `make security-scan` / `make secret-scan-ci` | Checkov / full-history Gitleaks with Docker                    |
-| `make docker-build`                          | Build both service images                                      |
-| `make setup` / `make service`                | Restore dependencies / run selected development services       |
-| `make frontend-preview`                      | Build and preview the frontend                                 |
-| `make docker-up` / `make docker-down`        | Build/start / stop Compose services                            |
-| `make markdown-format`                       | Format Markdown and align tables                               |
-| `make clean`                                 | Remove generated output and local / unused shared caches       |
+| Command                                      | Purpose                                                                            |
+| -------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `make qa`                                    | Format, lint, spelling, workflows, links, types, schema, coverage, audits, Checkov |
+| `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit                             |
+| `make format` / `make lint`                  | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl, typos, actionlint  |
+| `make type-check` / `make type-coverage`     | Static types / 100% type coverage                                                  |
+| `make test`                                  | Backend and frontend unit tests with coverage                                      |
+| `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                                        |
+| `make frontend-bench`                        | Optional frontend request-preparation benchmarks                                   |
+| `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials                                  |
+| `make backend-load-test`                     | Start the backend and Locust against it                                            |
+| `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                                                   |
+| `make accessibility-audit`                   | Build and run the axe-core audit                                                   |
+| `make lighthouse`                            | Build and run Lighthouse CI                                                        |
+| `make e2e-test` / `make e2e-test-docker`     | Local browser behavior / pinned visual renderer                                    |
+| `make e2e-update`                            | Regenerate visual baselines for review                                             |
+| `make file-naming` / `make markdown-lint`    | Repository naming / Markdown checks                                                |
+| `make spell-check` / `make workflow-lint`    | typos (`_typos.toml`) / actionlint with shellcheck                                 |
+| `make link-check`                            | lychee over the repository (`lychee.toml`)                                         |
+| `make hooks`                                 | All pre-commit hooks across tracked files                                          |
+| `make update-deps`                           | Refresh dependencies, package revisions, and hook pins                             |
+| `make frontend-toolchain-align`              | Align Vite+ aliases and Vitest packages with the local CLI                         |
+| `make frontend-check CHECK_ARGS=`            | Verify frontend format, lint, and types together                                   |
+| `make security-scan` / `make secret-scan-ci` | Checkov / full-history Gitleaks with Docker                                        |
+| `make docker-build`                          | Build both service images                                                          |
+| `make setup` / `make service`                | Restore dependencies / run selected development services                           |
+| `make frontend-preview`                      | Build and preview the frontend                                                     |
+| `make docker-up` / `make docker-down`        | Build/start / stop Compose services                                                |
+| `make markdown-format`                       | Format Markdown and align tables                                                   |
+| `make clean`                                 | Remove generated output and local / unused shared caches                           |
 
 Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
 [frontend.mk](../makefiles/frontend.mk). Frontend targets run through Vite+ (`vp`).
@@ -68,6 +70,11 @@ intentional multiline layouts without a separate comma-formatting dependency.
 COM812 also runs in backend lint and the Ruff pre-commit hook. Ruff warns about
 combining this rule with its formatter; it is enabled intentionally here to add
 commas before formatting can collapse those layouts.
+
+Ruff selects every rule except copyright headers. Docstrings follow the Google
+convention; a `Returns` section is optional, and test functions need none. Every
+import is a PEP 810 `lazy` import (`require-lazy = "all"`), so modules load on
+first use.
 
 ## Cleaning and rebuilding
 
@@ -138,7 +145,10 @@ make qa
 | Commit message linting   | commitlint                                               | commitlint           |
 | IaC / workflow scan      | Checkov                                                  | Checkov              |
 | Secret scanning          | Gitleaks                                                 | Gitleaks             |
-| GitHub Actions audit     | zizmor                                                   | zizmor               |
+| GitHub Actions audit     | zizmor (every action pinned to a commit SHA)             | zizmor               |
+| GitHub Actions lint      | actionlint                                               | actionlint           |
+| Spell checking           | typos                                                    | typos                |
+| Link checking            | lychee                                                   | lychee               |
 | Container vuln scan      | Trivy                                                    | Trivy                |
 | Unit testing             | Vitest browser mode (Chromium)                           | pytest               |
 | Microbenchmarks          | Vitest 5 `bench` fixture (optional)                      | \-                   |
@@ -161,10 +171,20 @@ make qa
   `vp test`, `vp check`, `vp lint`, and `vp fmt` directly; `vp run <script>`,
   `vp exec <bin>`, and `vp pm <command>` cover the remaining scripts, binaries,
   and pnpm commands.
-- Oxlint enables every stable category as an error, including type-aware rules
-  and type checking. Switch a rule off only when it contradicts another rule, is
-  obsolete for the stack, or is owned by a stricter tool, and explain why beside
-  it; cyclomatic complexity is capped at 5.
+- Oxlint enables every category as an error, nursery included, plus type-aware
+  rules and type checking; Vite+ pins Oxlint, so new rules arrive only with an
+  upgrade. Switch a rule off only when it contradicts another rule, is obsolete
+  for the stack, or is owned by a stricter tool, and explain why beside it;
+  cyclomatic complexity is capped at 5.
+- `tsconfig.json` adds the options of Astro's `strictest` preset
+  (`noImplicitReturns`, `noUncheckedIndexedAccess`,
+  `exactOptionalPropertyTypes`, `verbatimModuleSyntax`) plus
+  `noPropertyAccessFromIndexSignature`, `erasableSyntaxOnly` and
+  `noUncheckedSideEffectImports`. `skipLibCheck` stays on because the AI SDK,
+  MUI and Vitest declarations do not compile under
+  `exactOptionalPropertyTypes`.
+- `package.json` declares `engines` and `pnpm-workspace.yaml` sets
+  `engineStrict`, so installs fail under an older Node.js or pnpm.
 - Oxlint runs only its built-in Rust rules; do not add `jsPlugins`. JS plugins
   run in a Node.js runtime beside the linter and pull ESLint into the
   dependency tree. Express project policies through configurable built-ins
@@ -203,9 +223,9 @@ The frontend uses [Vitest 5](https://vitest.dev/blog/vitest-5.html), bundled by
 Vite+, with the matching V8 coverage provider. Unit tests run in real Chromium
 through Vitest browser mode (`vite-plus/test/browser-playwright`), so layout,
 storage, and clipboard behave as they do for users; tests import from
-`vite-plus/test`. `@fast-check/vitest` 0.5 retains the property tests. Spies are
-restored before each test, the coverage thresholds above apply, and coverage
-artifacts stay in `frontend/coverage/` for CI uploads.
+`vite-plus/test`. `@fast-check/vitest` 0.5 retains the property tests. Spies and
+global stubs are restored before each test, the coverage thresholds above apply,
+and coverage artifacts stay in `frontend/coverage/` for CI uploads.
 
 Files and tests run in random order (`sequence.shuffle`), matching the backend's
 `--random-order`, and every run prints its seed. To replay a failure, pass that

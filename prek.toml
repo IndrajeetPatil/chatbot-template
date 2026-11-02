@@ -30,6 +30,15 @@ rev = "03a7d1a4936b5889602852175bca2d39acb3281e" # frozen: v0.3.0
 id = "rumdl"
 
 [[repos]]
+repo = "https://github.com/crate-ci/typos"
+rev = "7f9d0819ca1c008ade73f4b41fa9d258d48f605b" # frozen: v1.51.1
+
+# Report rather than silently rewrite; a typo fix is a human decision.
+[[repos.hooks]]
+id = "typos"
+args = ["--force-exclude"]
+
+[[repos]]
 repo = "local"
 
 [[repos.hooks]]
@@ -39,6 +48,14 @@ language = "system"
 entry = "make file-naming"
 pass_filenames = false
 always_run = true
+
+# Mirrors pre-commit-hooks' forbid-submodules without a Python environment.
+[[repos.hooks]]
+id = "forbid-submodules"
+name = "forbid submodules"
+language = "fail"
+entry = "submodules are not allowed in this repository:"
+types = ["directory"]
 
 [[repos.hooks]]
 id = "commitlint"
@@ -81,6 +98,24 @@ id = "check-json"
 
 [[repos.hooks]]
 id = "check-merge-conflict"
+
+[[repos.hooks]]
+id = "check-case-conflict"
+
+[[repos.hooks]]
+id = "check-shebang-scripts-are-executable"
+
+[[repos.hooks]]
+id = "check-executables-have-shebangs"
+
+[[repos.hooks]]
+id = "check-symlinks"
+
+[[repos.hooks]]
+id = "destroyed-symlinks"
+
+[[repos.hooks]]
+id = "check-illegal-windows-names"
 
 [[repos.hooks]]
 id = "mixed-line-ending"

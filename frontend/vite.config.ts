@@ -2,9 +2,9 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
 
-const isCI = Boolean(process.env.CI);
+const isCI = Boolean(process.env["CI"]);
 const CHAT_API_PROXY_TARGET =
-  process.env.CHAT_API_PROXY_TARGET ?? "http://localhost:8000";
+  process.env["CHAT_API_PROXY_TARGET"] ?? "http://localhost:8000";
 const CHAT_API_PROXY = {
   "/api": {
     target: CHAT_API_PROXY_TARGET,
@@ -16,7 +16,7 @@ const CHAT_API_PROXY = {
 // Keep unit coverage on our source rather than generated memo-cache guards.
 // Native React Compiler support is experimental; production browser and
 // visual tests exercise its output.
-const isTest = process.env.VITEST === "true";
+const isTest = process.env["VITEST"] === "true";
 
 // Generated output never gets formatted or linted.
 const GENERATED = [
@@ -49,7 +49,7 @@ const TEST_FILES = ["**/*.test.{ts,tsx}", "**/*.bench.ts", "vitest.setup.ts"];
 
 export default defineConfig({
   // Static checks do not need to initialize the React build plugins.
-  plugins: lazyPlugins(() => [react({ compiler: !isTest })]),
+  plugins: lazyPlugins(() => [react({ compiler: !isTest })]) ?? [],
   run: {
     tasks: {
       // Fixing source files must always execute, even with `vp run --cache`.
@@ -136,8 +136,10 @@ export default defineConfig({
       },
     },
     exclude: ["**/node_modules/**", "**/dist/**", "**/e2e-tests/**"],
-    // Undo `vi.spyOn` before each test so spies on browser APIs cannot leak.
+    // Undo `vi.spyOn` and `vi.stubGlobal` before each test so spies and stubs
+    // on browser APIs cannot leak.
     restoreMocks: true,
+    unstubGlobals: true,
     // Shuffle files and tests on every run, like the backend's
     // `--random-order`, so order dependencies surface in CI.
     sequence: { shuffle: true },
@@ -156,10 +158,10 @@ export default defineConfig({
     ignorePatterns: [...GENERATED, "pnpm-lock.yaml"],
   },
   lint: {
-    // Every rule in every stable category is an error. Nursery rules are
-    // excluded because they are unfinished and may report false positives.
-    // Rules below are only switched off when they contradict another enabled
-    // rule, are obsolete for this stack, or duplicate a stricter tool.
+    // Every rule in every category is an error. Vite+ pins Oxlint, so new
+    // nursery rules arrive only with an upgrade. Rules below are only switched
+    // off when they contradict another enabled rule, are obsolete for this
+    // stack, or duplicate a stricter tool.
     plugins: [...LINT_PLUGINS],
     categories: {
       correctness: "error",
@@ -168,6 +170,7 @@ export default defineConfig({
       perf: "error",
       style: "error",
       restriction: "error",
+      nursery: "error",
     },
     env: {
       browser: true,
@@ -370,7 +373,10 @@ export default defineConfig({
       },
       {
         // Node-run tooling reads the environment and prints results.
-        files: ["*.config.ts", "scripts/**"],
+        files: ["*.config.ts", "scripts/**", "e2e-tests/**"],
+        env: {
+          node: true,
+        },
         rules: {
           // Private scripts run as ES modules and are never `require`d.
           "node/no-top-level-await": "off",
