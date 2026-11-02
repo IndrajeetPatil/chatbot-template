@@ -9,7 +9,7 @@ endif
 include makefiles/backend.mk
 include makefiles/frontend.mk
 
-CHECKOV_VERSION := 3.3.30
+CHECKOV_VERSION := 3.4.2
 TYPOS_VERSION := 1.51.1
 ACTIONLINT_VERSION := 1.7.12.25
 # Pinned by digest to prevent tag drift.
