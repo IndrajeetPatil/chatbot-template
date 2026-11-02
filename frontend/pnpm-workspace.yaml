@@ -11,6 +11,8 @@ overrides:
   vite@*: "catalog:"
   vitest@*: "catalog:"
   katex: "^0.19.1"
+  # type-coverage-core caps minimatch at v10; GHSA-g3hv-75wg-m249 is fixed in 11.0.1.
+  minimatch@<11.0.1: "^11.0.1"
 peerDependencyRules:
   allowAny:
     - vite
