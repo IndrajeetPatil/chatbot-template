@@ -44,7 +44,7 @@ Preserve these restrictions when changing rendering or transport. See the
 | ---------------------------- | ------------------------------------------------------------- | ------------------------------ |
 | Checkov                      | Dockerfiles, Compose/YAML, Actions, secrets surface           | `make security-scan`           |
 | Gitleaks                     | All fetched Git history, including PR history; redacted SARIF | `make secret-scan-ci` (Docker) |
-| zizmor                       | Online GitHub Actions audit                                   | Security Scan workflow         |
+| zizmor                       | Online GitHub Actions audit; every action pinned to a SHA     | Security Scan workflow         |
 | Production dependency audits | Frontend and backend dependencies                             | Security Scan workflow         |
 | Trivy                        | Built frontend/backend images                                 | Container build workflow       |
 | Commitlint                   | Conventional commit messages                                  | Local `commit-msg` hook        |
