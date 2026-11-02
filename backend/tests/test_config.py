@@ -1,16 +1,16 @@
-import re
-from typing import TYPE_CHECKING, NamedTuple
+lazy import re
+lazy from typing import TYPE_CHECKING, NamedTuple
 
-import pytest
-from hypothesis import given
-from hypothesis import strategies as st
-from inline_snapshot import snapshot
-from limits import parse
+lazy import pytest
+lazy from hypothesis import given
+lazy from hypothesis import strategies as st
+lazy from inline_snapshot import snapshot
+lazy from limits import parse
 
-from app.config import Settings, get_settings
+lazy from app.config import Settings, get_settings
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    lazy from pathlib import Path
 
 # Azure env-var names reported in the "missing" error, in the order
 # app.config.validate_azure_settings lists them (endpoint, api key, api version).

@@ -1,18 +1,18 @@
-from contextlib import contextmanager
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal
 lazy import json
+lazy from contextlib import contextmanager
+lazy from dataclasses import dataclass
 lazy from time import perf_counter
+lazy from typing import TYPE_CHECKING, Literal
 
 lazy from loguru import logger
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    lazy from collections.abc import Generator
 
-    from openai.types.chat import ChatCompletionChunk
-    from openai.types.completion_usage import CompletionUsage
+    lazy from openai.types.chat import ChatCompletionChunk
+    lazy from openai.types.completion_usage import CompletionUsage
 
-    from app.entities import AssistantModel, ReasoningEffort
+    lazy from app.entities import AssistantModel, ReasoningEffort
 
 
 type StreamStatus = Literal["completed", "error", "interrupted"]

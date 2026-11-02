@@ -1,21 +1,21 @@
-from typing import TYPE_CHECKING, Any
+lazy from typing import TYPE_CHECKING, Any
 
-import pytest
-from fastapi import status
-from fastapi.testclient import TestClient
-from inline_snapshot import snapshot
+lazy import pytest
+lazy from fastapi import status
+lazy from fastapi.testclient import TestClient
+lazy from inline_snapshot import snapshot
 
-from app.config import Settings
-from app.main import RESPONSE_FORMAT_INSTRUCTIONS, app, limiter
+lazy from app.config import Settings
+lazy from app.main import RESPONSE_FORMAT_INSTRUCTIONS, app, limiter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    lazy from collections.abc import Iterator
 
-    from httpx2 import Response as TestClientResponse
-    from starlette.types import ASGIApp, Receive, Scope, Send
+    lazy from httpx2 import Response as TestClientResponse
+    lazy from starlette.types import ASGIApp, Receive, Scope, Send
 
-    from app.azure_client import ChatMessage
-    from app.entities import AssistantModel, ReasoningEffort
+    lazy from app.azure_client import ChatMessage
+    lazy from app.entities import AssistantModel, ReasoningEffort
 
 type Payload = dict[str, Any]
 

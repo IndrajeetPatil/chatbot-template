@@ -54,6 +54,11 @@ select = ["ALL"]
 # backend-format applies its fixes before the formatter can collapse those lines.
 ignore = ["CPY", "D", "DOC"]
 
+[tool.ruff.lint.flake8-tidy-imports]
+# Every import is lazy (PEP 810), as on the owner's website: a module loads on
+# first use, so the app and each test file import only what they touch.
+require-lazy = "all"
+
 [tool.ruff.lint.mccabe]
 max-complexity = 5
 

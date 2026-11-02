@@ -7,18 +7,18 @@ mapping — inside the system under test instead of being replaced by a stub tha
 can only ever echo back the arguments it was handed.
 """
 
-import json
-from typing import TYPE_CHECKING
+lazy import json
+lazy from typing import TYPE_CHECKING
 
-import httpx2
-from fastapi import status
-from openai import AzureOpenAI
-from openai.types.chat import ChatCompletionChunk
-from openai.types.chat.chat_completion_chunk import Choice, ChoiceDelta
-from openai.types.completion_usage import CompletionUsage
+lazy import httpx2
+lazy from fastapi import status
+lazy from openai import AzureOpenAI
+lazy from openai.types.chat import ChatCompletionChunk
+lazy from openai.types.chat.chat_completion_chunk import Choice, ChoiceDelta
+lazy from openai.types.completion_usage import CompletionUsage
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    lazy from collections.abc import Callable, Iterator
 
 AZURE_ENDPOINT: str = "https://example.openai.azure.com/"
 AZURE_API_VERSION: str = "2024-02-01"

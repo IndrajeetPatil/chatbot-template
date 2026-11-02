@@ -1,5 +1,5 @@
-from functools import cache
-from typing import TYPE_CHECKING, cast
+lazy from functools import cache
+lazy from typing import TYPE_CHECKING, cast
 
 lazy import openai
 lazy from loguru import logger
@@ -9,13 +9,13 @@ lazy from app.config import get_settings
 lazy from app.stream_metrics import StreamMetrics, measure_stream
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator, Sequence
+    lazy from collections.abc import Generator, Iterator, Sequence
 
-    from openai import Stream
-    from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
+    lazy from openai import Stream
+    lazy from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 
-    from app.config import Settings
-    from app.entities import AssistantModel, ReasoningEffort
+    lazy from app.config import Settings
+    lazy from app.entities import AssistantModel, ReasoningEffort
 
     type OpenAIChatMessages = Sequence[ChatCompletionMessageParam]
 

@@ -1,23 +1,23 @@
-import json
-from contextlib import ExitStack
-from typing import TYPE_CHECKING, cast
+lazy import json
+lazy from contextlib import ExitStack
+lazy from typing import TYPE_CHECKING, cast
 
-import pytest
-from loguru import logger
+lazy import pytest
+lazy from loguru import logger
 
-from app.azure_client import get_azure_openai_client
-from app.config import get_settings
-from tests.azure_double import build_client
+lazy from app.azure_client import get_azure_openai_client
+lazy from app.config import get_settings
+lazy from tests.azure_double import build_client
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    lazy from collections.abc import Callable, Iterator
 
-    from httpx2 import Response
-    from loguru import Message
-    from openai import AzureOpenAI
+    lazy from httpx2 import Response
+    lazy from loguru import Message
+    lazy from openai import AzureOpenAI
 
-    from app.stream_metrics import MetricValue
-    from tests.azure_double import Responder
+    lazy from app.stream_metrics import MetricValue
+    lazy from tests.azure_double import Responder
 
     type AzureFactory = Callable[[Responder], list[Response]]
     type MetricsReader = Callable[[], dict[str, MetricValue]]

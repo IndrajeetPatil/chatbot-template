@@ -1,4 +1,4 @@
-from enum import StrEnum
+lazy from enum import StrEnum
 
 
 class AssistantModel(StrEnum):

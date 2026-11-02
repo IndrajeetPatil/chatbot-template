@@ -1,12 +1,12 @@
-from functools import cache
-from typing import TYPE_CHECKING
+lazy from functools import cache
+lazy from typing import TYPE_CHECKING
 
-from pydantic import field_validator, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
 lazy from limits import parse
+lazy from pydantic import field_validator, model_validator
+lazy from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
-    from typing import ClassVar
+    lazy from typing import ClassVar
 
 
 class Settings(BaseSettings):

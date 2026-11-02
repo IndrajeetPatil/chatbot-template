@@ -1,22 +1,20 @@
-from typing import TYPE_CHECKING, Annotated, Literal
+lazy from typing import TYPE_CHECKING, Annotated, Literal
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
-from limits.storage import MemoryStorage
-from limits.strategies import FixedWindowRateLimiter
-from pydantic import BaseModel, Field, model_validator
-lazy from fastapi import HTTPException, Request, status
+lazy from fastapi import FastAPI, HTTPException, Request, status
+lazy from fastapi.middleware.cors import CORSMiddleware
+lazy from fastapi.responses import StreamingResponse
 lazy from limits import parse
+lazy from limits.storage import MemoryStorage
+lazy from limits.strategies import FixedWindowRateLimiter
 lazy from loguru import logger
+lazy from pydantic import BaseModel, Field, model_validator
 
-from app.config import get_settings
-from app.entities import AssistantModel, ReasoningEffort
 lazy from app.azure_client import ChatMessage, stream_azure_openai_response
-lazy from app.entities import OpenAIMessageRole
+lazy from app.config import get_settings
+lazy from app.entities import AssistantModel, OpenAIMessageRole, ReasoningEffort
 
 if TYPE_CHECKING:
-    from app.config import Settings
+    lazy from app.config import Settings
 
 _MAX_MESSAGES = 50
 _MAX_MESSAGE_CHARS = 32_000

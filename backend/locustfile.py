@@ -1,12 +1,12 @@
-from random import choice
-from typing import TYPE_CHECKING
+lazy from random import choice
+lazy from typing import TYPE_CHECKING
 
-from locust import HttpUser, between, task
+lazy from locust import HttpUser, between, task
 
-from app.entities import AssistantModel, ReasoningEffort
+lazy from app.entities import AssistantModel, ReasoningEffort
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    lazy from collections.abc import Callable
 
 PROMPTS: list[str] = [
     "Tell me about artificial intelligence",
