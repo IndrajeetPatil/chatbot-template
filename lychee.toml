@@ -1,0 +1,12 @@
+# lychee link checker configuration (`make link-check` and CI).
+# Docs: https://lychee.cli.rs/guides/config/
+
+# Local development servers (`make service`), which are only up while they run.
+exclude_loopback = true
+
+# Vite serves the favicon and manifest from frontend/app/favicon at the site
+# root; lychee cannot resolve those root-relative links from the source HTML.
+exclude_path = ["frontend/index.html"]
+
+# Don't check mail addresses.
+include_mail = false

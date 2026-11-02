@@ -1,0 +1,10 @@
+# typos spell-checker configuration (`make spell-check`, the prek hook and CI).
+# Docs: https://github.com/crate-ci/typos
+
+[default.extend-identifiers]
+# "PNGs" tokenises to PN + Gs, and typos flags PN as a typo for ON.
+PNGs = "PNGs"
+
+[default.extend-words]
+# A partially streamed "Hello" in the chat-setup tests.
+Hel = "Hel"
