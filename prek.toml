@@ -30,6 +30,15 @@ rev = "03a7d1a4936b5889602852175bca2d39acb3281e" # frozen: v0.3.0
 id = "rumdl"
 
 [[repos]]
+repo = "https://github.com/crate-ci/typos"
+rev = "7f9d0819ca1c008ade73f4b41fa9d258d48f605b" # frozen: v1.51.1
+
+# Report rather than silently rewrite; a typo fix is a human decision.
+[[repos.hooks]]
+id = "typos"
+args = ["--force-exclude"]
+
+[[repos]]
 repo = "local"
 
 [[repos.hooks]]
@@ -39,15 +48,6 @@ language = "system"
 entry = "make file-naming"
 pass_filenames = false
 always_run = true
-
-# The same pinned typos as `make spell-check` and CI, over the whole tree.
-[[repos.hooks]]
-id = "typos"
-name = "typos (spelling)"
-language = "system"
-entry = "make spell-check"
-pass_filenames = false
-types = ["text"]
 
 # Mirrors pre-commit-hooks' forbid-submodules without a Python environment.
 [[repos.hooks]]
