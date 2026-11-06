@@ -2,9 +2,9 @@
 name: frontend-pr-screenshot
 description: >
   Capture a screenshot of the frontend app and post it to the current
-  GitHub pull request. Use when a user asks to post a PR screenshot,
-  show the UI in a PR comment, verify visual changes in a PR, or
-  include visual evidence after UI work.
+  GitHub pull request. Required when opening or updating a PR with frontend
+  source changes, even without a visible change; excludes developer tooling
+  alone. Also use when the user explicitly requests PR screenshot evidence.
 allowed-tools: >
   Bash(gh *), Bash(git *), Bash(curl *), Bash(vp *),
   Bash(lsof *), Bash(kill *), Bash(sleep *),
@@ -14,6 +14,12 @@ allowed-tools: >
 # frontend-pr-screenshot
 
 Posts a live screenshot of the frontend chat app to the active GitHub PR.
+
+Invoke this skill for every frontend source change, including components,
+styles, client behavior, and frontend assets. Capture representative affected
+routes and states even for behavior-preserving refactors. Developer-tooling-only
+changes do not require screenshots. Use synthetic conversations and mock data;
+never upload credentials, personal conversations, or other sensitive content.
 
 ## Workflow
 
@@ -76,7 +82,14 @@ EOF
 )"
 ```
 
-### 5 — Clean up
+### 5 — Verify the upload
+
+Read back the posted comment and confirm the Markdown references an uploaded
+GitHub asset rather than a local path. Open the rendered comment and verify the
+image is visible. If uploading fails, fix it or report the blocker; a local PNG
+alone does not complete the requirement.
+
+### 6 — Clean up
 
 If you started the dev server in step 2:
 

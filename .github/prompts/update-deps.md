@@ -145,6 +145,8 @@ documentation for upgraded libraries. Apply small compatibility simplifications
 only when they reduce local complexity or remove a workaround, and rerun the
 affected checks after each change.
 
-Make a draft PR using the gh CLI, instead of the GitHub MCP server. In the PR
-body, summarise dependency groups changed, compatibility fixes made, validation
-commands that passed, and any key refactorings as list items.
+Make a ready-for-review PR using the gh CLI (`gh pr create`, without `--draft`),
+instead of the GitHub MCP server. Follow the PR lifecycle in `AGENTS.md`,
+including frontend screenshots, CI fixes, Codex review, and eligible squash merge.
+In the PR body, summarize dependency groups changed, compatibility fixes made,
+validation commands that passed, and any key refactorings as list items.
