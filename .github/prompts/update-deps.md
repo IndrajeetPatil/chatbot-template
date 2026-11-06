@@ -148,5 +148,5 @@ affected checks after each change.
 Make a ready-for-review PR using the gh CLI (`gh pr create`, without `--draft`),
 instead of the GitHub MCP server. Follow the PR lifecycle in `AGENTS.md`,
 including frontend screenshots, CI fixes, Codex review, and eligible squash merge.
-In the PR body, summarise dependency groups changed, compatibility fixes made,
+In the PR body, summarize dependency groups changed, compatibility fixes made,
 validation commands that passed, and any key refactorings as list items.
