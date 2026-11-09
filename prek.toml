@@ -4,7 +4,7 @@ default_stages = ["pre-commit"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ruff-pre-commit"
-rev = "25bcf95026b96e2dd3c0aec3090c3d6ef6ca2e6c" # frozen: v0.17.3
+rev = "c0f278f1254ccc8fb09676bcdb8d847e7db493e5" # frozen: v0.17.4
 
 [[repos.hooks]]
 id = "ruff-check"
@@ -16,7 +16,7 @@ types_or = ["python", "pyi", "jupyter", "markdown"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ty-pre-commit"
-rev = "18b2b8bb1b9b90d2d21283756e89b07fc9c747bf" # frozen: v0.0.95
+rev = "c7c033957b32915cd7f904e97be28de58f572300" # frozen: v0.0.99
 
 [[repos.hooks]]
 id = "ty"
@@ -31,7 +31,7 @@ id = "rumdl"
 
 [[repos]]
 repo = "https://github.com/crate-ci/typos"
-rev = "7f9d0819ca1c008ade73f4b41fa9d258d48f605b" # frozen: v1.51.1
+rev = "4c8b7f51ca60df14e3c5ca82770dfbbe6c3dae85" # frozen: v1.52.0
 
 # Report rather than silently rewrite; a typo fix is a human decision.
 [[repos.hooks]]
