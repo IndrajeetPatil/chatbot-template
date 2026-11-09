@@ -17,7 +17,12 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
-  workers: 1,
+  // One worker per vCPU of GitHub's standard runner for public repositories.
+  // A fixed count, because containers can report the host's cores rather than
+  // their CPU quota. Locally, Playwright's default of half the cores applies.
+  // Spread rather than assign `undefined`: `exactOptionalPropertyTypes` rejects
+  // an explicit undefined.
+  ...(isCI ? { workers: 4 } : {}),
   reporter: isCI
     ? [["dot"], ["github"], ["html", { open: "never" }]]
     : [["list"], ["html", { open: "never" }]],
