@@ -124,9 +124,6 @@ jobs:
           trap 'echo "::endgroup::"' EXIT
           make frontend-build
 
-      - name: Accessibility audit (axe-core)
-        run: make frontend-accessibility-audit
-
       - name: Python and TypeScript type coverage
         run: make type-coverage
 
@@ -186,7 +183,6 @@ jobs:
           path: |
             backend/htmlcov
             frontend/coverage
-            frontend/playwright-report
 
   repo-lint:
     name: Spelling, workflows and links

@@ -58,11 +58,13 @@ reviewing new or changed UI; automated scores do not establish full compliance.
 
 ### Automated accessibility audit
 
-`make accessibility-audit` (also part of `make qa` and CI) builds the frontend
-and runs [axe-core](https://github.com/dequelabs/axe-core) through
+`make accessibility-audit` (also part of `make qa`) builds the frontend and
+runs [axe-core](https://github.com/dequelabs/axe-core) through
 `@axe-core/playwright` in
-[`accessibility.spec.ts`](../frontend/e2e-tests/accessibility.spec.ts). Lighthouse
-runs a subset of axe rules on the first render only, so this audit covers:
+[`accessibility.spec.ts`](../frontend/e2e-tests/accessibility.spec.ts). In CI,
+the spec runs with the rest of the Playwright suite in the required `e2e` job,
+so a regression fails the pull request. Lighthouse runs a subset of axe rules
+on the first render only, so this audit covers:
 
 | Dimension | Coverage                                                                                                 |
 | --------- | -------------------------------------------------------------------------------------------------------- |

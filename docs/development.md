@@ -296,7 +296,8 @@ flowchart LR
 - Assertions wait for bundled fonts and stable rendering with animations disabled.
   Ordinary runs fail on missing baselines and never update them automatically.
 - `make qa` / `make qa-frontend` retain unit coverage; the separate browser CI job
-  runs `make e2e-test-docker`.
+  runs `make e2e-test-docker`, including the axe audit, on four workers (one per
+  vCPU of GitHub's standard runner).
 - When upgrading Playwright, update the image tag and SHA256 digest in
   `makefiles/frontend.mk` together, then regenerate and review baselines.
 
@@ -335,7 +336,7 @@ Keep every check and threshold intact when changing reporting.
 
 | Report                  | Required behavior                                                                                          |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
-| QA workflow             | Separate steps for the same `make qa` gates                                                                |
+| QA workflow             | Separate steps for the same `make qa` gates, except the axe audit, which runs in the `e2e` job             |
 | Fallow                  | `doctor`, GitHub annotations, compact job summary; retain `--fail-on-issues --quiet --summary` enforcement |
 | Local Fallow            | Full report; health scores and template statistics remain advisory                                         |
 | CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                     |
