@@ -5,7 +5,7 @@ VP ?= vp
 
 # Keep the version aligned with @playwright/test in frontend/pnpm-lock.yaml.
 # Pin both the image digest and architecture so Apple Silicon and CI agree.
-PLAYWRIGHT_IMAGE := mcr.microsoft.com/playwright:v1.64.1-noble@sha256:2f05f8a734509a7b3f26a912639488ee08f58a7b292d14d62271bcff9038768f
+PLAYWRIGHT_IMAGE := mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
 
 # Local runs fix what they can; CI passes LINT_ARGS= FMT_ARGS=--check to verify.
 LINT_ARGS ?= --fix

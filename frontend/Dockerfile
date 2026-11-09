@@ -1,5 +1,5 @@
 # Vite+ provisions Node from .node-version and pnpm from packageManager.
-FROM ghcr.io/voidzero-dev/vite-plus:1.4.0@sha256:5dfa2031f7d014b6376407fd99e0747bed329d792c79c184a65ec9a0765bee0e AS builder
+FROM ghcr.io/voidzero-dev/vite-plus:1.5.0@sha256:cce163cdf4cf3fff928925e03a815910be14d34c355fe40b4e79e766fe368f63 AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY --chown=vp:vp . .
 
 RUN vp build
 
-FROM debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4
+FROM debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
 
 RUN apt-get update && apt-get install -y --no-install-recommends nginx-light \
     && rm -rf /var/lib/apt/lists/*
