@@ -1,5 +1,11 @@
 # Chatbot Template
 
+<!-- Markdown cannot float an image, so the logo needs inline HTML. -->
+<!-- rumdl-disable MD033 -->
+<img src="docs/images/logo.png" alt="chatbot-template hex sticker"
+  align="right" width="240" />
+<!-- rumdl-enable MD033 -->
+
 A minimal full-stack chatbot with a React frontend and FastAPI backend,
 streaming replies from Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 
