@@ -1,0 +1,8 @@
+# Ignore everything in this directory by default
+*
+
+# Except the files that belong here
+!.gitignore
+!script.R
+!README.md
+!data.svg

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <!-- User message: outlined bubble with text lines, tail bottom-right -->
+  <path d="M232 24h352a32 32 0 0 1 32 32v136a32 32 0 0 1-32 32h-40l8 52-64-52H232a32 32 0 0 1-32-32V56a32 32 0 0 1 32-32z"
+        fill="#FFFFFF" stroke="#455A64" stroke-width="16" stroke-linejoin="round"/>
+  <rect x="252" y="80" width="300" height="20" rx="10" fill="#90A4AE"/>
+  <rect x="252" y="140" width="210" height="20" rx="10" fill="#90A4AE"/>
+  <!-- Assistant reply: filled bubble with streaming dots, tail bottom-left -->
+  <path d="M56 236h344a32 32 0 0 1 32 32v128a32 32 0 0 1-32 32H136l-64 44 8-44H56a32 32 0 0 1-32-32V268a32 32 0 0 1 32-32z"
+        fill="#00897B" stroke="#00695C" stroke-width="16" stroke-linejoin="round"/>
+  <circle cx="144" cy="332" r="26" fill="#FFFFFF"/>
+  <circle cx="228" cy="332" r="26" fill="#FFFFFF" fill-opacity="0.8"/>
+  <circle cx="312" cy="332" r="26" fill="#FFFFFF" fill-opacity="0.6"/>
+</svg>
