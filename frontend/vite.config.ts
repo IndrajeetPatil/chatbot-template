@@ -1,3 +1,4 @@
+import codspeed from "@codspeed/vitest-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
@@ -48,8 +49,9 @@ const LINT_PLUGINS = [
 const TEST_FILES = ["**/*.test.{ts,tsx}", "**/*.bench.ts", "vitest.setup.ts"];
 
 export default defineConfig({
-  // Static checks do not need to initialize the React build plugins.
-  plugins: lazyPlugins(() => [react({ compiler: !isTest })]) ?? [],
+  // Static checks do not need to initialize the React build plugins. The
+  // CodSpeed plugin stays inert unless the CodSpeed runner drives the run.
+  plugins: lazyPlugins(() => [react({ compiler: !isTest }), codspeed()]) ?? [],
   run: {
     tasks: {
       // Fixing source files must always execute, even with `vp run --cache`.

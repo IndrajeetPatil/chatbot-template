@@ -32,7 +32,7 @@ see [getting started](getting-started.md) for service selection and configuratio
 | `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                                        |
 | `make backend-mutation-test`                 | Backend mutation testing with mutmut; fails on any surviving mutant                |
 | `make backend-benchmark`                     | Backend CodSpeed benchmarks; correctness only outside CI                           |
-| `make frontend-bench`                        | Optional frontend request-preparation benchmarks                                   |
+| `make frontend-bench`                        | Frontend CodSpeed benchmarks; wall-clock timings outside CI                        |
 | `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials                                  |
 | `make backend-load-test`                     | Start the backend and Locust against it                                            |
 | `make fallow` / `make css-quality`           | Frontend codebase / CSS analysis                                                   |
@@ -119,17 +119,17 @@ make qa
 
 ## Automated checks
 
-| Gate                     | Required threshold / behavior                                                                                          |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| Backend coverage         | 100% lines and branches                                                                                                |
-| Backend mutation testing | No surviving mutants; see [mutation testing](backend.md#mutation-testing)                                              |
-| Backend benchmarks       | CodSpeed reports CPU regressions against `main`; see [benchmarks](backend.md#benchmarks)                               |
-| Frontend coverage        | ≥90% statements/functions/lines; ≥75% branches                                                                         |
-| Type annotation coverage | 100% on both sides                                                                                                     |
-| Lighthouse               | Three mobile-throttled samples; assert the median                                                                      |
-| Lighthouse failures      | Performance, accessibility, best practices, SEO, LCP, CLS, TBT; no unresolved `runWarnings` or warn-only assertions    |
-| Accessibility audit      | No axe-core violations (WCAG 2.0–2.2 A/AA, best practices) per UI state, theme, and layout                             |
-| Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance |
+| Gate                     | Required threshold / behavior                                                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend coverage         | 100% lines and branches                                                                                                                   |
+| Backend mutation testing | No surviving mutants; see [mutation testing](backend.md#mutation-testing)                                                                 |
+| Benchmarks               | CodSpeed reports CPU regressions against `main`; see [backend](backend.md#benchmarks) and [frontend](#frontend-unit-tests-and-benchmarks) |
+| Frontend coverage        | ≥90% statements/functions/lines; ≥75% branches                                                                                            |
+| Type annotation coverage | 100% on both sides                                                                                                                        |
+| Lighthouse               | Three mobile-throttled samples; assert the median                                                                                         |
+| Lighthouse failures      | Performance, accessibility, best practices, SEO, LCP, CLS, TBT; no unresolved `runWarnings` or warn-only assertions                       |
+| Accessibility audit      | No axe-core violations (WCAG 2.0–2.2 A/AA, best practices) per UI state, theme, and layout                                                |
+| Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance                    |
 
 | Step                     | Frontend                                                 | Backend              |
 | ------------------------ | -------------------------------------------------------- | -------------------- |
@@ -156,7 +156,7 @@ make qa
 | Link checking            | lychee                                                   | lychee               |
 | Container vuln scan      | Trivy                                                    | Trivy                |
 | Unit testing             | Vitest browser mode (Chromium)                           | pytest               |
-| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                      | pytest-codspeed      |
+| Microbenchmarks          | Vitest 5 `bench` fixture with the CodSpeed plugin        | pytest-codspeed      |
 | Mutation testing         | \-                                                       | mutmut               |
 | Property-based testing   | fast-check                                               | Hypothesis           |
 | Snapshot testing         | Playwright visual baselines                              | inline-snapshot      |
@@ -262,15 +262,20 @@ the actual `toBackendMessages` helper used when preparing chat requests, with
 | `make frontend-bench BENCH_ARGS='--reporter=default --reporter=json'` | Show timings and save `frontend/.vitest/json/output.json` |
 
 - Benchmarks use the Vitest 5 test-context `bench` fixture in `*.bench.ts` files
-  and run in Chromium like unit tests. Inputs are prepared before timing, and
-  the result is consumed and checked after timing to preserve meaningful work
-  without timing assertions.
-- The benchmark command skips unit tests. Ordinary tests, `make qa`, and CI skip
-  benchmarks; all existing correctness and coverage gates remain enforced.
-- Results are advisory. Compare runs on the same machine and browser version with
-  other CPU-heavy work stopped. There is no timing threshold or committed baseline;
-  `bench.from()` and `writeResult` can support future comparisons once a stable
-  measurement environment is established.
+  and run in Node rather than Chromium, because CodSpeed instruments Node worker
+  processes. Inputs are prepared before timing, and the result is consumed and
+  checked after timing to preserve meaningful work without timing assertions.
+- The benchmark command skips unit tests. Ordinary tests and `make qa` skip
+  benchmarks.
+- Locally, `make frontend-bench` reports Vitest's wall-clock timings, which are
+  only comparable on the same machine with other CPU-heavy work stopped.
+- The `Benchmarks` workflow runs the same target through
+  [`@codspeed/vitest-plugin`](https://codspeed.io/docs/benchmarks/nodejs/vitest)
+  in CPU simulation mode, alongside the backend benchmarks. The plugin stays
+  inactive unless the CodSpeed runner drives the run. CodSpeed compares each
+  run against the `main` baseline; authentication, stable benchmark names, and
+  acknowledging intentional regressions work as for the
+  [backend benchmarks](backend.md#benchmarks).
 - These measurements cover request conversion only. They do not measure browser
   rendering, network latency, or Azure model response time. Keep Playwright,
   Lighthouse, and backend load tests for those broader checks.
