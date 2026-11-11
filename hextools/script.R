@@ -24,9 +24,9 @@ sticker(
     h_color = "#455A64",
     filename = "docs/images/logo.png",
     h_fill = "white",
-    url = "https://github.com/IndrajeetPatil/chatbot-template",
-    u_x = 0.97,
-    u_size = 5.5,
+    url = "github.com/IndrajeetPatil/chatbot-template",
+    u_x = 0.99,
+    u_size = 6.5,
     u_color = "grey",
     dpi = 600
 )
