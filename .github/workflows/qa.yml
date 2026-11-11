@@ -97,6 +97,9 @@ jobs:
       - name: Backend tests and coverage
         run: make backend-test
 
+      - name: Backend mutation testing
+        run: make backend-mutation-test
+
       - name: Frontend tests and coverage
         run: make frontend-test
 

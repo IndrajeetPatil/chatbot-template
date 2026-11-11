@@ -22,6 +22,7 @@ back through the frontend proxy as plain text.
 | [config.py](../backend/app/config.py)                 | Environment settings and startup validation                                    |
 | [entities.py](../backend/app/entities.py)             | Model, reasoning effort, and message role enums                                |
 | [tests](../backend/tests)                             | Unit, property-based, and snapshot tests; the Azure transport double           |
+| [benchmarks](../backend/benchmarks)                   | CodSpeed benchmarks of request validation and stream relaying                  |
 
 ## Configuration
 
@@ -147,9 +148,10 @@ parsing, and status-to-exception mapping stay inside the system under test.
   case, not a separate positional `ids=[...]` list that can drift out of order.
 - `conftest.py` clears the `get_settings` and `get_azure_openai_client` caches
   around every test, so tests need not call `cache_clear()` themselves.
-- Prefer asserting the recorded request and the emitted metrics event over
-  asserting that a stub was called. Add faults to `azure_double.py` rather than
-  patching the SDK internals.
+- Prefer asserting the recorded request, the emitted metrics event, and the
+  operator-facing log lines (the `diagnostics` fixture) over asserting that a
+  stub was called. Add faults to `azure_double.py` rather than patching the SDK
+  internals.
 - SSE fixtures are built as real `ChatCompletionChunk` models and serialized with
   the SDK's own `to_json`, so a fixture that the SDK could never emit fails to
   construct rather than silently exercising a shape production never sees.
@@ -159,15 +161,74 @@ parsing, and status-to-exception mapping stay inside the system under test.
 - The double sets `max_retries=0`; the production client retries five times, so
   a simulated failure would otherwise spend seconds in backoff.
 - Tests drive time through the `clock` fixture, never the real monotonic clock.
-- To confirm a test earns its place, break the behavior it covers and check that
-  it fails. `TESTING=true` keeps this offline: no test contacts Azure.
+  It starts at a nonzero reading, like `perf_counter`, so a duration that adds
+  the start time instead of subtracting it fails.
+- `TESTING=true` keeps tests offline: no test contacts Azure.
+
+### Mutation testing
+
+[mutmut](https://mutmut.readthedocs.io/) proves that each test fails when the
+behavior it covers breaks. `make backend-mutation-test` mutates every line of
+`backend/app/` that the tests execute (operators, literals, arguments) and reruns
+the suite against each mutant. It takes seconds, so it runs in `make qa`,
+`make qa-backend`, and the QA workflow.
+
+| Outcome              | Meaning                                                       |
+| -------------------- | ------------------------------------------------------------- |
+| Killed               | A test failed against the mutant                              |
+| Caught by type check | `ty` rejects the mutant, so it could never pass the type gate |
+| Survived             | Every test passed against the mutant; the gate fails          |
+
+- Configuration lives in `[tool.mutmut]` in
+  [pyproject.toml](../backend/pyproject.toml).
+- Inspect a survivor with `cd backend && uv run mutmut show <mutant-name>`, and
+  rerun just that mutant with `uv run mutmut run <mutant-name>` after changing
+  the tests.
+- Kill a survivor with an assertion on a boundary the backend owns. If no
+  observable behavior can tell the mutant apart, simplify the code rather than
+  writing a test that pins an incidental detail.
+- mutmut does not mutate module-level constants such as the request limits.
+- Unit tests alone count: benchmarks live outside `tests/`, so their sanity
+  checks neither kill mutants nor add coverage.
+
+### Benchmarks
+
+[pytest-codspeed](https://github.com/CodSpeedHQ/pytest-codspeed) benchmarks in
+[benchmarks](../backend/benchmarks) measure the CPU work behind one chat request
+without Azure or network I/O.
+
+| Benchmark                    | Cases                                                          |
+| ---------------------------- | -------------------------------------------------------------- |
+| `test_validate_chat_request` | A short conversation; the largest conversation the API accepts |
+| `test_relay_streamed_reply`  | 100 and 2,000 deltas parsed by the real SDK and relayed        |
+
+- `make backend-benchmark` runs them locally once to check correctness; it
+  records no measurements and needs no CodSpeed account.
+- The `Benchmarks` workflow runs the same target through the
+  [CodSpeed action](https://github.com/CodSpeedHQ/action) in CPU simulation
+  mode on pull requests, pushes to `main`, and manual dispatch. CodSpeed compares
+  each run against the `main` baseline and reports regressions as a PR check
+  and comment.
+- CPU simulation counts user-space instructions, including cache and memory
+  effects, so results are stable on shared runners. It does not measure time
+  waiting on I/O: use `make backend-load-test` for end-to-end latency.
+- Authentication uses GitHub's short-lived OIDC token (`id-token: write`); there
+  is no stored `CODSPEED_TOKEN`. The repository must first be imported through
+  the [CodSpeed GitHub App](https://codspeed.io/docs/integrations/providers/github).
+- Inputs are built before timing and each result is checked afterwards, so a
+  faster measurement cannot come from skipped work. Keep parameter IDs stable
+  so CodSpeed can match benchmarks across commits.
+- For an intentional slowdown, explain the cost in the PR and acknowledge the
+  regression in CodSpeed. Investigate unexplained regressions instead.
 
 ## Checks
 
 | Task                        | Command / requirement                                                       |
 | --------------------------- | --------------------------------------------------------------------------- |
-| Backend QA                  | `make qa-backend`: naming, Ruff, ty, dependency audit, tests, type coverage |
+| Backend QA                  | `make qa-backend`: naming, Ruff, ty, audit, tests, mutants, type coverage   |
 | OpenAPI without credentials | `make backend-validate-api-schema`                                          |
 | FastAPI and Locust          | `make backend-load-test`; chat requests consume Azure quota                 |
+| Mutation testing            | `make backend-mutation-test`; no surviving mutants                          |
+| CPU benchmarks              | `make backend-benchmark`; measured by CodSpeed in CI                        |
 | Coverage                    | 100% lines, branches, and type annotations                                  |
 | Shared policies             | [Development](development.md), [security](security.md)                      |

@@ -19,7 +19,7 @@ ls:
     .toml: kebab-case
     .lock: kebab-case
 
-  backend/{app,tests}:
+  backend/{app,benchmarks,tests}:
     .dir: snake_case
     .py: snake_case | regex:__init__
 
@@ -107,3 +107,4 @@ ignore:
   - "**/playwright-report"
   - "**/test-results"
   - "**/__snapshots__"
+  - "**/mutants"

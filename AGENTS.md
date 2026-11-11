@@ -13,6 +13,9 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
   boundaries we own (the outbound request, the streamed output, the logged
   event), never by executing lines, recomputing expected values, or asserting a
   dependency's internals.
+- `make backend-mutation-test` fails on any surviving mutant. Kill it with such
+  an assertion, or delete code that no behavior can observe; never add mutmut
+  exclusions just to pass.
 - Keep the upstream `ty-pre-commit` hook pinned at a full commit SHA; if its
   bundled uv conflicts, downgrade the project uv pin rather than replacing the
   hook. See [maintenance constraints](docs/development.md#maintenance-constraints).
@@ -24,7 +27,8 @@ Start with [README.md](README.md) and the [documentation index](docs/README.md).
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | UI                    | [frontend](docs/frontend.md), [Fallow policy](docs/development.md#frontend-code-quality-with-fallow), [visual tests](docs/development.md#browser-and-visual-tests)           |
 | API or deployment     | [backend](docs/backend.md), [security](docs/security.md); validation must finish before streaming starts                                                                     |
-| Backend tests         | [test guide](docs/backend.md#tests); regenerate snapshots with `make backend-snapshot-update`                                                                                |
+| Backend tests         | [test guide](docs/backend.md#tests), [mutation testing](docs/backend.md#mutation-testing); regenerate snapshots with `make backend-snapshot-update`                          |
+| Backend performance   | [benchmarks](docs/backend.md#benchmarks); CodSpeed reports regressions on PRs                                                                                                |
 | CI reporters          | [CI output policy](docs/development.md#ci-output)                                                                                                                            |
 | Tools or dependencies | [maintenance constraints](docs/development.md#maintenance-constraints), [supply chain](docs/security.md#supply-chain)                                                        |
 
