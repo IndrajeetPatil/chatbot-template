@@ -21,6 +21,9 @@ if TYPE_CHECKING:
 _MAX_MESSAGES = 50
 _MAX_MESSAGE_CHARS = 32_000
 _MAX_PARTS = 50
+# Requests without a client address, such as those served over a Unix socket,
+# share one rate-limit bucket under this key.
+_UNKNOWN_CLIENT_ADDRESS = "127.0.0.1"
 RESPONSE_FORMAT_INSTRUCTIONS: str = (
     "Format replies in Markdown. Use language-tagged fenced blocks for code. "
     "For LaTeX math, use $...$ inline and $$ on separate lines for display math, "
@@ -104,7 +107,9 @@ class ChatRequest(BaseModel):
 def _enforce_rate_limit(request: Request) -> None:
     # Called from the endpoint body rather than as a dependency so that requests
     # rejected by validation never consume the client's quota.
-    client_address: str = request.client.host if request.client else "127.0.0.1"
+    client_address: str = (
+        request.client.host if request.client else _UNKNOWN_CLIENT_ADDRESS
+    )
     if not limiter.hit(parse(settings.chat_rate_limit), client_address):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,

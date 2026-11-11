@@ -181,9 +181,9 @@ hooks:
 	prek run --all-files
 
 # Quality assurance suites
-qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-type-coverage
+qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-mutation-test backend-type-coverage
 qa-frontend: file-naming frontend-qa
-qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint spell-check workflow-lint link-check backend-type-check backend-validate-api-schema backend-audit backend-test backend-type-coverage frontend-qa security-scan
+qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint spell-check workflow-lint link-check backend-type-check backend-validate-api-schema backend-audit backend-test backend-mutation-test backend-type-coverage frontend-qa security-scan
 
 # Run targets
 run: service

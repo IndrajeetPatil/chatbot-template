@@ -37,7 +37,12 @@ if TYPE_CHECKING:
 
     lazy from openai.types.chat import ChatCompletionChunk
 
-    lazy from tests.conftest import AzureFactory, FakeClock, MetricsReader
+    lazy from tests.conftest import (
+        AzureFactory,
+        DiagnosticsReader,
+        FakeClock,
+        MetricsReader,
+    )
 
 PROMPT: list[dict[str, str]] = [{"role": "user", "content": "Test prompt"}]
 _MID_STREAM_FAILURE: str = "mid-stream failure"
@@ -189,43 +194,58 @@ def test_releases_the_upstream_response_when_the_consumer_disconnects(
 
 
 @pytest.mark.parametrize(
-    ("status_code", "expected_error"),
+    ("status_code", "expected_error", "expected_logs"),
     [
         pytest.param(
             status.HTTP_401_UNAUTHORIZED,
             openai.AuthenticationError,
+            snapshot([
+                (
+                    "ERROR",
+                    "Azure OpenAI authentication failed — verify API key and endpoint",
+                ),
+            ]),
             id="unauthorized",
         ),
         pytest.param(
             status.HTTP_429_TOO_MANY_REQUESTS,
             openai.RateLimitError,
+            snapshot([("WARNING", "Azure OpenAI rate limit exceeded")]),
             id="rate-limited",
         ),
         pytest.param(
             status.HTTP_400_BAD_REQUEST,
             openai.BadRequestError,
+            snapshot([("ERROR", "Azure OpenAI API error creating stream")]),
             id="bad-request",
         ),
         pytest.param(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             openai.InternalServerError,
+            snapshot([("ERROR", "Azure OpenAI API error creating stream")]),
             id="server-error",
         ),
     ],
 )
-def test_maps_upstream_status_to_sdk_error(
+def test_maps_upstream_status_to_sdk_error_and_logs_it(
     fake_azure: AzureFactory,
+    diagnostics: DiagnosticsReader,
     status_code: int,
     expected_error: type[openai.APIStatusError],
+    expected_logs: object,
 ) -> None:
     fake_azure(error_status(status_code))
 
     with pytest.raises(expected_error):
         stream_text()
 
+    # The log line, not the exception, is what tells an operator what to fix.
+    assert diagnostics() == expected_logs
+
 
 def test_raises_connection_error_when_the_endpoint_is_unreachable(
     fake_azure: AzureFactory,
+    diagnostics: DiagnosticsReader,
 ) -> None:
     fake_azure(unreachable)
 
@@ -235,12 +255,19 @@ def test_raises_connection_error_when_the_endpoint_is_unreachable(
     # The SDK normalises the message, so the transport failure only survives
     # as the chained cause — that link is what makes the log actionable.
     assert str(caught.value.__cause__) == CONNECT_ERROR
+    assert diagnostics() == snapshot([
+        (
+            "WARNING",
+            "Azure OpenAI connection failed — check network and endpoint settings",
+        ),
+    ])
 
 
 def test_reraises_in_band_error_event_after_partial_content(
     fake_azure: AzureFactory,
     clock: FakeClock,
     stream_metrics: MetricsReader,
+    diagnostics: DiagnosticsReader,
 ) -> None:
     def body() -> Iterator[bytes]:
         clock.advance(250)
@@ -258,6 +285,9 @@ def test_reraises_in_band_error_event_after_partial_content(
         received.extend(open_stream())
 
     assert received == snapshot(["partial"])
+    assert diagnostics() == snapshot([
+        ("ERROR", "Azure OpenAI error during streaming after 7 characters"),
+    ])
     # A failure part-way through keeps the progress already measured; the
     # connection-drop case below reaches this same handler.
     assert stream_metrics() == snapshot({
@@ -277,6 +307,7 @@ def test_reraises_in_band_error_event_after_partial_content(
 
 def test_reraises_connection_drop_after_partial_content(
     fake_azure: AzureFactory,
+    diagnostics: DiagnosticsReader,
 ) -> None:
     def body() -> Iterator[bytes]:
         yield sse_bytes(content_chunk("partial"))
@@ -289,6 +320,9 @@ def test_reraises_connection_drop_after_partial_content(
         received.extend(open_stream())
 
     assert received == snapshot(["partial"])
+    assert diagnostics() == snapshot([
+        ("ERROR", "Azure OpenAI error during streaming after 7 characters"),
+    ])
 
 
 def test_logs_metrics_for_a_completed_stream(

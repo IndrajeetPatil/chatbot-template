@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
     type AzureFactory = Callable[[Responder], list[Response]]
     type MetricsReader = Callable[[], dict[str, MetricValue]]
+    type DiagnosticsReader = Callable[[], list[tuple[str, str]]]
 
 # TESTING=true is set declaratively via pytest-env (see [tool.pytest]
 # `env` in pyproject.toml) before any app module is imported, so Settings() does
@@ -81,8 +82,12 @@ class FakeClock:
     """
 
     def __init__(self) -> None:
-        """Start the clock at zero."""
-        self._now: float = 0.0
+        """Start the clock at an arbitrary nonzero reading, as `perf_counter` does.
+
+        Its reference point is undefined, so durations must subtract the start;
+        a clock starting at zero would also accept `now + start`.
+        """
+        self._now: float = 1_000.0
 
     def advance(self, ms: float) -> None:
         """Move the clock forward by `ms` milliseconds."""
@@ -102,39 +107,67 @@ def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
 
 
 @pytest.fixture
-def stream_metrics() -> Iterator[MetricsReader]:
-    """Capture the single stream-metrics log event emitted by a test.
+def captured_logs() -> Iterator[list[Message]]:
+    """Capture every Loguru record emitted during the test.
+
+    Yields:
+        The captured messages, appended as they are logged.
+    """
+    messages: list[Message] = []
+    sink_id: int = logger.add(messages.append, format="{message}")
+    try:
+        yield messages
+    finally:
+        logger.remove(sink_id)
+
+
+@pytest.fixture
+def diagnostics(captured_logs: list[Message]) -> DiagnosticsReader:
+    """Read the level and text of every record except the stream metrics event.
+
+    These are the operator-facing messages; the metrics event has its own reader.
+    """
+
+    def read() -> list[tuple[str, str]]:
+        return [
+            (message.record["level"].name, message.record["message"])
+            for message in captured_logs
+            if "stream_metrics" not in message.record["extra"]
+        ]
+
+    return read
+
+
+@pytest.fixture
+def stream_metrics(captured_logs: list[Message]) -> MetricsReader:
+    """Read the single stream-metrics log event emitted by a test.
 
     The payload is parsed from the *rendered* message, because the app
     configures no structured sink: that JSON is what actually reaches a log
     aggregator today. The bound copy is what a structured sink would consume
     instead, so every read also checks that it carries the same payload.
-
-    Yields:
-        A reader that returns the event's payload.
     """
-    messages: list[Message] = []
-    sink_id: int = logger.add(messages.append, format="{message}")
 
     def read() -> dict[str, MetricValue]:
         events: list[Message] = [
             message
-            for message in messages
+            for message in captured_logs
             if "stream_metrics" in message.record["extra"]
         ]
         if len(events) != 1:
             msg: str = f"expected 1 stream_metrics event, captured {len(events)}"
             raise AssertionError(msg)
+        text: str = events[0].record["message"]
+        if not text.startswith(_METRICS_LOG_PREFIX):
+            msg = f"stream_metrics event lacks its {_METRICS_LOG_PREFIX!r} prefix"
+            raise AssertionError(msg)
         rendered: dict[str, MetricValue] = cast(
             "dict[str, MetricValue]",
-            json.loads(str(events[0]).removeprefix(_METRICS_LOG_PREFIX)),
+            json.loads(text.removeprefix(_METRICS_LOG_PREFIX)),
         )
         if rendered != events[0].record["extra"]["stream_metrics"]:
             msg = "bound stream_metrics payload differs from the rendered one"
             raise AssertionError(msg)
         return rendered
 
-    try:
-        yield read
-    finally:
-        logger.remove(sink_id)
+    return read

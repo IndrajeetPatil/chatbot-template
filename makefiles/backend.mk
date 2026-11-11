@@ -8,6 +8,7 @@ PYTYPECOVERAGE=uv run pyrefly coverage check --fail-under 100
 FASTAPI_RUNSERVER=uv run --env-file .env fastapi dev app/main.py --host 127.0.0.1 --port 8000
 OPENAPI_SCHEMA=TESTING=true uv run python -c "from app.main import app; app.openapi()"
 LOCUST=uv run locust -H http://127.0.0.1:8000/
+MUTMUT=uv run mutmut
 
 backend-setup:
 	cd $(BACKEND_DIR) && uv sync --frozen
@@ -37,6 +38,21 @@ backend-test:
 	@echo "$(COLOR_BLUE_BG)Running backend unit tests...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYCOVERAGE)
 
+# A fresh run every time; the gate fails on any mutant the tests let through.
+backend-mutation-test:
+	@echo "$(COLOR_BLUE_BG)Running backend mutation testing with mutmut...$(COLOR_RESET)"
+	cd $(BACKEND_DIR) && rm -rf mutants && $(MUTMUT) run && $(MUTMUT) export-cicd-stats
+	@# List only the mutants left for tests; those ty rejects are already caught.
+	@cd $(BACKEND_DIR) && $(MUTMUT) results | grep -v "caught by type check" || true
+	@cd $(BACKEND_DIR) && uv run python -c "import json, sys; stats = json.load(open('mutants/mutmut-cicd-stats.json')); untested = stats['survived'] + stats['no_tests']; print(f'Mutants the tests let through: {untested}'); sys.exit(untested > 0)"
+
+# CodSpeed measures CPU simulation in CI; locally this checks benchmark correctness.
+# A fixed hash seed keeps dict and set iteration, and so instruction counts, stable.
+backend-benchmark:
+	@echo "$(COLOR_BLUE_BG)Running backend CodSpeed benchmarks...$(COLOR_RESET)"
+	cd $(BACKEND_DIR) && PYTHONHASHSEED=0 uv run pytest benchmarks \
+		--codspeed --codspeed-mode=simulation --random-order-bucket=none
+
 backend-snapshot-update:
 	@echo "$(COLOR_BLUE_BG)Rewriting backend inline snapshots...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYTEST) --inline-snapshot=create,fix
@@ -60,7 +76,9 @@ backend-clean:
 	       $(BACKEND_DIR)/.cache \
 	       $(BACKEND_DIR)/.hypothesis \
 	       $(BACKEND_DIR)/.pytest_cache \
-	       $(BACKEND_DIR)/.ruff_cache
+	       $(BACKEND_DIR)/.ruff_cache \
+	       $(BACKEND_DIR)/.codspeed \
+	       $(BACKEND_DIR)/mutants
 	find $(BACKEND_DIR) -type d -name __pycache__ -prune -exec rm -rf {} +
 
 run-backend:
@@ -68,5 +86,6 @@ run-backend:
 	cd $(BACKEND_DIR) && $(FASTAPI_RUNSERVER)
 
 .PHONY: backend-setup backend-lint backend-format backend-type-check backend-audit \
-	backend-validate-api-schema backend-test backend-snapshot-update \
+	backend-validate-api-schema backend-test backend-mutation-test backend-benchmark \
+	backend-snapshot-update \
 	backend-type-coverage backend-load-test backend-clean run-backend

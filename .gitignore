@@ -71,6 +71,9 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+# mutmut's mutated copy of the backend, and CodSpeed's local output
+mutants/
+.codspeed/
 cover/
 
 # Translations

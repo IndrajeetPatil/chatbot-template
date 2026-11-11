@@ -62,7 +62,7 @@ class StreamMetrics:
         # Include JSON in the message so the default Loguru sink exposes every field.
         logger.bind(stream_metrics=metrics).info(
             "Azure OpenAI stream metrics: {}",
-            json.dumps(metrics, sort_keys=True),
+            json.dumps(metrics),
         )
 
 

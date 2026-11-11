@@ -24,12 +24,14 @@ see [getting started](getting-started.md) for service selection and configuratio
 
 | Command                                      | Purpose                                                                            |
 | -------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `make qa`                                    | Format, lint, spelling, workflows, links, types, schema, coverage, audits, Checkov |
+| `make qa`                                    | Format, lint, spelling, workflows, links, types, schema, coverage, mutants, audits |
 | `make qa-backend` / `make qa-frontend`       | Checks for one service, including its dependency audit                             |
 | `make format` / `make lint`                  | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl, typos, actionlint  |
 | `make type-check` / `make type-coverage`     | Static types / 100% type coverage                                                  |
 | `make test`                                  | Backend and frontend unit tests with coverage                                      |
 | `make backend-snapshot-update`               | Rewrite backend inline snapshots for review                                        |
+| `make backend-mutation-test`                 | Backend mutation testing with mutmut; fails on any surviving mutant                |
+| `make backend-benchmark`                     | Backend CodSpeed benchmarks; correctness only outside CI                           |
 | `make frontend-bench`                        | Optional frontend request-preparation benchmarks                                   |
 | `make backend-validate-api-schema`           | Generate and validate OpenAPI without credentials                                  |
 | `make backend-load-test`                     | Start the backend and Locust against it                                            |
@@ -90,6 +92,7 @@ make qa
 | -------------------------------------------------------------------- | ---------------------------------------------- |
 | Backend `.venv`, frontend and root `node_modules`                    | `make setup`                                   |
 | Python bytecode, pytest / Hypothesis caches, coverage data and XML   | `make backend-test`                            |
+| mutmut's `backend/mutants/` and CodSpeed's `backend/.codspeed/`      | `make backend-mutation-test` / benchmarks      |
 | Ruff, rumdl, Fallow, TypeScript, and local `.cache` directories      | `make qa`                                      |
 | Frontend build and coverage output                                   | `make frontend-build` / `make frontend-test`   |
 | Vitest reports and benchmark JSON in `frontend/.vitest/`             | Test or benchmark runs with artifact reporters |
@@ -119,6 +122,8 @@ make qa
 | Gate                     | Required threshold / behavior                                                                                          |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | Backend coverage         | 100% lines and branches                                                                                                |
+| Backend mutation testing | No surviving mutants; see [mutation testing](backend.md#mutation-testing)                                              |
+| Backend benchmarks       | CodSpeed reports CPU regressions against `main`; see [benchmarks](backend.md#benchmarks)                               |
 | Frontend coverage        | ≥90% statements/functions/lines; ≥75% branches                                                                         |
 | Type annotation coverage | 100% on both sides                                                                                                     |
 | Lighthouse               | Three mobile-throttled samples; assert the median                                                                      |
@@ -151,7 +156,8 @@ make qa
 | Link checking            | lychee                                                   | lychee               |
 | Container vuln scan      | Trivy                                                    | Trivy                |
 | Unit testing             | Vitest browser mode (Chromium)                           | pytest               |
-| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                      | \-                   |
+| Microbenchmarks          | Vitest 5 `bench` fixture (optional)                      | pytest-codspeed      |
+| Mutation testing         | \-                                                       | mutmut               |
 | Property-based testing   | fast-check                                               | Hypothesis           |
 | Snapshot testing         | Playwright visual baselines                              | inline-snapshot      |
 | Code coverage            | Vitest                                                   | coverage.py          |
