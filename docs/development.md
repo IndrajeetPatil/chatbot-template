@@ -244,10 +244,6 @@ Vitest 5 clears mock call history before each test by default. Configure hook
 return values in `beforeEach`, since clearing calls preserves implementations.
 Use `vi.mock(import("..."), { spy: true })` and `vi.mocked()` for module exports
 instead of a hoisted factory when only their return values need replacing.
-Prefer stubbing `fetch` over mocking a package: in Vitest 5.0.3, browser-mode
-module mocks occasionally fail to apply in Chromium
-([vitest#8339](https://github.com/vitest-dev/vitest/issues/8339)). The fix ships
-in Vitest 5.0.4, which needs a Vite+ release that bundles it.
 Typed mocks returning `Promise<void>` can use `.mockResolvedValue()` directly.
 
 The [benchmarking API](https://vitest.dev/guide/benchmarking) is useful for pure
