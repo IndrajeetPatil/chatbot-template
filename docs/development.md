@@ -416,5 +416,4 @@ Never rely on CI reporter exit codes alone.
   CLI's `vp migrate` to reconcile the Vite alias, Vitest pin, and browser/coverage
   packages. It preserves existing hook, editor, and agent configuration.
   Installer checksums and image digests still require explicit updates.
-- Unless requested, do not wait for hosted CI after pushing; provide the PR or
-  workflow link and distinguish local results from live checks.
+- When reporting, distinguish local results from hosted CI checks.
