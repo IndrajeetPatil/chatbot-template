@@ -16,7 +16,7 @@ types_or = ["python", "pyi", "jupyter", "markdown"]
 
 [[repos]]
 repo = "https://github.com/astral-sh/ty-pre-commit"
-rev = "c7c033957b32915cd7f904e97be28de58f572300" # frozen: v0.0.99
+rev = "adf4d7a4e31d08d5f724660646c3f10e0084348d" # frozen: v0.0.101
 
 [[repos.hooks]]
 id = "ty"
@@ -24,14 +24,14 @@ args = ["--directory=backend", "--isolated"]
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "b0cff962ee693b9e612c097d22e71e0cba127447" # frozen: v0.3.2
+rev = "048965b9cf986f25ab963d388bc94cf44e381686" # frozen: v0.3.3
 
 [[repos.hooks]]
 id = "rumdl"
 
 [[repos]]
 repo = "https://github.com/crate-ci/typos"
-rev = "4c8b7f51ca60df14e3c5ca82770dfbbe6c3dae85" # frozen: v1.52.0
+rev = "276087d9a4f06398b3e04825487805e2d7375888" # frozen: v1.52.2
 
 # Report rather than silently rewrite; a typo fix is a human decision.
 [[repos.hooks]]

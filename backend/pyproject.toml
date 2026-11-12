@@ -30,7 +30,7 @@ dev = [
   "pytest>=9.1.1",
   "ruff>=0.16.9",
   # Match the frozen ty-pre-commit hook in ../prek.toml.
-  "ty==0.0.99",
+  "ty==0.0.101",
 ]
 
 [tool.uv]
