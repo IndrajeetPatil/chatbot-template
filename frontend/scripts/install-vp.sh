@@ -6,24 +6,24 @@ set -euo pipefail
 # pnpm-workspace.yaml; checksums come from the release's vp-checksums.txt.
 # Like the official installer, the first run adds $VP_HOME/env to shell
 # profiles; set VP_SELF_SETUP_NO_MODIFY_PATH=1 to manage PATH yourself.
-VP_VERSION=1.5.0
+VP_VERSION=1.6.0
 
 case "$(uname -s)-$(uname -m)" in
     Linux-x86_64)
         target=x86_64-unknown-linux-gnu
-        sha256=547ee61b5dbc556bb7d3d996c198334e3477fb245ab41d6faa6efcde106a8405
+        sha256=5716772c289e6b5d814cbeb2824fc3ccbb7c1ce38ca164b2df1b2b07fe8c83cf
         ;;
     Linux-aarch64 | Linux-arm64)
         target=aarch64-unknown-linux-gnu
-        sha256=36387764b075539bada5acea8e1fc44d671a0ebcff667ba7866aee4067d46d3e
+        sha256=730ab94da0d57ebc579015d28611b0850389ff45b66a57a6e7d71589bdfb2458
         ;;
     Darwin-arm64)
         target=aarch64-apple-darwin
-        sha256=a1b702d22ce2e7dff610d6293dbc47f72b17387cac29af785d75339ee7720426
+        sha256=d081c4ec265bba5862bea9ad3eb9a9becc1b46c88f44f10b334f651508f9aa86
         ;;
     Darwin-x86_64)
         target=x86_64-apple-darwin
-        sha256=b17c62a52421a03f3e0b72211f4f3ceca07fcdf156b2965e293c06c6b5747371
+        sha256=d9e3c7fda95880bf36b59890f3076b09fec238147867701b9b0980ffa45b1c1d
         ;;
     *)
         echo "No pinned Vite+ checksum for $(uname -s)-$(uname -m)." >&2

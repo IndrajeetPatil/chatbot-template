@@ -9,8 +9,8 @@ endif
 include makefiles/backend.mk
 include makefiles/frontend.mk
 
-CHECKOV_VERSION := 3.4.3
-TYPOS_VERSION := 1.52.0
+CHECKOV_VERSION := 3.4.4
+TYPOS_VERSION := 1.52.2
 ACTIONLINT_VERSION := 1.7.12.25
 # Pinned by digest to prevent tag drift.
 GITLEAKS_IMAGE := zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
@@ -79,11 +79,11 @@ commitlint:
 
 markdown-lint:
 	@echo "$(COLOR_BLUE_BG)Running markdown linting with rumdl...$(COLOR_RESET)"
-	uv tool run --from rumdl==0.3.2 rumdl check .
+	uv tool run --from rumdl==0.3.3 rumdl check .
 
 markdown-format:
 	@echo "$(COLOR_BLUE_BG)Formatting Markdown with rumdl...$(COLOR_RESET)"
-	uv tool run --from rumdl==0.3.2 rumdl fmt .
+	uv tool run --from rumdl==0.3.3 rumdl fmt .
 
 spell-check:
 	@echo "$(COLOR_BLUE_BG)Checking spelling with typos...$(COLOR_RESET)"

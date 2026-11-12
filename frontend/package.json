@@ -11,12 +11,12 @@
     "type-coverage": "type-coverage --strict --at-least 100"
   },
   "dependencies": {
-    "@ai-sdk/react": "^4.0.170",
+    "@ai-sdk/react": "^4.0.174",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.5.0",
     "@mui/material": "^9.5.0",
-    "ai": "^7.0.166",
+    "ai": "^7.0.170",
     "katex": "^0.19.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -42,7 +42,7 @@
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/browser-playwright": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "fallow": "^3.41.0",
+    "fallow": "^3.42.0",
     "http-status-codes": "^2.3.0",
     "oxc-transform-react": "0.156.0",
     "playwright": "^1.65.0",
@@ -56,5 +56,5 @@
     "node": ">=26.12.0",
     "pnpm": ">=12.15.0"
   },
-  "packageManager": "pnpm@12.18.0+sha512.9d7882d5dc82147ecfc4e062aa34834e0ad0296710a1837a1115ae012127d36b7109e321ac1598a1dd0a65597681b1e99917e12ed0d749eae91187943363beb3"
+  "packageManager": "pnpm@12.19.0+sha512.87327b6619853205834e4be59ba3a231e303d9f5e435912ede3312b7539b79af890942f6513b05a4690745666888045c09b33fc420c2cd2d3bd95c01ba21dbeb"
 }
