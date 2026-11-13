@@ -23,8 +23,9 @@ keeping technical details accurate and searchable in the surrounding Markdown.
    asset source and applicable license in the illustration manifest.
 4. Export each final illustration to the format and path already referenced by
    the documentation. Inspect the vector source and exported image at its
-   displayed size; confirm that labels, arrows, and icons are legible and every
-   claim is correct in light and dark viewing contexts where applicable.
+   displayed size; confirm that each logo or icon sits directly with its name,
+   labels and arrows are legible, and every claim is correct in light and dark
+   viewing contexts where applicable.
 5. Keep useful alt text beside each use. Record the final prompts, alt text,
    content summary, and any logo/icon sources in `docs/illustrations.md`.
    Describe the whole visual in alt text without repeating nearby explanatory
