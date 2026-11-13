@@ -12,15 +12,15 @@ streaming. See [request routing](getting-started.md#request-routing) and the
 | -------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | ![Chatbot Template light mode UI](images/chatbot-template-light.png) | ![Chatbot Template dark mode UI](images/chatbot-template-dark.png) |
 
-| Area                  | Behavior                                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Design                | [Material UI](https://mui.com/material-ui/getting-started/), local Geist fonts, responsive light/dark layouts |
-| Interaction reference | [AI Elements](https://elements.ai-sdk.dev/), while retaining one UI toolkit                                   |
-| Getting started       | Suggested prompts open a conversation                                                                         |
-| Composer              | Model/reasoning choices, message validation, stop generation                                                  |
-| Keyboard              | Enter inserts a line; Ctrl+Enter / Cmd+Enter sends                                                            |
-| Scrolling             | Replies follow until the reader scrolls up; “Jump to latest” resumes following                                |
-| Copy                  | Actions below replies preserve the original Markdown                                                          |
+| Area                  | Behavior                                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Design                | [Material UI](https://mui.com/material-ui/getting-started/), local Geist fonts, responsive light/dark layouts; tokens and rules in [DESIGN.md](../DESIGN.md) |
+| Interaction reference | [AI Elements](https://elements.ai-sdk.dev/), while retaining one UI toolkit                                                                                  |
+| Getting started       | Suggested prompts open a conversation                                                                                                                        |
+| Composer              | Model/reasoning choices, message validation, stop generation                                                                                                 |
+| Keyboard              | Enter inserts a line; Ctrl+Enter / Cmd+Enter sends                                                                                                           |
+| Scrolling             | Replies follow until the reader scrolls up; “Jump to latest” resumes following                                                                               |
+| Copy                  | Actions below replies preserve the original Markdown                                                                                                         |
 
 ## Markdown and math
 
