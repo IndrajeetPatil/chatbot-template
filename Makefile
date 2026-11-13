@@ -9,7 +9,7 @@ endif
 include makefiles/backend.mk
 include makefiles/frontend.mk
 
-CHECKOV_VERSION := 3.4.4
+CHECKOV_VERSION := 3.4.5
 TYPOS_VERSION := 1.52.2
 ACTIONLINT_VERSION := 1.7.12.25
 # Pinned by digest to prevent tag drift.
@@ -79,11 +79,11 @@ commitlint:
 
 markdown-lint:
 	@echo "$(COLOR_BLUE_BG)Running markdown linting with rumdl...$(COLOR_RESET)"
-	uv tool run --from rumdl==0.3.3 rumdl check .
+	uv tool run --from rumdl==0.3.4 rumdl check .
 
 markdown-format:
 	@echo "$(COLOR_BLUE_BG)Formatting Markdown with rumdl...$(COLOR_RESET)"
-	uv tool run --from rumdl==0.3.3 rumdl fmt .
+	uv tool run --from rumdl==0.3.4 rumdl fmt .
 
 spell-check:
 	@echo "$(COLOR_BLUE_BG)Checking spelling with typos...$(COLOR_RESET)"
