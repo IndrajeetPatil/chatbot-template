@@ -47,8 +47,11 @@ fi
 
 ### 3 — Screenshot with Playwright
 
-The app defaults to dark mode when no OS preference is detected.
-Pass `--color-scheme dark` so headless Chromium matches.
+The app has one route, `/chat`, so capture the states the change affects
+(theme, viewport, menus, replies). The command below captures the initial view
+in dark mode, the app's default when no OS preference is detected; change
+`--color-scheme`, `--viewport-size` or the output path for other states, and
+repeat for each one.
 
 ```bash
 cd frontend && vp exec playwright screenshot \
@@ -64,9 +67,7 @@ Install if missing: `vp exec playwright install --with-deps chromium`
 ### 4 — Post PR comment
 
 `gh pr comment --attach` (gh ≥ 2.99.0) uploads the local file and rewrites the
-matching Markdown reference in place, so no release asset or public URL is
-needed. Do NOT commit screenshots to the repo (`.github/pr-assets/` is
-gitignored).
+matching Markdown reference in place. Keep screenshots out of the repository.
 
 ```bash
 DATE_UTC=$(date -u '+%Y-%m-%d %H:%M UTC')
