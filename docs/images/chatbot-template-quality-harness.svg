@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1060" viewBox="0 0 1800 1060">
+  <defs>
+    <marker id="arrow-down" markerWidth="10" markerHeight="10" refX="5" refY="8" orient="auto">
+      <path d="M0 0 10 0 5 10Z" fill="#167d69" />
+    </marker>
+    <filter id="card-shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#263f50" flood-opacity=".07" />
+    </filter>
+    <linearGradient id="pale-green" x2="0" y2="1">
+      <stop stop-color="#e5f4ec" />
+      <stop offset="1" stop-color="#fbfcf8" />
+    </linearGradient>
+    <linearGradient id="pale-blue" x2="0" y2="1">
+      <stop stop-color="#e8f2fb" />
+      <stop offset="1" stop-color="#fbfcfe" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1800" height="1060" rx="28" fill="#f7f7f2" />
+  <text x="900" y="62" fill="#202b37" font-family="Arial, sans-serif" font-size="36" font-weight="700" text-anchor="middle">The quality harness</text>
+  <text x="900" y="100" fill="#626d70" font-family="Arial, sans-serif" font-size="19" text-anchor="middle">Local entry points and GitHub Actions enforce complementary checks</text>
+
+  <g filter="url(#card-shadow)">
+    <rect x="72" y="135" width="780" height="155" rx="22" fill="url(#pale-green)" stroke="#a9cfc0" stroke-width="2" />
+    <rect x="948" y="135" width="780" height="155" rx="22" fill="url(#pale-blue)" stroke="#b6cee0" stroke-width="2" />
+  </g>
+
+  <g transform="translate(120 177)" fill="none" stroke="#167d69" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="0" y="0" width="68" height="56" rx="10" />
+    <path d="m20 18 11 10-11 10M43 40h12" />
+  </g>
+  <text x="220" y="186" fill="#202b37" font-family="Arial, sans-serif" font-size="26" font-weight="700">Local entry points</text>
+  <text x="220" y="225" fill="#34444d" font-family="Arial, sans-serif" font-size="18">make qa · make hooks · focused targets</text>
+  <text x="220" y="257" fill="#637277" font-family="Arial, sans-serif" font-size="15">Run the checks locally during development</text>
+
+  <image href="icons/github-actions.svg" x="990" y="180" width="54" height="54" />
+  <text x="1065" y="186" fill="#202b37" font-family="Arial, sans-serif" font-size="26" font-weight="700">GitHub Actions</text>
+  <text x="1065" y="225" fill="#34444d" font-family="Arial, sans-serif" font-size="18">QA · tests · security · Docker</text>
+  <image href="icons/docker.svg" x="1455" y="192" width="36" height="36" />
+  <image href="illustration-art/quality-workstation.webp" x="1510" y="112" width="190" height="190" preserveAspectRatio="xMidYMid meet" />
+
+  <path d="M460 291v23H900v17M1340 291v23H900" fill="none" stroke="#167d69" stroke-width="3" />
+  <path d="M900 314v17" fill="none" stroke="#167d69" stroke-width="3" marker-end="url(#arrow-down)" />
+
+  <g filter="url(#card-shadow)">
+    <rect x="72" y="355" width="520" height="175" rx="20" fill="#fff" stroke="#cbd9d2" stroke-width="2" />
+    <rect x="640" y="355" width="520" height="175" rx="20" fill="#fff" stroke="#cbd9d2" stroke-width="2" />
+    <rect x="1208" y="355" width="520" height="175" rx="20" fill="#fff" stroke="#cbd9d2" stroke-width="2" />
+    <rect x="72" y="560" width="520" height="175" rx="20" fill="#fff" stroke="#cbd9d2" stroke-width="2" />
+    <rect x="640" y="560" width="520" height="175" rx="20" fill="#fff" stroke="#cbd9d2" stroke-width="2" />
+    <rect x="1208" y="560" width="520" height="175" rx="20" fill="#fff" stroke="#cbd9d2" stroke-width="2" />
+  </g>
+
+  <g fill="#e5f4ec">
+    <circle cx="135" cy="422" r="37" /><circle cx="703" cy="422" r="37" />
+    <circle cx="1271" cy="422" r="37" /><circle cx="135" cy="627" r="37" />
+    <circle cx="703" cy="627" r="37" /><circle cx="1271" cy="627" r="37" />
+  </g>
+  <image href="icons/python.svg" x="114" y="401" width="42" height="42" />
+
+  <g fill="none" stroke="#167d69" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M686 410h34M686 422h34M686 434h22M691 398h24" />
+    <circle cx="1266" cy="422" r="15" /><path d="m1258 422 6 6 11-14" />
+    <rect x="111" y="606" width="48" height="39" rx="5" /><path d="M111 616h48M126 627h19M126 636h14" />
+    <path d="M692 608h22l15 8v24h-42v-24zM692 608v32" />
+    <path d="M1258 643v-13M1271 643v-27M1284 643v-39M1252 643h39" />
+  </g>
+
+  <g fill="#202b37" font-family="Arial, sans-serif" font-size="22" font-weight="700">
+    <text x="192" y="415">Code &amp; types</text>
+    <text x="760" y="415">Structure</text>
+    <text x="1328" y="415">Behavior</text>
+    <text x="192" y="620">Browser &amp; accessibility</text>
+    <text x="760" y="620">Security &amp; supply chain</text>
+    <text x="1328" y="620">Conventions &amp; evidence</text>
+  </g>
+  <g fill="#52646d" font-family="Arial, sans-serif" font-size="17">
+    <text x="192" y="458">Ruff · Oxlint · ty · TypeScript</text>
+    <text x="760" y="458">Fallow · CSS quality</text>
+    <text x="1328" y="458">pytest · Vitest · OpenAPI</text>
+    <text x="192" y="663">Playwright · axe · Lighthouse</text>
+    <text x="760" y="663">Gitleaks · Checkov · Trivy</text>
+    <text x="1328" y="663">prek · rumdl · ls-lint · coverage</text>
+  </g>
+  <g fill="#738287" font-family="Arial, sans-serif" font-size="14">
+    <text x="192" y="491">Style, lint, and static type checks</text>
+    <text x="760" y="491">Cycles, dead code, and CSS quality</text>
+    <text x="1328" y="491">Unit behavior and API contracts</text>
+    <text x="192" y="696">Browser behavior and accessibility</text>
+    <text x="760" y="696">Secrets, infrastructure, and packages</text>
+    <text x="1328" y="696">Conventions and review evidence</text>
+  </g>
+
+  <g filter="url(#card-shadow)">
+    <rect x="72" y="780" width="1656" height="206" rx="22" fill="url(#pale-blue)" stroke="#b6cee0" stroke-width="2" />
+  </g>
+  <text x="112" y="827" fill="#202b37" font-family="Arial, sans-serif" font-size="25" font-weight="700">Coverage floors</text>
+  <path d="M900 846v108" stroke="#b6cbd4" stroke-width="2" />
+  <text x="145" y="884" fill="#167d69" font-family="Arial, sans-serif" font-size="34" font-weight="700">100%</text>
+  <text x="280" y="880" fill="#202b37" font-family="Arial, sans-serif" font-size="23" font-weight="700">Backend</text>
+  <text x="280" y="917" fill="#52646d" font-family="Arial, sans-serif" font-size="18">Lines and branches</text>
+  <text x="980" y="884" fill="#167d69" font-family="Arial, sans-serif" font-size="34" font-weight="700">≥90%</text>
+  <text x="1115" y="880" fill="#202b37" font-family="Arial, sans-serif" font-size="23" font-weight="700">Frontend</text>
+  <text x="1115" y="917" fill="#52646d" font-family="Arial, sans-serif" font-size="18">Statements · functions · lines</text>
+  <text x="1115" y="951" fill="#52646d" font-family="Arial, sans-serif" font-size="18">≥75% branches</text>
+</svg>

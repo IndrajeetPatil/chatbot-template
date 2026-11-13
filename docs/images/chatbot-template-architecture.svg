@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="820" viewBox="0 0 1800 820">
+  <defs>
+    <marker id="arrow-forward" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#167d69" />
+    </marker>
+    <marker id="arrow-back" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto">
+      <path d="M10 0 0 5 10 10Z" fill="#3478c8" />
+    </marker>
+    <linearGradient id="browser-band" x2="0" y2="1">
+      <stop stop-color="#e3f5ed" />
+      <stop offset="1" stop-color="#f9fcf9" />
+    </linearGradient>
+    <linearGradient id="service-band" x2="0" y2="1">
+      <stop stop-color="#e6f1fb" />
+      <stop offset="1" stop-color="#fbfcfe" />
+    </linearGradient>
+    <filter id="card-shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#263f50" flood-opacity=".08" />
+    </filter>
+  </defs>
+
+  <rect width="1800" height="820" rx="28" fill="#f7f7f2" />
+  <circle cx="88" cy="86" r="5" fill="#b6dccc" />
+  <circle cx="111" cy="86" r="5" fill="#d5e8f8" />
+  <text x="900" y="70" fill="#202b37" font-family="Arial, sans-serif" font-size="36" font-weight="700" text-anchor="middle">From prompt to streamed reply</text>
+  <text x="900" y="108" fill="#626d70" font-family="Arial, sans-serif" font-size="19" text-anchor="middle">The same-origin request is validated before Azure OpenAI is called</text>
+
+  <g fill="none" stroke="#167d69" stroke-width="4" marker-end="url(#arrow-forward)">
+    <path d="M425 238h80" />
+    <path d="M860 238h80" />
+    <path d="M1295 238h80" />
+  </g>
+  <g fill="#3e5b61" font-family="Arial, sans-serif" font-size="15" font-weight="700" text-anchor="middle">
+    <text x="465" y="211">POST /api/v1/chat</text>
+    <text x="900" y="211">Proxy /api</text>
+    <text x="1335" y="211">Streaming completion</text>
+  </g>
+
+  <g filter="url(#card-shadow)">
+    <rect x="70" y="270" width="355" height="305" rx="22" fill="url(#browser-band)" stroke="#a9cfc0" stroke-width="2" />
+    <rect x="505" y="270" width="355" height="305" rx="22" fill="url(#service-band)" stroke="#b6cee0" stroke-width="2" />
+    <rect x="940" y="270" width="355" height="305" rx="22" fill="url(#browser-band)" stroke="#a9cfc0" stroke-width="2" />
+    <rect x="1375" y="270" width="355" height="305" rx="22" fill="url(#service-band)" stroke="#b6cee0" stroke-width="2" />
+  </g>
+
+  <g fill="#202b37" font-family="Arial, sans-serif" font-size="27" font-weight="700" text-anchor="middle">
+    <text x="247" y="312">Browser</text>
+    <text x="682" y="312">Frontend proxy</text>
+    <text x="1117" y="312">FastAPI backend</text>
+    <text x="1552" y="312">Azure OpenAI</text>
+  </g>
+
+  <image href="illustration-art/chat-interface.webp" x="125" y="322" width="245" height="184" preserveAspectRatio="xMidYMid meet" />
+  <g>
+    <image href="icons/react.svg" x="153" y="526" width="30" height="30" />
+    <text x="191" y="548" fill="#34444d" font-family="Arial, sans-serif" font-size="18">React</text>
+    <image href="icons/mui.svg" x="258" y="526" width="30" height="30" />
+    <text x="296" y="548" fill="#34444d" font-family="Arial, sans-serif" font-size="18">Material UI</text>
+  </g>
+
+  <g>
+    <image href="icons/vite.svg" x="570" y="367" width="46" height="46" />
+    <text x="629" y="396" fill="#34444d" font-family="Arial, sans-serif" font-size="21" font-weight="700">Vite</text>
+    <text x="682" y="396" fill="#718085" font-family="Arial, sans-serif" font-size="20">·</text>
+    <image href="icons/nginx.svg" x="707" y="367" width="46" height="46" />
+    <text x="766" y="396" fill="#34444d" font-family="Arial, sans-serif" font-size="21" font-weight="700">nginx</text>
+    <text x="682" y="455" fill="#637277" font-family="Arial, sans-serif" font-size="17" text-anchor="middle">Development · Docker</text>
+    <g fill="none" stroke="#bdd1df" stroke-width="2">
+      <path d="M555 482h254" />
+    </g>
+    <text x="682" y="519" fill="#52646d" font-family="Arial, sans-serif" font-size="16" text-anchor="middle">Same-origin API proxy</text>
+  </g>
+
+  <g>
+    <image href="icons/fastapi.svg" x="1056" y="340" width="46" height="46" />
+    <text x="1117" y="371" fill="#188b79" font-family="Arial, sans-serif" font-size="26" font-weight="700">FastAPI</text>
+    <g fill="#167d69">
+      <circle cx="1014" cy="425" r="5" />
+      <circle cx="1014" cy="460" r="5" />
+      <circle cx="1014" cy="495" r="5" />
+    </g>
+    <g fill="#34444d" font-family="Arial, sans-serif" font-size="18">
+      <text x="1030" y="431">Validate requests</text>
+      <text x="1030" y="466">Enforce rate limits</text>
+      <text x="1030" y="501">Add format instructions</text>
+    </g>
+    <text x="1117" y="545" fill="#637277" font-family="Arial, sans-serif" font-size="15" text-anchor="middle">Server-side API client</text>
+  </g>
+
+  <g transform="translate(1452 350)" fill="none" stroke="#2f7ec2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 95H150a39 39 0 0 0 4-78 58 58 0 0 0-108-2 42 42 0 0 0-14 80Z" />
+    <path d="M91 51 76 78h19l-7 20 28-35H96l7-12" stroke="#167d69" />
+  </g>
+  <text x="1552" y="490" fill="#52646d" font-family="Arial, sans-serif" font-size="17" text-anchor="middle">Deployment · model · completion</text>
+
+  <g fill="none" stroke="#3478c8" stroke-width="4" marker-end="url(#arrow-back)">
+    <path d="M1375 620h-80" />
+    <path d="M940 620h-80" />
+    <path d="M505 620h-80" />
+  </g>
+  <g fill="#3e5b61" font-family="Arial, sans-serif" font-size="15" font-weight="700" text-anchor="middle">
+    <text x="1335" y="653">Text deltas</text>
+    <text x="900" y="653">Plain-text stream</text>
+    <text x="465" y="653">Streamed reply</text>
+  </g>
+
+  <g>
+    <rect x="960" y="700" width="315" height="64" rx="18" fill="#e7f3ed" stroke="#9fc8b7" stroke-width="2" />
+    <g transform="translate(983 715)" fill="none" stroke="#167d69" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="15" cy="17" r="12" />
+      <path d="M23 25 34 36" />
+      <path d="M15 10v14M8 17h14" />
+    </g>
+    <text x="1030" y="740" fill="#34444d" font-family="Arial, sans-serif" font-size="18" font-weight="700">Azure credentials · server only</text>
+    <path d="M1117 700v-125" fill="none" stroke="#167d69" stroke-width="3" stroke-dasharray="8 7" marker-end="url(#arrow-forward)" />
+  </g>
+</svg>
