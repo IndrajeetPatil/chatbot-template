@@ -1,8 +1,5 @@
 backend/.dev/*
 
-# PR screenshot assets (hosted via gist, not committed)
-.github/pr-assets/
-
 # fallow cache
 frontend/.fallow/
 # Lighthouse CI results
