@@ -1,5 +1,8 @@
 [global]
 respect-gitignore = true
+# Preserve the upstream bytes recorded by the agent-browser skill lock.
+exclude = [".agents/skills/agent-browser/SKILL.md"]
+force-exclude = true
 
 [MD003]
 style = "atx"
