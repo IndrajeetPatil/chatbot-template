@@ -377,7 +377,8 @@ Never rely on CI reporter exit codes alone.
 | End-to-end tests and TypeScript utility scripts           | kebab-case                            | `chat-page.spec.ts`, `css-quality.ts`            |
 | Shell scripts, Make fragments, docs, and config basenames | kebab-case                            | `post-create.sh`, `backend.mk`, `update-deps.md` |
 
-- Preserve standard names: `README.md`, `AGENTS.md`, `Dockerfile`, tool dotfiles.
+- Preserve standard names: `README.md`, `AGENTS.md`, `CLAUDE.md`, `Dockerfile`,
+  tool dotfiles.
 - Compound extensions have explicit rules: `.test.tsx`, `.spec.ts`, `.config.ts`,
   `.d.ts`.
 - Dependencies, generated reports/snapshots, and vendored agent skills are
