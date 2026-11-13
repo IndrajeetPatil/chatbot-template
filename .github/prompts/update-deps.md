@@ -24,33 +24,18 @@ failures, coverage regressions, or lint failures introduced by the upgrades.
 
 ## Agent browser CLI and skill
 
-Update the globally installed `agent-browser` CLI and its project skill as one
-maintenance item. These agent tools stay separate from the app dependencies
-restored by `make setup` and do not belong in the application lockfiles:
+The `agent-browser` CLI and its vendored skill are agent tools, kept out of the
+project dependencies and lockfiles:
 
-- Compare `agent-browser --version` and `command -v agent-browser` with the
-  latest npm release from `npm view agent-browser version`. If the installed
-  CLI is behind, update it with `npm install --global agent-browser@<version>`
-  and verify the resolved command and version. If another package manager's
-  older binary shadows the npm install, update or unlink that copy so the
-  intended version resolves first on `PATH`.
-- Check for project skill updates with `npx --yes skills@1.8.1 check`. Keep
-  the Skills CLI pinned to a reviewed version in every command; do not use a
-  mutable `latest` tag. Check `npm view skills version`; if a newer Skills CLI
-  release is available, review its official changelog and update every
-  `skills@<version>` reference in this prompt together. If `agent-browser`
-  has an upstream update, review and install it with
-  `npx --yes skills@1.8.1 update agent-browser --project --yes`; if it is
-  current, leave its files and lock entry unchanged. Review
-  any local skill edits before updating rather than overwriting them blindly.
-  Do not edit the lock hash by hand. Confirm `check` reports the project skills
-  current and `npx --yes skills@1.8.1 list --json` reports `agent-browser` as
-  tracked. Review the available CLI instructions with `agent-browser skills
-  list` after updating the CLI.
-- Keep the locked upstream `SKILL.md` byte-for-byte aligned with its source.
-  If its formatting conflicts with repository Markdown rules, add a
-  file-specific exclusion to `.rumdl.toml`, with a comment explaining the
-  lock-integrity reason.
+- Update the CLI with `vp update -g agent-browser`; `vp list -g` shows its
+  version.
+- Run the Skills CLI as `vp dlx skills@1.8.1` (`npx` fails where `devEngines`
+  requires pnpm). If `npm view skills version` is newer, review its changelog
+  and bump the pin here.
+- If `check` reports an upstream update, review any local edits, then run
+  `update agent-browser --project --yes`; never edit `skills-lock.json` by hand.
+  Keep `SKILL.md` byte-for-byte upstream: if rumdl flags it, exclude it in
+  `.rumdl.toml` rather than reformat it.
 
 When Playwright changes, synchronize the image tag and SHA256 digest in
 `makefiles/frontend.mk` with the locked `@playwright/test` version. Use
