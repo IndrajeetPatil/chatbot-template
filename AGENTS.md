@@ -19,6 +19,7 @@ Start with the [documentation index](docs/README.md).
 
 | Area                  | Read first                                                                                                                                                                              |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Documentation art     | [Documentation illustrations](.agents/skills/documentation-illustrations/SKILL.md)                                                                                                      |
 | UI                    | [design](DESIGN.md), [frontend](docs/frontend.md), [Fallow policy](docs/development.md#frontend-code-quality-with-fallow), [visual tests](docs/development.md#browser-and-visual-tests) |
 | API or deployment     | [backend](docs/backend.md), [security](docs/security.md); validation must finish before streaming starts                                                                                |
 | Backend tests         | [test guide](docs/backend.md#tests), [mutation testing](docs/backend.md#mutation-testing); regenerate snapshots with `make backend-snapshot-update`                                     |

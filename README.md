@@ -15,7 +15,7 @@ streaming replies from Azure OpenAI GPT-6 Astra and GPT-5.6 Sol deployments.
 
 ## Architecture
 
-![React browser, Vite or nginx proxy, FastAPI backend, and Azure OpenAI request and reply flow](docs/images/chatbot-template-architecture.webp)
+![Browser requests pass through Vite or nginx to FastAPI and Azure OpenAI, with streamed replies returning through each layer and credentials staying server-side](docs/images/chatbot-template-architecture.webp)
 
 The browser sends messages, model, and reasoning effort to `/api/v1/chat`
 through the same-origin Vite or nginx proxy. FastAPI validates and rate-limits
@@ -66,15 +66,14 @@ and [security](docs/security.md) before deployment.
 
 ## Quality harness
 
-![Local tools and CI enforce code, type, structure, test, browser, security, and convention checks with coverage floors](docs/images/chatbot-template-quality-harness.webp)
+![Local entry points and GitHub Actions feed six groups of code, structure, behavior, browser, security, and convention checks, with coverage floors](docs/images/chatbot-template-quality-harness.webp)
 
 `make qa`, prek hooks, and GitHub Actions check code and architectural quality.
 Fallow rejects dependency cycles, dead code, duplication, and complexity
 violations. Tests, coverage floors, type coverage, CSS quality, accessibility,
 and security scans provide complementary checks and review evidence.
 
-The diagram uses blue, orange, and purple accents with numbered groups and dark
-text on white; its meaning does not depend on distinguishing colors.
+The labeled groups remain identifiable without relying on color alone.
 See [development](docs/development.md#quality-harness) for the gates and
 thresholds, and [security scans](docs/security.md#automated-scans) for scan scope.
 
