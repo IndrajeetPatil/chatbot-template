@@ -3,7 +3,7 @@ ls:
   .py: snake_case
   .sh: kebab-case
   .mk: kebab-case
-  .md: kebab-case | regex:(README|AGENTS|CLAUDE|SKILL)
+  .md: kebab-case | regex:(README|AGENTS|CLAUDE|DESIGN|SKILL)
   .yml: kebab-case
   .yaml: kebab-case
   .json: kebab-case

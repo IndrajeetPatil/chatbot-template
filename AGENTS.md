@@ -17,14 +17,14 @@ Start with the [documentation index](docs/README.md).
 
 ## Before you change
 
-| Area                  | Read first                                                                                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| UI                    | [frontend](docs/frontend.md), [Fallow policy](docs/development.md#frontend-code-quality-with-fallow), [visual tests](docs/development.md#browser-and-visual-tests) |
-| API or deployment     | [backend](docs/backend.md), [security](docs/security.md); validation must finish before streaming starts                                                           |
-| Backend tests         | [test guide](docs/backend.md#tests), [mutation testing](docs/backend.md#mutation-testing); regenerate snapshots with `make backend-snapshot-update`                |
-| Backend performance   | [benchmarks](docs/backend.md#benchmarks); CodSpeed reports regressions on PRs                                                                                      |
-| CI reporters          | [CI output policy](docs/development.md#ci-output)                                                                                                                  |
-| Tools or dependencies | [maintenance constraints](docs/development.md#maintenance-constraints), [supply chain](docs/security.md#supply-chain)                                              |
+| Area                  | Read first                                                                                                                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI                    | [design](DESIGN.md), [frontend](docs/frontend.md), [Fallow policy](docs/development.md#frontend-code-quality-with-fallow), [visual tests](docs/development.md#browser-and-visual-tests) |
+| API or deployment     | [backend](docs/backend.md), [security](docs/security.md); validation must finish before streaming starts                                                                                |
+| Backend tests         | [test guide](docs/backend.md#tests), [mutation testing](docs/backend.md#mutation-testing); regenerate snapshots with `make backend-snapshot-update`                                     |
+| Backend performance   | [benchmarks](docs/backend.md#benchmarks); CodSpeed reports regressions on PRs                                                                                                           |
+| CI reporters          | [CI output policy](docs/development.md#ci-output)                                                                                                                                       |
+| Tools or dependencies | [maintenance constraints](docs/development.md#maintenance-constraints), [supply chain](docs/security.md#supply-chain)                                                                   |
 
 ## Checks
 
