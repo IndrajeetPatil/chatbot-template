@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1752" height="897" viewBox="0 0 1752 897">
+  <image href="illustration-art/quality-base.webp" width="1752" height="897" />
+  <g fill="#fffaf2">
+    <rect x="72" y="405" width="520" height="47" rx="12" />
+    <rect x="640" y="405" width="520" height="47" rx="12" />
+    <rect x="1208" y="405" width="520" height="47" rx="12" />
+    <rect x="72" y="637" width="520" height="45" rx="12" />
+    <rect x="640" y="637" width="520" height="45" rx="12" />
+    <rect x="1208" y="637" width="520" height="45" rx="12" />
+  </g>
+  <g fill="#17354c" font-family="Arial, sans-serif" font-size="17" text-anchor="middle">
+    <text x="129" y="438">Python</text>
+    <text x="228" y="438">Ruff</text>
+    <text x="327" y="438">Oxlint</text>
+    <text x="424" y="438">ty</text>
+    <text x="519" y="438">TypeScript</text>
+
+    <text x="797" y="438">Fallow</text>
+    <text x="961" y="438">CSS quality</text>
+
+    <text x="1296" y="438">pytest</text>
+    <text x="1436" y="438">Vitest</text>
+    <text x="1570" y="438">OpenAPI</text>
+
+    <text x="150" y="669">Playwright</text>
+    <text x="319" y="669">axe</text>
+    <text x="481" y="669">Lighthouse</text>
+
+    <text x="733" y="669">Gitleaks</text>
+    <text x="880" y="669">Checkov</text>
+    <text x="1027" y="669">Trivy</text>
+
+    <text x="1262" y="669">prek</text>
+    <text x="1382" y="669">rumdl</text>
+    <text x="1505" y="669">ls-lint</text>
+    <text x="1623" y="669">coverage</text>
+  </g>
+</svg>

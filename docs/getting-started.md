@@ -76,7 +76,7 @@ stay in the backend; never commit `backend/.env`.
 
 ## Request routing
 
-![Chatbot architecture: browser requests pass through Vite or nginx to FastAPI and Azure OpenAI](images/chatbot-template-architecture.webp)
+![Browser requests pass through Vite or nginx to FastAPI and Azure OpenAI, with streamed replies returning through each layer and credentials staying server-side](images/chatbot-template-architecture.webp)
 
 The browser uses the same-origin `/api/v1/chat` endpoint. Vite or nginx proxies
 `/api` to FastAPI, which calls Azure OpenAI with server-side credentials and

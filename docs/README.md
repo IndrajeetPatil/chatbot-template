@@ -10,3 +10,4 @@
 | [Development and quality assurance](development.md) | Commands, tests, visual baselines, coverage, Fallow, naming, hooks, CI   |
 | [Security](security.md)                             | Credentials, deployment boundaries, rendering, supply chain, scans       |
 | [Local demo](demo.md)                               | Programming and physics prompt, response transcript, recording notes     |
+| [Illustrations](illustrations.md)                   | Documentation artwork, prompts, alt text, and icon sources               |

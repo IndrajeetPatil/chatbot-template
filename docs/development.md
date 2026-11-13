@@ -4,7 +4,7 @@
 
 ## Quality harness
 
-![Quality harness: local entry points and GitHub Actions cover code and types, structure, behavior, browser quality, security, and review evidence](images/chatbot-template-quality-harness.webp)
+![Local entry points and GitHub Actions feed six groups of code, structure, behavior, browser, security, and convention checks, with coverage floors](images/chatbot-template-quality-harness.webp)
 
 Local targets and hooks run their configured checks; GitHub Actions also runs
 browser and visual tests, workflow and secret scans, dependency audits, and

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2073" height="758" viewBox="0 0 2073 758">
+  <image href="illustration-art/architecture-base.webp" width="2073" height="758" />
+  <g font-family="Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <rect x="922" y="127" width="205" height="44" rx="22" fill="#e2f7ef" />
+    <text x="1024" y="156" fill="#12334b" font-size="20">Proxy /api</text>
+    <rect x="1497" y="127" width="207" height="44" rx="22" fill="#e4f2ff" />
+    <text x="1600" y="156" fill="#12334b" font-size="20">Streaming completion</text>
+  </g>
+</svg>
