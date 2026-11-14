@@ -43,6 +43,35 @@
       href="/site.webmanifest"
     />
     <title>Chatbot Template</title>
+    <script>
+      (() => {
+        const { hostname } = globalThis.location;
+        if (
+          hostname === "localhost" ||
+          hostname === "127.0.0.1" ||
+          hostname === "[::1]"
+        ) {
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://www.googletagmanager.com/gtag/js?id=G-3BQ49J7KYH";
+        script.async = true;
+        document.head.append(script);
+
+        function gtag() {
+          // Google Analytics processes `arguments` objects, not plain arrays.
+          // oxlint-disable-next-line prefer-rest-params
+          globalThis.dataLayer?.push(arguments);
+        }
+        globalThis.dataLayer ??= [];
+        globalThis.gtag = gtag;
+        gtag("js", new Date());
+        gtag("config", "G-3BQ49J7KYH", {
+          cookie_flags: "SameSite=Lax;Secure",
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

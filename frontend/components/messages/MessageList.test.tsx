@@ -48,6 +48,23 @@ test("announces loading and request failures", () => {
   expect(screen.getByRole("alert")).toBeVisible();
 });
 
+test("summarizes HTML error pages without rendering their markup", () => {
+  renderWithTheme(
+    <MessageList
+      messages={[]}
+      assistantIsLoading={false}
+      error={
+        new Error(
+          "<html><head><title>405 Not Allowed</title></head><body><h1>405 Not Allowed</h1></body></html>",
+        )
+      }
+    />,
+  );
+
+  expect(screen.getByRole("alert")).toHaveTextContent("405 Not Allowed");
+  expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+});
+
 test("filters non-text parts and joins text parts in order", async () => {
   const warn = vi.spyOn(console, "warn").mockReturnValue(undefined);
   renderWithTheme(
