@@ -3,8 +3,11 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 
 import ChatPage from "@/app/chat/Page";
+import { initializeAnalytics } from "@/client/analytics";
 
 import "@/app/styles.css";
+
+initializeAnalytics();
 
 if (globalThis.location.pathname === "/") {
   globalThis.history.replaceState(null, "", "/chat");
