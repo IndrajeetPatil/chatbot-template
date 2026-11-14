@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "bench": "vp test bench --run --browser.enabled=false",
     "lint:css": "biome lint --error-on-warnings",
     "fallow": "fallow doctor --quiet && fallow --fail-on-issues --quiet",
     "css-quality": "node scripts/css-quality.ts",
@@ -29,7 +28,6 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@biomejs/biome": "2.6.4",
-    "@codspeed/vitest-plugin": "^6.1.1",
     "@fast-check/vitest": "^0.5.0",
     "@playwright/test": "^1.65.0",
     "@projectwallace/css-code-quality": "^3.1.5",

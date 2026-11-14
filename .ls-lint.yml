@@ -64,7 +64,6 @@ ls:
     .dir: kebab-case
     .ts: camelCase
     .test.ts: camelCase
-    .bench.ts: camelCase
     .tsx: camelCase
     .test.tsx: camelCase
 
