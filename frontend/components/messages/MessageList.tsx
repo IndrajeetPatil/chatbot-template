@@ -48,6 +48,22 @@ function renderMessage(message: UIMessage) {
   );
 }
 
+function errorDetails(error: Error): string {
+  const message = error.message.trim();
+  if (!/^\s*(?:<!doctype\s+html|<html\b)/iu.test(message)) {
+    return message;
+  }
+
+  const titleElement = new DOMParser()
+    .parseFromString(message, "text/html")
+    .querySelector("title");
+  const title = titleElement?.textContent.trim();
+
+  return title === undefined || title.length === 0
+    ? "The server returned an HTML error page."
+    : title;
+}
+
 interface MessageListProps {
   messages: UIMessage[];
   assistantIsLoading: boolean;
@@ -79,7 +95,7 @@ function ResponseStatus({
       {error && (
         <Alert severity="error">
           Something went wrong. Try sending your message again. Details:{" "}
-          {error.message}
+          {errorDetails(error)}
         </Alert>
       )}
     </>
