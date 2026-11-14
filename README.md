@@ -28,6 +28,14 @@ See [request routing](docs/getting-started.md#request-routing) and the
 
 ## See it in action
 
+> [!IMPORTANT]
+> The GitHub Pages site linked in this repository's About section is a
+> frontend-only demo for exploring the interface. The backend is intentionally
+> not deployed, so sending a message shows an error and produces no AI reply.
+> This repository is a template for building your own chatbot; follow the
+> [quick start](#quick-start) to run it with your own backend and Azure OpenAI
+> credentials.
+
 A local conversation turns projectile-motion equations into a typed Python
 function, showing LaTeX and syntax highlighting in dark and light mode.
 

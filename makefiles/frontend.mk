@@ -52,10 +52,6 @@ frontend-test:
 	@echo "$(COLOR_BLUE_BG)Running frontend unit tests in Chromium...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) test --coverage
 
-frontend-bench:
-	@echo "$(COLOR_BLUE_BG)Benchmarking frontend request preparation...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VP) run bench $(BENCH_ARGS)
-
 frontend-build:
 	@echo "$(COLOR_BLUE_BG)Building frontend...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) run build
@@ -124,6 +120,6 @@ frontend-preview:
 
 .PHONY: frontend-setup frontend-toolchain-align frontend-check frontend-qa frontend-css-lint \
 	frontend-lint frontend-format config-format frontend-type-check \
-	frontend-test frontend-bench frontend-build frontend-audit frontend-fallow \
+	frontend-test frontend-build frontend-audit frontend-fallow \
 	frontend-css-quality frontend-accessibility-audit frontend-type-coverage \
 	frontend-lighthouse frontend-e2e-test frontend-e2e-test-docker frontend-clean run-frontend frontend-preview
