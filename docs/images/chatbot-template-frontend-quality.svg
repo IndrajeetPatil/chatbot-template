@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
+  <image href="illustration-art/frontend-quality-base.webp" width="1536" height="1024" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#256352" />
+    </marker>
+  </defs>
+  <g fill="#242923" font-family="Arial, sans-serif">
+    <text x="768" y="80" text-anchor="middle" font-size="48" font-weight="700">How frontend quality is checked</text>
+    <text x="284" y="163" font-size="30" font-weight="700">Local</text>
+    <text x="284" y="199" fill="#646b62" font-size="23">make qa-frontend and focused checks</text>
+    <text x="1004" y="163" font-size="30" font-weight="700">Pull request</text>
+    <text x="1004" y="199" fill="#646b62" font-size="23">GitHub Actions required gates</text>
+  </g>
+  <g fill="none" stroke="#242923" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+    <!-- Local laptop -->
+    <rect x="202" y="143" width="60" height="43" rx="5" />
+    <path d="M192 194h80l-7 8h-66z" />
+    <!-- Pull request merge -->
+    <circle cx="941" cy="150" r="7" />
+    <circle cx="941" cy="194" r="7" />
+    <circle cx="975" cy="172" r="7" />
+    <path d="M941 157v30c0-17 9-27 27-27h1" />
+  </g>
+  <g fill="none" stroke="#256352" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+    <path d="M420 198v37q0 16 16 16h348v33" />
+    <path d="M1110 198v37q0 16-16 16H784v33" />
+    <path d="M784 284v34" marker-end="url(#arrow)" />
+  </g>
+  <g fill="none" stroke="#dedfd7" stroke-width="2">
+    <path d="M72 522h1392" />
+    <path d="M72 739h1392" />
+  </g>
+  <g fill="#242923" font-family="Arial, sans-serif">
+    <!-- Row 1 -->
+    <text x="94" y="386" font-size="31" font-weight="700">Code and structure</text>
+    <text x="94" y="421" fill="#646b62" font-size="22">Builds, static checks, types,</text>
+    <text x="94" y="450" fill="#646b62" font-size="22">and unit coverage</text>
+    <text x="620" y="453" text-anchor="middle" font-size="21">Vite+ lint and type checks</text>
+    <text x="930" y="453" text-anchor="middle" font-size="21">Fallow health gate</text>
+    <text x="1260" y="453" text-anchor="middle" font-size="21">Vitest + coverage</text>
+    <text x="1260" y="481" text-anchor="middle" fill="#646b62" font-size="19">≥90% statements, functions, and lines</text>
+    <text x="1260" y="507" text-anchor="middle" fill="#646b62" font-size="19">≥75% branches</text>
+    <!-- Row 2 -->
+    <text x="94" y="603" font-size="31" font-weight="700">Browser and accessibility</text>
+    <text x="94" y="638" fill="#646b62" font-size="22">Exercise real pages, themes,</text>
+    <text x="94" y="667" fill="#646b62" font-size="22">layouts, and interactions</text>
+    <text x="620" y="670" text-anchor="middle" font-size="21">Playwright user flows</text>
+    <text x="930" y="670" text-anchor="middle" font-size="21">axe-core WCAG 2.2 AA audit</text>
+    <text x="1260" y="670" text-anchor="middle" font-size="21">Light and dark</text>
+    <text x="1260" y="698" text-anchor="middle" font-size="21">visual baselines</text>
+    <!-- Row 3 -->
+    <text x="94" y="820" font-size="31" font-weight="700">Real-world quality</text>
+    <text x="94" y="855" fill="#646b62" font-size="22">Mobile performance and</text>
+    <text x="94" y="884" fill="#646b62" font-size="22">search quality budgets</text>
+    <text x="620" y="887" text-anchor="middle" font-size="21">Lighthouse CI</text>
+    <text x="620" y="915" text-anchor="middle" font-size="21">three mobile runs</text>
+    <text x="930" y="887" text-anchor="middle" font-size="21">Assert the median</text>
+    <text x="930" y="915" text-anchor="middle" fill="#646b62" font-size="19">LCP · CLS · TBT</text>
+    <text x="1260" y="887" text-anchor="middle" font-size="21">Performance ≥85%</text>
+    <text x="1260" y="915" text-anchor="middle" fill="#646b62" font-size="18">Accessibility, best practices, SEO: 100%</text>
+  </g>
+  <g fill="none" stroke="#256352" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
+    <!-- Row 1 icons: code file, quality gear, test beaker -->
+    <g transform="translate(107 -25)"><path d="M486 360h27l15 15v50h-42z M513 360v16h15 M496 392l8-7-8-7 M520 378l-8 7 8 7" /></g>
+    <g transform="translate(92 -25)"><path d="M795 380l8-5-2-9 10-6 7 6 9-2 4-9 12 1 3 9 9 4 8-6 9 7-3 9 5 8 9 2 1 12-9 4-3 9 6 8-7 9-9-3-8 5-2 10-12 1-4-9-9-3-8 6-9-7 3-9-5-8-10-2-1-12 9-4 3-9-6-8 7-9z M833 388a11 11 0 1 0 0 22a11 11 0 1 0 0-22" /></g>
+    <g transform="translate(125 -25)"><path d="M1116 362h36 M1124 362v25l-20 35q-4 7 5 7h50q9 0 5-7l-20-35v-25 M1113 411h43 M1121 400h28" /></g>
+    <!-- Row 2 icons: browser, accessible person, visual image -->
+    <g transform="translate(107 0)"><rect x="486" y="578" width="54" height="52" rx="5" /><path d="M486 592h54 M496 585h1 M505 585h1 M514 585h1" /></g>
+    <g transform="translate(93 0)"><circle cx="817" cy="587" r="7" /><path d="M817 596v19 M803 603l14-5 14 5 M808 626l9-11 9 11 M804 596l-7 8 M830 596l7 8" /></g>
+    <g transform="translate(122 0)"><rect x="1110" y="578" width="56" height="52" rx="5" /><circle cx="1126" cy="592" r="4" /><path d="M1117 621l14-14 9 9 7-7 13 12" /></g>
+    <!-- Row 3 icons: lighthouse, performance bars, metric gauge -->
+    <g transform="translate(107 0)"><path d="M500 798h28l-6 42h-16z M496 840h36 M504 798v-8h20v8 M510 790v-10h8v10 M491 786l-9-5 M537 786l9-5 M488 799l-10-1 M539 799l10-1 M495 810l-9 4 M532 810l9 4 M514 841v-14" /></g>
+    <g transform="translate(93 0)"><path d="M800 841v-21h10v21z M819 841v-35h10v35z M838 841v-48h10v48z M795 841h59" /></g>
+    <g transform="translate(122 0)"><circle cx="1138" cy="814" r="25" /><path d="M1138 789v-8 M1129 779h18 M1138 814l12-11 M1138 814v1" /></g>
+  </g>
+  <g fill="none" stroke="#256352" stroke-linecap="round" stroke-width="4" marker-end="url(#arrow)">
+    <path d="M730 380h106" />
+    <path d="M1025 380h157" />
+    <path d="M730 595h106" />
+    <path d="M1025 595h157" />
+    <path d="M730 812h106" />
+    <path d="M1025 812h157" />
+  </g>
+</svg>

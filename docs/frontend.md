@@ -130,6 +130,16 @@ available. A newer feature needs the fallback its guide describes.
 | Keyboard input | The send shortcut ignores Enter during IME composition (`isComposing`)                                                                       |
 | Announcements  | One polite `status` for a pending reply, `alert` for failures, and polite copy feedback that reports clipboard failures as well as successes |
 
+## Frontend quality checks
+
+![Local frontend checks and pull request gates cover code quality, browser and accessibility behavior, visual baselines, and mobile Lighthouse budgets](images/chatbot-template-frontend-quality.webp)
+
+The frontend checks include lint, types, Fallow, unit coverage, Playwright
+flows, axe-core audits, light and dark visual baselines, and Lighthouse CI.
+See the [automated checks](development.md#automated-checks) and
+[browser and visual tests](development.md#browser-and-visual-tests) for the
+full thresholds and commands.
+
 ## Working on the frontend
 
 | Task                                 | Command / guidance                                                                                            |
