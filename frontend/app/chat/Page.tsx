@@ -36,7 +36,7 @@ const CHAT_MAIN_SX = {
   display: "flex",
   flexDirection: "column",
   height: "100dvh",
-  minHeight: "min-content",
+  minHeight: 0,
   maxWidth: "920px",
   px: { xs: 2, sm: 4 },
 } as const;

@@ -176,3 +176,21 @@ test("preserves access to controls through document scrolling at short viewport 
   ).toBeInViewport();
   await expect(page.getByText(/AI can make mistakes/u)).toBeInViewport();
 });
+
+test("excludes conversation content from root scroll height", async ({
+  page,
+}) => {
+  const reply = Array.from(
+    { length: 40 },
+    (_paragraph, index) =>
+      `Paragraph ${index + 1}: A little more detail to read.`,
+  ).join("\n\n");
+  await mockChatReply(page, reply);
+  await openChat(page);
+  await sendMessage(page, "Give me a detailed reply.");
+  const metrics = await page.evaluate(() => ({
+    scrollHeight: document.documentElement.scrollHeight,
+    innerHeight: globalThis.innerHeight,
+  }));
+  expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.innerHeight);
+});
