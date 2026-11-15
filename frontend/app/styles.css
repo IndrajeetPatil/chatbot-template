@@ -26,8 +26,7 @@
 
 html,
 body {
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100dvh;
   overscroll-behavior: none;
 }
 
@@ -38,7 +37,7 @@ body {
 }
 
 #root {
-  height: 100%;
+  min-height: 100dvh;
 }
 
 a {

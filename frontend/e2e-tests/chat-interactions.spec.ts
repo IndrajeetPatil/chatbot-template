@@ -144,17 +144,35 @@ test("locks root overscroll and disables conversation overscroll bouncing", asyn
     const html = globalThis.getComputedStyle(document.documentElement);
     const body = globalThis.getComputedStyle(document.body);
     return {
-      htmlOverflow: html.overflow,
       htmlOverscroll: html.overscrollBehavior,
-      bodyOverflow: body.overflow,
       bodyOverscroll: body.overscrollBehavior,
       canScrollWindow:
         document.documentElement.scrollHeight > globalThis.innerHeight,
     };
   });
-  expect(rootMetrics.htmlOverflow).toBe("hidden");
   expect(rootMetrics.htmlOverscroll).toBe("none");
-  expect(rootMetrics.bodyOverflow).toBe("hidden");
   expect(rootMetrics.bodyOverscroll).toBe("none");
   expect(rootMetrics.canScrollWindow).toBe(false);
+});
+
+test("preserves access to controls through document scrolling at short viewport heights", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 200 });
+  await openChat(page);
+  const canScrollWindow = await page.evaluate(
+    () => document.documentElement.scrollHeight > globalThis.innerHeight,
+  );
+  expect(canScrollWindow).toBe(true);
+
+  await page.evaluate(() => {
+    globalThis.scrollTo(0, document.documentElement.scrollHeight);
+  });
+  await expect(
+    page.getByRole("button", { name: /Select assistant model/u }),
+  ).toBeInViewport();
+  await expect(
+    page.getByRole("button", { name: /Switch to (light|dark) mode/u }),
+  ).toBeInViewport();
+  await expect(page.getByText(/AI can make mistakes/u)).toBeInViewport();
 });
