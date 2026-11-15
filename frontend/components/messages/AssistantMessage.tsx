@@ -1,3 +1,4 @@
+import CheckIcon from "@mui/icons-material/Check";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { lazy, Suspense, useRef, useState } from "react";
@@ -6,7 +7,7 @@ import type { ReactElement } from "react";
 // Keep Markdown, highlighting, KaTeX and their styles off the initial path.
 const RichMarkdown = lazy(async () => import("./RichMarkdown"));
 
-const COPIED_FEEDBACK_MS = 2000;
+const COPY_FEEDBACK_MS = 2000;
 
 const COPY_BUTTON_SX = {
   mt: 1,
@@ -14,42 +15,81 @@ const COPY_BUTTON_SX = {
   color: "text.secondary",
 } as const;
 
+// Hidden from view but kept in the accessibility tree so updates are announced.
+const VISUALLY_HIDDEN_SX = {
+  position: "absolute",
+  width: "1px",
+  height: "1px",
+  overflow: "hidden",
+  clipPath: "inset(50%)",
+  whiteSpace: "nowrap",
+} as const;
+
+type CopyResult = "copied" | "failed";
+
+const COPY_FEEDBACK: Record<CopyResult, string> = {
+  copied: "Copied",
+  failed: "Copy failed",
+};
+
 interface CopyButtonProps {
   content: string;
 }
 
-async function copyToClipboard(text: string): Promise<void> {
+async function copyToClipboard(text: string): Promise<CopyResult> {
   try {
     await navigator.clipboard.writeText(text);
+    return "copied";
   } catch {
-    // The clipboard can be unavailable or denied; the button stays usable.
+    // The clipboard can be unavailable or denied; report it and stay usable.
+    return "failed";
   }
 }
 
 function CopyButton({ content }: CopyButtonProps) {
-  const [copied, setCopied] = useState(false);
+  const [result, setResult] = useState<CopyResult | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleCopy = () => {
-    void copyToClipboard(content);
+  const handleCopy = async () => {
+    const outcome = await copyToClipboard(content);
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
-    setCopied(true);
+    setResult(outcome);
     timerRef.current = setTimeout(() => {
-      setCopied(false);
-    }, COPIED_FEEDBACK_MS);
+      setResult(null);
+    }, COPY_FEEDBACK_MS);
   };
 
+  const feedback = result === null ? "" : COPY_FEEDBACK[result];
+
   return (
-    <Tooltip title={copied ? "Copied!" : "Copy entire message"}>
-      <IconButton
-        onClick={handleCopy}
-        sx={COPY_BUTTON_SX}
+    <>
+      <Tooltip title={feedback || "Copy entire message"}>
+        <IconButton
+          aria-label="Copy entire message"
+          onClick={() => {
+            void handleCopy();
+          }}
+          sx={COPY_BUTTON_SX}
+        >
+          {result === "copied" ? (
+            <CheckIcon fontSize="small" />
+          ) : (
+            <ContentCopyIcon fontSize="small" />
+          )}
+        </IconButton>
+      </Tooltip>
+      {/* Outside the button, whose children are presentational, so screen
+          readers hear the same outcome the tooltip shows. */}
+      <Box
+        component="span"
+        aria-live="polite"
+        sx={VISUALLY_HIDDEN_SX}
       >
-        <ContentCopyIcon fontSize="small" />
-      </IconButton>
-    </Tooltip>
+        {feedback}
+      </Box>
+    </>
   );
 }
 
