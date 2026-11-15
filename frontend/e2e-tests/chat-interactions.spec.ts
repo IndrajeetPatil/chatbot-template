@@ -133,3 +133,28 @@ for (const width of [320, 390]) {
     ).toBe(true);
   });
 }
+
+test("locks root overscroll and disables conversation overscroll bouncing", async ({
+  page,
+}) => {
+  await openChat(page);
+  const conversation = page.getByRole("region", { name: "Chat conversation" });
+  await expect(conversation).toHaveCSS("overscroll-behavior", "none");
+  const rootMetrics = await page.evaluate(() => {
+    const html = globalThis.getComputedStyle(document.documentElement);
+    const body = globalThis.getComputedStyle(document.body);
+    return {
+      htmlOverflow: html.overflow,
+      htmlOverscroll: html.overscrollBehavior,
+      bodyOverflow: body.overflow,
+      bodyOverscroll: body.overscrollBehavior,
+      canScrollWindow:
+        document.documentElement.scrollHeight > globalThis.innerHeight,
+    };
+  });
+  expect(rootMetrics.htmlOverflow).toBe("hidden");
+  expect(rootMetrics.htmlOverscroll).toBe("none");
+  expect(rootMetrics.bodyOverflow).toBe("hidden");
+  expect(rootMetrics.bodyOverscroll).toBe("none");
+  expect(rootMetrics.canScrollWindow).toBe(false);
+});

@@ -233,14 +233,21 @@ page background.
 
 - One centered column, at most 920px wide, filling `100dvh`: header, scrolling
   conversation, then the composer pinned at the bottom.
+
 - Spacing follows MUI's 8px unit. Horizontal page padding is 16px on mobile and
   32px from the `sm` breakpoint; messages are spaced 24px apart.
+
 - The bottom padding respects `env(safe-area-inset-bottom)`.
+
 - The `sm` breakpoint (600px) is the only layout switch. Below it, the
   suggestion grid collapses from three columns to one, the overline is hidden,
   and dropdown icons are dropped.
+
 - Code blocks and display equations scroll horizontally inside the reply; the
   page itself never scrolls sideways (minimum width 320px).
+
+- Root and conversation overscroll behaviors are locked (`overscroll-behavior: none`)
+  to keep the viewport stable and avoid rubber-band overscroll bounce.
 
 ## Elevation & Depth
 

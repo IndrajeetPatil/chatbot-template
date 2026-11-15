@@ -35,7 +35,7 @@ const SKIP_LINK_SX = {
 const CHAT_MAIN_SX = {
   display: "flex",
   flexDirection: "column",
-  height: "100dvh",
+  height: "100%",
   minHeight: 0,
   maxWidth: "920px",
   px: { xs: 2, sm: 4 },

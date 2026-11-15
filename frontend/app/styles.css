@@ -24,6 +24,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body {
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -31,7 +38,7 @@ body {
 }
 
 #root {
-  min-height: 100dvh;
+  height: 100%;
 }
 
 a {

@@ -126,7 +126,7 @@ function MessageList({
         sx={{
           width: "100%",
           overflowY: "auto",
-          overscrollBehavior: "contain",
+          overscrollBehavior: "none",
           scrollbarWidth: "thin",
           "&:focus-visible": {
             outline: "2px solid",
