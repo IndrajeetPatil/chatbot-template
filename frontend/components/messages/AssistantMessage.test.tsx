@@ -1,9 +1,14 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
-import { vi, expect, test } from "vite-plus/test";
+import { afterEach, expect, test, vi } from "vite-plus/test";
 
 import { renderWithTheme } from "@/client/testUtils";
 
 import AssistantMessage from "./AssistantMessage";
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 test.each(["light", "dark"] as const)(
   "copies the original markdown in %s mode",
@@ -53,7 +58,7 @@ test("announces a denied clipboard write instead of claiming success", async () 
 });
 
 test("clears the copy announcement after a short delay", async () => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
   vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
   renderWithTheme(
     <AssistantMessage

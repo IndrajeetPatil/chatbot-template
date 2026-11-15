@@ -133,3 +133,64 @@ for (const width of [320, 390]) {
     ).toBe(true);
   });
 }
+
+test("locks root overscroll and disables conversation overscroll bouncing", async ({
+  page,
+}) => {
+  await openChat(page);
+  const conversation = page.getByRole("region", { name: "Chat conversation" });
+  await expect(conversation).toHaveCSS("overscroll-behavior", "none");
+  const rootMetrics = await page.evaluate(() => {
+    const html = globalThis.getComputedStyle(document.documentElement);
+    const body = globalThis.getComputedStyle(document.body);
+    return {
+      htmlOverscroll: html.overscrollBehavior,
+      bodyOverscroll: body.overscrollBehavior,
+      canScrollWindow:
+        document.documentElement.scrollHeight > globalThis.innerHeight,
+    };
+  });
+  expect(rootMetrics.htmlOverscroll).toBe("none");
+  expect(rootMetrics.bodyOverscroll).toBe("none");
+  expect(rootMetrics.canScrollWindow).toBe(false);
+});
+
+test("preserves access to controls through document scrolling at short viewport heights", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 200 });
+  await openChat(page);
+  const canScrollWindow = await page.evaluate(
+    () => document.documentElement.scrollHeight > globalThis.innerHeight,
+  );
+  expect(canScrollWindow).toBe(true);
+
+  await page.evaluate(() => {
+    globalThis.scrollTo(0, document.documentElement.scrollHeight);
+  });
+  await expect(
+    page.getByRole("button", { name: /Select assistant model/u }),
+  ).toBeInViewport();
+  await expect(
+    page.getByRole("button", { name: /Switch to (?:light|dark) mode/u }),
+  ).toBeInViewport();
+  await expect(page.getByText(/AI can make mistakes/u)).toBeInViewport();
+});
+
+test("excludes conversation content from root scroll height", async ({
+  page,
+}) => {
+  const reply = Array.from(
+    { length: 40 },
+    (_paragraph, index) =>
+      `Paragraph ${index + 1}: A little more detail to read.`,
+  ).join("\n\n");
+  await mockChatReply(page, reply);
+  await openChat(page);
+  await sendMessage(page, "Give me a detailed reply.");
+  const metrics = await page.evaluate(() => ({
+    scrollHeight: document.documentElement.scrollHeight,
+    innerHeight: globalThis.innerHeight,
+  }));
+  expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.innerHeight);
+});

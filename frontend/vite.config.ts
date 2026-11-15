@@ -79,7 +79,7 @@ export default defineConfig({
         cache: false,
       },
       "accessibility-audit": {
-        command: "PLAYWRIGHT_PORT=3100 playwright test accessibility.spec.ts",
+        command: `PLAYWRIGHT_PORT=${process.env["PLAYWRIGHT_PORT"] ?? "3100"} playwright test accessibility.spec.ts`,
         dependsOn: ["build"],
         cache: false,
       },

@@ -24,6 +24,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body {
+  min-height: 100dvh;
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   min-width: 320px;
