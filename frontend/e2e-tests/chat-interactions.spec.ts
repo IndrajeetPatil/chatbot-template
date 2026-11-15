@@ -172,7 +172,7 @@ test("preserves access to controls through document scrolling at short viewport 
     page.getByRole("button", { name: /Select assistant model/u }),
   ).toBeInViewport();
   await expect(
-    page.getByRole("button", { name: /Switch to (light|dark) mode/u }),
+    page.getByRole("button", { name: /Switch to (?:light|dark) mode/u }),
   ).toBeInViewport();
   await expect(page.getByText(/AI can make mistakes/u)).toBeInViewport();
 });
