@@ -96,7 +96,39 @@ informs the web foundations:
 | Implemented                       | Document foundations, security headers, nginx caching/compression, PWA metadata                |
 | Source files                      | `frontend/index.html`, `frontend/frontend.nginx.conf`, `frontend/app/favicon/site.webmanifest` |
 | Out of scope for the internal SPA | Broader SEO, internationalization, agent-readiness categories                                  |
-| Revisit on deployment changes     | HSTS at TLS termination; fonts as WOFF2                                                        |
+| Revisit on deployment changes     | HSTS at TLS termination                                                                        |
+
+### Modern web platform
+
+Before writing or reviewing HTML, CSS, or client-side behavior, look up the
+pattern in Chrome's
+[Modern Web Guidance](https://developer.chrome.com/docs/modern-web-guidance)
+and follow the guide it returns, rather than a remembered or library-specific
+workaround. Agents load the
+[`modern-web-guidance` skill](https://github.com/GoogleChrome/modern-web-guidance)
+for this. Without the skill, run its CLI at a pinned version:
+
+```sh
+npx -y modern-web-guidance@1.0.0 search "copy button"
+npx -y modern-web-guidance@1.0.0 retrieve copy-button
+npx -y modern-web-guidance@1.0.0 legacy-scan frontend --json
+```
+
+`legacy-scan` reports no findings for `frontend/`. It checks only the subset
+of guides with deterministic rules, so feature-specific searches still apply.
+
+Browser support follows Vite's default `build.target`, Baseline Widely
+available. A newer feature needs the fallback its guide describes.
+
+| Concern        | Practice in this app                                                                                                                         |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fonts          | Local Geist variable fonts as WOFF2 with `font-display: swap`; only the body font is preloaded, with `crossorigin`                           |
+| Loading        | Markdown, highlighting, KaTeX, and their styles load lazily with the first reply                                                             |
+| Viewport       | Dynamic viewport units (`dvh`) size the page, so mobile browser chrome cannot clip the composer                                              |
+| Color schemes  | `color-scheme` and `theme-color` meta tags, MUI color schemes, and `light-dark()` for Markdown colors                                        |
+| Motion         | A global `prefers-reduced-motion` rule stops animations, transitions, and smooth scrolling                                                   |
+| Keyboard input | The send shortcut ignores Enter during IME composition (`isComposing`)                                                                       |
+| Announcements  | One polite `status` for a pending reply, `alert` for failures, and polite copy feedback that reports clipboard failures as well as successes |
 
 ## Working on the frontend
 
