@@ -56,3 +56,32 @@ published versions.
   ```
 
 - **Source artwork:** `images/illustration-art/quality-base.webp`
+
+## Frontend quality checks
+
+![Local frontend checks and pull request gates cover code quality, browser and accessibility behavior, visual baselines, and mobile Lighthouse budgets](images/chatbot-template-frontend-quality.webp)
+
+- **Files:** `docs/images/chatbot-template-frontend-quality.svg` and
+  `docs/images/chatbot-template-frontend-quality.webp`
+
+- **Content:** Local checks and required pull request gates feed code and
+  structure checks, browser and accessibility checks, visual baselines, and
+  mobile Lighthouse budgets. Coverage and quality thresholds are documented
+  in `docs/development.md`.
+
+- **Artwork prompt:**
+
+  ```text
+  Create a polished landscape background of softly textured warm off-white
+  paper, subtle natural fibers, very faint hand-painted sage green washes, and
+  tiny unobtrusive desk objects cropped into the far corners (a small fern
+  leaf, pencil, and faint paperclip), leaving the central 85 percent clear and
+  nearly uniform for overlaid diagram text and SVG icons. Calm, understated,
+  low saturation, crisp and clean at large size. No text, letters, numbers,
+  logos, icons, diagrams, lines, borders, cards, gradients, dark areas,
+  shadows, or watermark.
+  ```
+
+- **Source artwork:** `images/illustration-art/frontend-quality-base.webp`
+
+- **Icon sources:** Hand-authored SVG shapes; no external assets.
