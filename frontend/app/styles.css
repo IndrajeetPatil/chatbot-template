@@ -3,7 +3,7 @@
   font-display: swap;
   font-style: normal;
   font-weight: 100 900;
-  src: url("./fonts/geist-vf.woff") format("woff");
+  src: url("./fonts/geist-vf.woff2") format("woff2");
 }
 
 @font-face {
@@ -11,7 +11,7 @@
   font-display: swap;
   font-style: normal;
   font-weight: 100 900;
-  src: url("./fonts/geist-mono-vf.woff") format("woff");
+  src: url("./fonts/geist-mono-vf.woff2") format("woff2");
 }
 
 :root {
@@ -31,7 +31,7 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 a {
