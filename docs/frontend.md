@@ -100,15 +100,18 @@ informs the web foundations:
 
 ### Modern web platform
 
-Before writing or reviewing HTML, CSS, or client-side behavior, search
-[Modern Web Guidance](https://www.npmjs.com/package/modern-web-guidance) for
-the pattern and follow the guide it returns, rather than a remembered or
-library-specific workaround:
+Before writing or reviewing HTML, CSS, or client-side behavior, look up the
+pattern in Chrome's
+[Modern Web Guidance](https://developer.chrome.com/docs/modern-web-guidance)
+and follow the guide it returns, rather than a remembered or library-specific
+workaround. Agents load the
+[`modern-web-guidance` skill](https://github.com/GoogleChrome/modern-web-guidance)
+for this. Without the skill, run its CLI at a pinned version:
 
 ```sh
-npx -y modern-web-guidance@latest search "copy button"
-npx -y modern-web-guidance@latest retrieve copy-button
-npx -y modern-web-guidance@latest legacy-scan frontend --json
+npx -y modern-web-guidance@1.0.0 search "copy button"
+npx -y modern-web-guidance@1.0.0 retrieve copy-button
+npx -y modern-web-guidance@1.0.0 legacy-scan frontend --json
 ```
 
 `legacy-scan` reports no findings for `frontend/`. It checks only the subset
