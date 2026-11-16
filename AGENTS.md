@@ -17,6 +17,11 @@ Start with the [documentation index](docs/README.md).
   internals. If no behavior can observe a surviving mutant, delete the code;
   do not add mutmut exclusions.
 
+- Keep `.github/workflows/actions.lock` in sync with the workflows: after any
+  `uses:` change, run `vp run actions-lock` (or `make actions-lock`; needs the
+  `gh-actions-lock` version pinned in `scripts/actions-lock.sh`). Never edit it
+  by hand.
+
 ## Before you change
 
 | Area                  | Read first                                                                                                                                                                                                                                                                                                                |

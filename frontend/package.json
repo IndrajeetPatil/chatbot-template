@@ -7,6 +7,8 @@
     "lint:css": "biome lint --error-on-warnings",
     "fallow": "fallow doctor --quiet && fallow --fail-on-issues --quiet",
     "css-quality": "node scripts/css-quality.ts",
+    "actions-lock": "../scripts/actions-lock.sh",
+    "actions-lock:verify": "../scripts/actions-lock.sh --verify",
     "type-coverage": "type-coverage --strict --at-least 100"
   },
   "dependencies": {
