@@ -95,6 +95,12 @@ workflow-lint:
 	@echo "$(COLOR_BLUE_BG)Linting GitHub Actions workflows with actionlint...$(COLOR_RESET)"
 	uv tool run --from actionlint-py==$(ACTIONLINT_VERSION) actionlint -color
 
+actions-lock:
+	@bash scripts/actions-lock.sh
+
+actions-lock-verify:
+	@bash scripts/actions-lock.sh --verify
+
 # Pass a GitHub token when one is available so github.com links are not rate-limited.
 link-check:
 	@echo "$(COLOR_BLUE_BG)Checking links with lychee...$(COLOR_RESET)"
@@ -211,7 +217,7 @@ e2e-update:
 .PHONY: setup service update-deps \
 	lint format type-check test type-coverage clean cache-clean docker-clean \
 	fallow css-quality accessibility-audit lighthouse \
-	commitlint markdown-lint markdown-format spell-check workflow-lint link-check security-scan secret-scan-ci codex-security file-naming hooks \
+	commitlint markdown-lint markdown-format spell-check workflow-lint actions-lock actions-lock-verify link-check security-scan secret-scan-ci codex-security file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \
 	docker-build docker-up docker-down \

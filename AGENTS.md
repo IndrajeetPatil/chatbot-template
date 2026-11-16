@@ -8,12 +8,19 @@ Start with the [documentation index](docs/README.md).
 - The frontend toolchain is Vite+ (`vp`), configured in `frontend/vite.config.ts`.
   Use `vp` commands (`vp test`, `vp lint`, `vp run <script>`, `vp exec <bin>`,
   `vp pm <command>`) rather than calling pnpm, Node.js, or Vitest directly.
+
 - If `pyrefly` (backend type coverage) and `ty` disagree, `ty` wins.
+
 - Meet coverage and mutation gates by asserting behavior at boundaries we own
   (the outbound request, the streamed output, the logged event), not by
   executing lines, recomputing expected values, or asserting a dependency's
   internals. If no behavior can observe a surviving mutant, delete the code;
   do not add mutmut exclusions.
+
+- Keep `.github/workflows/actions.lock` in sync with the workflows: after any
+  `uses:` change, run `vp run actions-lock` (or `make actions-lock`; needs the
+  `gh-actions-lock` version pinned in `scripts/actions-lock.sh`). Never edit it
+  by hand.
 
 ## Before you change
 
@@ -38,14 +45,19 @@ rule off only with a comment saying why.
 
 - Use the shared `pull-requests` skill when available. Keep the title and body
   in sync with the net diff, updating stale metadata without asking.
+
 - Open PRs ready for review, never as drafts.
+
 - For frontend source changes (components, styles, client behavior, assets),
   follow [frontend-pr-screenshot](.agents/skills/frontend-pr-screenshot/SKILL.md)
   unprompted, even when the rendering is unchanged.
+
 - After each push, wait for CI and fix failures until required checks pass.
+
 - Request Codex review if it is not automatic. Fix merited findings, reply to
   and resolve addressed threads, and re-request review after changes, until
   Codex approves the current head with no unresolved findings. If Codex usage is
   exhausted, leave the PR open and report it.
+
 - When CI is green and Codex has approved the current head, recheck both and
   squash-merge with the owner's `gh` credentials, respecting branch protection.
