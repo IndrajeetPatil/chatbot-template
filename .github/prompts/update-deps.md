@@ -155,8 +155,7 @@ skips SHA256 verification for versions absent from its table.
 Check current first-party documentation and releases for every action used in
 `.github/workflows/`. Pin third-party actions by full commit SHA with a
 `# vX.Y.Z` comment; when updating, replace both the SHA and the version comment
-with the latest stable release. Reference `IndrajeetPatil/workflows` reusable
-workflows as `@main`, never a SHA.
+with the latest stable release.
 
 Take each SHA from the GitHub API, never from a web page or changelog:
 `gh api repos/<owner>/<repo>/commits/<tag> --jq .sha` resolves the tag,
