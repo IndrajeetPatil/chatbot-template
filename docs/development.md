@@ -328,7 +328,7 @@ Never rely on CI reporter exit codes alone.
 | ------------- | ------------------------------- |
 | General       | `FORCE_COLOR`, `CLICOLOR_FORCE` |
 | uv / prek     | `UV_COLOR`, `PREK_COLOR`        |
-| zizmor        | `--color=always`                |
+| zizmor        | zizmor-action `color` (default) |
 | pytest        | `--color=yes`                   |
 
 ## File naming
@@ -375,9 +375,9 @@ Never rely on CI reporter exit codes alone.
   Synchronize Docker, installer checksum, and documentation.
   Do not substitute a local hook.
 - prek CI uses cached hook environments and the upstream hook's uv, with no
-  separate uv setup. prek 0.5.5 is the newest version covered by prek-action
-  v3.0.1's SHA256 table; CI runs pre-commit, while local commit-msg and pre-push
-  stages remain configured.
+  separate uv setup. It installs prek-action's `latest-known` version, the
+  newest in its SHA256 table; CI runs pre-commit, while local commit-msg and
+  pre-push stages remain configured.
 - Pin and SHA256-verify downloaded tools; see [security](security.md).
 - Upgrade Vite+ in one change: the `vite-plus` catalog entry in
   `frontend/pnpm-workspace.yaml`, `VP_VERSION` and checksums in

@@ -29,11 +29,8 @@ jobs:
           node-version-file: .node-version
           cache-toolchain: true
           cache: true
-          run-install: false
-
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: vp install --frozen-lockfile -- --loglevel=warn
+          run-install: |
+            args: [--frozen-lockfile, --, --loglevel=warn]
 
       # The Pages build is static; no backend or Azure credentials are needed.
       - name: Build demo

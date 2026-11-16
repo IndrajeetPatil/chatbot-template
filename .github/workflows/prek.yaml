@@ -37,8 +37,9 @@ jobs:
       - name: Run pre-commit hooks
         uses: j178/prek-action@7b101f8338a08d2bd6fdb3625e4e7692428763a3 # v3.1.1
         with:
-          # Latest version covered by this action revision's SHA256 table.
-          prek-version: "0.5.11"
+          # Newest prek in this action revision's SHA256 table, so every
+          # download stays checksum-verified and moves with the action pin.
+          prek-version: latest-known
           extra-args: --all-files --stage pre-commit
         env:
           # CI checks main too; this guard is for local commits only.
