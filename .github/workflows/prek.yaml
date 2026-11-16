@@ -35,10 +35,10 @@ jobs:
       # prek manages Python hook environments; ty's hook supplies its own uv.
       # The action caches those environments and forces coloured output.
       - name: Run pre-commit hooks
-        uses: j178/prek-action@44924fe9ef4a6f88253c4b6b1bf11c689d3ce53d # v3.1.0
+        uses: j178/prek-action@7b101f8338a08d2bd6fdb3625e4e7692428763a3 # v3.1.1
         with:
           # Latest version covered by this action revision's SHA256 table.
-          prek-version: "0.5.6"
+          prek-version: "0.5.11"
           extra-args: --all-files --stage pre-commit
         env:
           # CI checks main too; this guard is for local commits only.
