@@ -49,7 +49,8 @@ jobs:
           # Needs exact versions: Vite+ from the catalog, Node from .node-version.
           cache-toolchain: true
           cache: true
-          run-install: false
+          run-install: |
+            args: [--frozen-lockfile, --, --loglevel=warn]
 
       - name: Install ls-lint
         run: bash scripts/install-ls-lint.sh
@@ -60,11 +61,9 @@ jobs:
           uv python install
           uv sync --frozen
 
-      - name: Install frontend dependencies
+      - name: Install Playwright Chromium
         working-directory: ./frontend
-        run: |
-          vp install --frozen-lockfile -- --loglevel=warn
-          vp exec playwright install --with-deps chromium
+        run: vp exec playwright install --with-deps chromium
 
       # Keep the same gates as make qa, with independently readable step logs.
       - name: File naming

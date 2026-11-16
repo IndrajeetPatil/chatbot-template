@@ -77,13 +77,12 @@ jobs:
           # Needs exact versions: Vite+ from the catalog, Node from .node-version.
           cache-toolchain: true
           cache: true
-          run-install: false
+          run-install: |
+            args: [--frozen-lockfile, --, --loglevel=warn]
 
-      - name: Install frontend dependencies
+      - name: Install Playwright Chromium
         working-directory: ./frontend
-        run: |
-          vp install --frozen-lockfile -- --loglevel=warn
-          vp exec playwright install --with-deps chromium
+        run: vp exec playwright install --with-deps chromium
 
       - name: Run frontend unit tests in Chromium
         run: make frontend-test
