@@ -145,10 +145,10 @@ effect on QA versus pre-commit in the PR. Likewise keep the `rumdl` version in
 the `Makefile` (`markdown-lint`, `markdown-format`) equal to the frozen
 `rumdl-pre-commit` tag. Run both `make qa` and `make hooks`.
 
-The `prek-version` in `.github/workflows/prek.yaml` is a separate CI pin.
-Before updating it or the prek action, confirm the action's bundled checksum
-table includes that prek version's Linux x86_64 archive. The action silently
-skips SHA256 verification for versions absent from its table.
+CI installs prek with `prek-version: latest-known`, the newest version in the
+prek action's bundled checksum table, so updating the action pin also updates
+prek. Never replace it with `latest` or a version absent from that table: the
+action silently skips SHA256 verification for those.
 
 ## GitHub Actions
 
