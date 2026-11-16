@@ -328,7 +328,7 @@ Never rely on CI reporter exit codes alone.
 | ------------- | ------------------------------- |
 | General       | `FORCE_COLOR`, `CLICOLOR_FORCE` |
 | uv / prek     | `UV_COLOR`, `PREK_COLOR`        |
-| zizmor        | `--color=always`                |
+| zizmor        | zizmor-action `color` (default) |
 | pytest        | `--color=yes`                   |
 
 ## File naming
