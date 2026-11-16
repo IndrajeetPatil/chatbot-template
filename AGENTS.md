@@ -22,6 +22,11 @@ Start with the [documentation index](docs/README.md).
   `gh-actions-lock` version pinned in `scripts/actions-lock.sh`). Never edit it
   by hand.
 
+- Do not use reusable workflows (e.g. from `IndrajeetPatil/workflows`); they are
+  not appropriate for a template repository. Keep all workflows standalone and
+  self-contained so downstream repositories created from this template remain
+  fully independent.
+
 ## Before you change
 
 | Area                  | Read first                                                                                                                                                                                                                                                                                                                |
