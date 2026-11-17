@@ -2,9 +2,9 @@ allowBuilds:
   fallow: true
 minimumReleaseAge: 0
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.6.0
+  vite: npm:@voidzero-dev/vite-plus-core@8.3.8000
   vitest: 5.1.0
-  vite-plus: 1.6.0
+  vite-plus: 1.7.0
   "@vitest/browser-playwright": 5.1.0
   "@vitest/coverage-v8": 5.1.0
 overrides:
@@ -15,22 +15,20 @@ overrides:
   minimatch@<11.0.1: "^11.0.1"
 peerDependencyRules:
   allowAny:
-    - vite
     - vitest
   allowedVersions:
-    vite: "*"
     vitest: "*"
 minimumReleaseAgeExclude:
   - vite-plus
   - "@voidzero-dev/*"
   - oxlint
   - "@oxlint/*"
-  - oxlint-tsgolint
-  - "@oxlint-tsgolint/*"
   - oxfmt
   - "@oxfmt/*"
   - vitest
   - "@vitest/*"
+  - tsrs
+  - "@tsrs/*"
 
 # Refuse to install under a Node or pnpm older than package.json's `engines`;
 # pnpm only warns otherwise. pnpm 11+ ignores this setting in .npmrc.
