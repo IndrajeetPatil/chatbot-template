@@ -23,6 +23,14 @@ id = "ty"
 args = ["--directory=backend", "--isolated"]
 
 [[repos]]
+repo = "https://github.com/Apakottur/unref"
+rev = "d7e9b1753549ee410beee2415f0727eca2812c6f" # frozen: v0.3.0
+
+[[repos.hooks]]
+id = "unref"
+args = ["--config=backend/pyproject.toml", "backend"]
+
+[[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
 rev = "df5a947a3af0dba56640e644c6b9316184749168" # frozen: v0.3.4
 

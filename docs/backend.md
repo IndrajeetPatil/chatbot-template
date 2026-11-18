@@ -223,12 +223,13 @@ without Azure or network I/O.
 
 ## Checks
 
-| Task                        | Command / requirement                                                       |
-| --------------------------- | --------------------------------------------------------------------------- |
-| Backend QA                  | `make qa-backend`: naming, Ruff, ty, audit, tests, mutants, type coverage   |
-| OpenAPI without credentials | `make backend-validate-api-schema`                                          |
-| FastAPI and Locust          | `make backend-load-test`; chat requests consume Azure quota                 |
-| Mutation testing            | `make backend-mutation-test`; no surviving mutants                          |
-| CPU benchmarks              | `make backend-benchmark`; measured by CodSpeed in CI                        |
-| Coverage                    | 100% lines, branches, and type annotations                                  |
-| Shared policies             | [Development](development.md), [security](security.md)                      |
+| Task                        | Command / requirement                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| Backend QA                  | `make qa-backend`: naming, Ruff, ty, unref, audit, tests, mutants, and type coverage |
+| Dead code                   | `make backend-deadcode`: check for unused code with unref                            |
+| OpenAPI without credentials | `make backend-validate-api-schema`                                                   |
+| FastAPI and Locust          | `make backend-load-test`; chat requests consume Azure quota                          |
+| Mutation testing            | `make backend-mutation-test`; no surviving mutants                                   |
+| CPU benchmarks              | `make backend-benchmark`; measured by CodSpeed in CI                                 |
+| Coverage                    | 100% lines, branches, and type annotations                                           |
+| Shared policies             | [Development](development.md), [security](security.md)                               |

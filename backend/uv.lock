@@ -1692,6 +1692,7 @@ dev = [
     { name = "pytest-random-order" },
     { name = "ruff" },
     { name = "ty" },
+    { name = "unref" },
 ]
 
 [package.metadata]
@@ -1721,6 +1722,7 @@ dev = [
     { name = "pytest-random-order", specifier = ">=1.2.0" },
     { name = "ruff", specifier = ">=0.16.9" },
     { name = "ty", specifier = "==0.0.104" },
+    { name = "unref", specifier = ">=0.3.0" },
 ]
 
 [[package]]
@@ -1892,6 +1894,22 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ff/50/0195198eb1d75bab716bb0a813abea4cc394bfa17a92a189f021a34859af/typing_inspection-0.4.5.tar.gz", hash = "sha256:7f16c411e7930dc79596d42ab44672a3fe5f60eb34b781a1647e7872363120c7", size = 81194, upload-time = "2026-11-04T14:13:23.774Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/0c/ea2544850a7c135e15033a5c7a8e7211136184b7ae63e2239d557c2b3019/typing_inspection-0.4.5-py3-none-any.whl", hash = "sha256:bc210535442b39e1bf2805e0c7a17dfd6a4ace760c84c7f7d16245d23a6b1c39", size = 14874, upload-time = "2026-11-04T14:13:22.616Z" },
+]
+
+[[package]]
+name = "unref"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ea/56/94a734828acd85ca9d092df22e92722697fb0ba2a4c0c7bb17071f4815d0/unref-0.3.0.tar.gz", hash = "sha256:54b1060573b221ee41154ba02ab57f34e3182ed844010b6ef5c983a3e23aa1d2", size = 226691, upload-time = "2026-11-18T18:03:30.039Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/51/e96991991f9d041bc9df96ccd976bf37f15eb8579f4c3d1da91f0628a4c3/unref-0.3.0-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:da4040e9dc5eec062c9a03aadc8db02ccafda017ff751285b9ab1fff49173d34", size = 2513100, upload-time = "2026-11-18T18:03:19.502Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/c1/a715f0e9d3ea3f8054da77a5972ee50dcbd55848cc5fbe87786e07ef70cb/unref-0.3.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:fe6e042b658d6984ae9e7b8d9eb13aafa7bf1804d9b33b25a08cb59392807dbc", size = 2385416, upload-time = "2026-11-18T18:03:21.122Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/ad/083b655aa758d6816999b5b0e935c2e3674d6598e6cd8f46fe41a0b92305/unref-0.3.0-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:53f782cac9135874df49eb377b74e78cc1d05cb5da45481fe0d0f965c9ab481d", size = 2580903, upload-time = "2026-11-18T18:03:22.378Z" },
+    { url = "https://files.pythonhosted.org/packages/88/54/f9feba4fcfcaee220cd0f1c9cba5d0f9024a25f559cbef81683d56d45880/unref-0.3.0-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:c33b80396133d09d5f55fd71b921c3ed38aceb18e0c15e769d0a4ad184c2717f", size = 2581489, upload-time = "2026-11-18T18:03:23.715Z" },
+    { url = "https://files.pythonhosted.org/packages/f2/fa/f088e4fbf3153e16e8c47cca75b8c13f683198180580c35f3bb78be9b275/unref-0.3.0-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:f91b3fc94a87b1b248701c1e0dee7f72d0b34a279e83f6aa59ce50b8cb206160", size = 2472367, upload-time = "2026-11-18T18:03:24.861Z" },
+    { url = "https://files.pythonhosted.org/packages/29/fe/f77935e46d30668d6b689937b32d566775b34c60a52c803dd06a8fe89307/unref-0.3.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:05ed3c1a606bc958efbad440bf445de78697a53e0d1bd52a4b3f859472ec864c", size = 2650793, upload-time = "2026-11-18T18:03:25.986Z" },
+    { url = "https://files.pythonhosted.org/packages/99/7e/7f41e6fc0370f1bfa99b712096102b553beef8e2b1b377df1311b7de7e19/unref-0.3.0-py3-none-win_amd64.whl", hash = "sha256:11624c585fcf0ac8c95640056a76975a656e319b125763bf1743592403b29a48", size = 2577578, upload-time = "2026-11-18T18:03:27.305Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/61/a85ee8ce3ed6298c3b0b14c33d00399e2a2fa2e21367f8ca2ec43dc13d0e/unref-0.3.0-py3-none-win_arm64.whl", hash = "sha256:5b5b364276fc877c265a423eb0319caf7ae1dc6850d49a521884aed47a29e9c8", size = 2426454, upload-time = "2026-11-18T18:03:28.741Z" },
 ]
 
 [[package]]

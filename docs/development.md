@@ -22,46 +22,47 @@ the blue, orange, and purple accents. See [automated checks](#automated-checks),
 Run commands from the repository root. Start with `make setup` and `make service`;
 see [getting started](getting-started.md) for service selection and configuration.
 
-| Command                                          | Purpose                                                                            |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| `make qa`                                        | Format, lint, spelling, workflows, links, types, schema, coverage, mutants, audits |
-| `make qa-backend` / `make qa-frontend`           | Checks for one service, including its dependency audit                             |
-| `make format` / `make lint`                      | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl, typos, actionlint  |
-| `make type-check` / `make type-coverage`         | Static types / 100% type coverage                                                  |
-| `make test`                                      | Backend and frontend unit tests with coverage                                      |
-| `make backend-snapshot-update`                   | Rewrite backend inline snapshots for review                                        |
-| `make backend-mutation-test`                     | Backend mutation testing with mutmut; fails on any surviving mutant                |
-| `make backend-benchmark`                         | Backend CodSpeed benchmarks; correctness only outside CI                           |
-| `make backend-validate-api-schema`               | Generate and validate OpenAPI without credentials                                  |
-| `make backend-load-test`                         | Start the backend and Locust against it                                            |
-| `make fallow` / `make css-quality`               | Frontend codebase / CSS analysis                                                   |
-| `make accessibility-audit`                       | Build and run the axe-core audit                                                   |
-| `make lighthouse`                                | Build and run Lighthouse CI                                                        |
-| `make e2e-test` / `make e2e-test-docker`         | Local browser behavior / pinned visual renderer                                    |
-| `make e2e-update`                                | Regenerate visual baselines for review                                             |
-| `make file-naming` / `make markdown-lint`        | Repository naming / Markdown checks                                                |
-| `make spell-check` / `make workflow-lint`        | typos (`_typos.toml`) / actionlint with shellcheck                                 |
-| `make actions-lock` / `make actions-lock-verify` | Regenerate and verify GitHub Actions lockfile / verify only                        |
-| `make link-check`                                | lychee over the repository (`lychee.toml`)                                         |
-| `make hooks`                                     | All pre-commit hooks across tracked files                                          |
-| `make update-deps`                               | Refresh dependencies, package revisions, and hook pins                             |
-| `make frontend-toolchain-align`                  | Align Vite+ aliases and Vitest packages with the local CLI                         |
-| `make frontend-check CHECK_ARGS=`                | Verify frontend format, lint, and types together                                   |
-| `make security-scan` / `make secret-scan-ci`     | Checkov / full-history Gitleaks with Docker                                        |
-| `make docker-build`                              | Build both service images                                                          |
-| `make setup` / `make service`                    | Restore dependencies / run selected development services                           |
-| `make frontend-preview`                          | Build and preview the frontend                                                     |
-| `make docker-up` / `make docker-down`            | Build/start / stop Compose services                                                |
-| `make markdown-format`                           | Format Markdown and align tables                                                   |
-| `make clean`                                     | Remove generated output and local / unused shared caches                           |
+| Command                                          | Purpose                                                                                           |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `make qa`                                        | Format, lint, spelling, workflows, links, types, dead code, schema, coverage, mutants, and audits |
+| `make qa-backend` / `make qa-frontend`           | Checks for one service, including its dependency audit                                            |
+| `make deadcode` / `make backend-deadcode`        | Backend dead-code checks with unref                                                               |
+| `make format` / `make lint`                      | Ruff, Oxfmt, rumdl / ls-lint, Ruff, Oxlint, Biome (CSS), rumdl, typos, actionlint                 |
+| `make type-check` / `make type-coverage`         | Static types / 100% type coverage                                                                 |
+| `make test`                                      | Backend and frontend unit tests with coverage                                                     |
+| `make backend-snapshot-update`                   | Rewrite backend inline snapshots for review                                                       |
+| `make backend-mutation-test`                     | Backend mutation testing with mutmut; fails on any surviving mutant                               |
+| `make backend-benchmark`                         | Backend CodSpeed benchmarks; correctness only outside CI                                          |
+| `make backend-validate-api-schema`               | Generate and validate OpenAPI without credentials                                                 |
+| `make backend-load-test`                         | Start the backend and Locust against it                                                           |
+| `make fallow` / `make css-quality`               | Frontend codebase / CSS analysis                                                                  |
+| `make accessibility-audit`                       | Build and run the axe-core audit                                                                  |
+| `make lighthouse`                                | Build and run Lighthouse CI                                                                       |
+| `make e2e-test` / `make e2e-test-docker`         | Local browser behavior / pinned visual renderer                                                   |
+| `make e2e-update`                                | Regenerate visual baselines for review                                                            |
+| `make file-naming` / `make markdown-lint`        | Repository naming / Markdown checks                                                               |
+| `make spell-check` / `make workflow-lint`        | typos (`_typos.toml`) / actionlint with shellcheck                                                |
+| `make actions-lock` / `make actions-lock-verify` | Regenerate and verify GitHub Actions lockfile / verify only                                       |
+| `make link-check`                                | lychee over the repository (`lychee.toml`)                                                        |
+| `make hooks`                                     | All pre-commit hooks across tracked files                                                         |
+| `make update-deps`                               | Refresh dependencies, package revisions, and hook pins                                            |
+| `make frontend-toolchain-align`                  | Align Vite+ aliases and Vitest packages with the local CLI                                        |
+| `make frontend-check CHECK_ARGS=`                | Verify frontend format, lint, and types together                                                  |
+| `make security-scan` / `make secret-scan-ci`     | Checkov / full-history Gitleaks with Docker                                                       |
+| `make docker-build`                              | Build both service images                                                                         |
+| `make setup` / `make service`                    | Restore dependencies / run selected development services                                          |
+| `make frontend-preview`                          | Build and preview the frontend                                                                    |
+| `make docker-up` / `make docker-down`            | Build/start / stop Compose services                                                               |
+| `make markdown-format`                           | Format Markdown and align tables                                                                  |
+| `make clean`                                     | Remove generated output and local / unused shared caches                                          |
 
 Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), and
 [frontend.mk](../makefiles/frontend.mk). Frontend targets run through Vite+ (`vp`).
 Frontend QA runs `vp run qa`: one `vp check --fix` replaces separate format,
 lint, and type-check passes, and lint warnings fail it like errors. CI uses
-`vp check` without fixes, followed by the remaining gates in separate steps.
-Individual format, lint, and type-check Make targets remain available for
-focused work.
+`make qa-backend` and `make qa-frontend` to execute the full suites as
+aggregate steps. Individual format, lint, and type-check Make targets remain
+available for focused work.
 `make format` includes Markdown and, through `make config-format`, root YAML,
 JSON, and TOML files formatted by the frontend's Oxfmt; CI checks both with
 `FMT_ARGS=--check`. rumdl enforces aligned table columns in lint, QA, and hooks.
@@ -141,7 +142,7 @@ make qa
 | Type checker             | TypeScript (`vp check`)                                  | ty                   |
 | Type annotation coverage | type-coverage                                            | pyrefly              |
 | Security linting         | Oxlint (`react/no-danger`, `id-denylist`, DOM sink bans) | \-                   |
-| Codebase analysis        | Fallow                                                   | \-                   |
+| Codebase analysis        | Fallow                                                   | unref                |
 | CSS code quality         | @projectwallace/css-code-quality                         | \-                   |
 | Accessibility audit      | @axe-core/playwright (WCAG A/AA, best practices)         | \-                   |
 | Markdown linting         | rumdl                                                    | rumdl                |
@@ -313,12 +314,12 @@ Keep every check and threshold intact when changing reporting.
 
 | Report                  | Required behavior                                                                                          |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
-| QA workflow             | Separate steps for the same `make qa` gates, except the axe audit, which runs in the `e2e` job             |
+| QA workflow             | Run `make qa-backend` and `make qa-frontend` as aggregate steps rather than separate per-tool steps        |
 | Fallow                  | `doctor`, GitHub annotations, compact job summary; retain `--fail-on-issues --quiet --summary` enforcement |
 | Local Fallow            | Full report; health scores and template statistics remain advisory                                         |
 | CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                     |
 | Dependency installation | Retain warnings and errors                                                                                 |
-| Build / Lighthouse      | Collapsible measurement details                                                                            |
+| Lighthouse              | Run median assertions across five mobile-throttled runs and upload report                                  |
 | Tests                   | Compact progress plus failure diagnostics, annotations, coverage/HTML artifacts                            |
 | Docker                  | Pass color variables explicitly; mirror the repository layout so annotations retain `frontend/` paths      |
 

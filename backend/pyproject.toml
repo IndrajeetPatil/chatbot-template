@@ -31,6 +31,7 @@ dev = [
   "ruff>=0.16.9",
   # Match the frozen ty-pre-commit hook in ../prek.toml.
   "ty==0.0.104",
+  "unref>=0.3.0",
 ]
 
 [tool.uv]
@@ -45,6 +46,13 @@ extend_exclude = ["benchmarks"]
 
 [tool.deptry.per_rule_ignores]
 DEP004 = ["locust"]
+
+[tool.unref]
+used-names = ["model_config"]
+
+[[tool.unref.overrides]]
+paths = ["backend/locustfile.py", "locustfile.py"]
+used-names = ["*"]
 
 [tool.ruff]
 fix = true
