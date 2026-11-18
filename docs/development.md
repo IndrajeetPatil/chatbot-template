@@ -60,9 +60,9 @@ Targets live in [Makefile](../Makefile), [backend.mk](../makefiles/backend.mk), 
 [frontend.mk](../makefiles/frontend.mk). Frontend targets run through Vite+ (`vp`).
 Frontend QA runs `vp run qa`: one `vp check --fix` replaces separate format,
 lint, and type-check passes, and lint warnings fail it like errors. CI uses
-`vp check` without fixes, followed by the remaining gates in separate steps.
-Individual format, lint, and type-check Make targets remain available for
-focused work.
+`make qa-backend` and `make qa-frontend` to execute the full suites as
+aggregate steps. Individual format, lint, and type-check Make targets remain
+available for focused work.
 `make format` includes Markdown and, through `make config-format`, root YAML,
 JSON, and TOML files formatted by the frontend's Oxfmt; CI checks both with
 `FMT_ARGS=--check`. rumdl enforces aligned table columns in lint, QA, and hooks.
@@ -314,7 +314,7 @@ Keep every check and threshold intact when changing reporting.
 
 | Report                  | Required behavior                                                                                          |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
-| QA workflow             | Separate steps for the same `make qa` gates, except the axe audit, which runs in the `e2e` job             |
+| QA workflow             | Run `make qa-backend` and `make qa-frontend` as aggregate steps rather than separate per-tool steps        |
 | Fallow                  | `doctor`, GitHub annotations, compact job summary; retain `--fail-on-issues --quiet --summary` enforcement |
 | Local Fallow            | Full report; health scores and template statistics remain advisory                                         |
 | CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                     |

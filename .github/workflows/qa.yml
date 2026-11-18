@@ -23,11 +23,10 @@ env:
 
 jobs:
   qa:
+    name: Code quality checks
     runs-on: ubuntu-latest
-    # Lighthouse CI posts its results as commit statuses.
     permissions:
       contents: read
-      statuses: write
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,121 +64,17 @@ jobs:
         working-directory: ./frontend
         run: vp exec playwright install --with-deps chromium
 
-      # Keep the same gates as make qa, with independently readable step logs.
-      - name: File naming
-        run: make file-naming
+      - name: Backend quality checks
+        run: make qa-backend
 
-      - name: Backend lint and format
-        run: make backend-format backend-lint
+      - name: Frontend quality checks
+        run: make qa-frontend
 
       - name: Configuration format
         run: make config-format FMT_ARGS=--check
 
-      - name: Frontend format, lint, and types
-        run: make frontend-check CHECK_ARGS=
-
-      - name: CSS lint
-        run: make frontend-css-lint
-
-      - name: Markdown lint
-        run: make markdown-lint
-
-      - name: Python types
-        run: make backend-type-check
-
-      - name: Python dead code
-        run: make backend-deadcode
-
-      - name: Backend dependency audit
-        run: make backend-audit
-
-      - name: API schema
-        run: make backend-validate-api-schema
-
-      - name: Backend tests and coverage
-        run: make backend-test
-
-      - name: Backend mutation testing
-        run: make backend-mutation-test
-
-      - name: Frontend tests and coverage
-        run: make frontend-test
-
-      - name: Fallow findings
-        id: fallow
-        working-directory: ./frontend
-        # Keep config validation and the human reporter as the enforcement gate.
-        # CI formats are for presentation; do not rely on their exit status.
-        run: |
-          vp exec fallow doctor --quiet
-          vp exec fallow --quiet --format github-annotations
-          vp exec fallow --fail-on-issues --quiet --summary
-
-      - name: Fallow summary
-        if: ${{ !cancelled() && steps.fallow.outcome != 'skipped' }}
-        working-directory: ./frontend
-        run: vp exec fallow --quiet --format github-summary >> "$GITHUB_STEP_SUMMARY"
-
-      - name: CSS quality
-        run: make css-quality
-
-      - name: Build frontend
-        run: |
-          echo "::group::Production build details"
-          trap 'echo "::endgroup::"' EXIT
-          make frontend-build
-
-      - name: Python and TypeScript type coverage
-        run: make type-coverage
-
       - name: Infrastructure security
         run: make security-scan
-
-      - name: Lighthouse CI (collect)
-        working-directory: ./frontend
-        run: |
-          echo "::group::Lighthouse measurement details"
-          trap 'echo "::endgroup::"' EXIT
-          vp dlx @lhci/cli@0.15.1 collect
-
-      - name: Lighthouse CI (scores)
-        working-directory: ./frontend
-        run: |
-          vp node -e "
-            const fs = require('fs');
-            const dir = '.lighthouseci';
-            const files = fs.readdirSync(dir).filter(f => f.startsWith('lhr-') && f.endsWith('.json'));
-            const byUrl = {};
-            for (const f of files) {
-              const r = JSON.parse(fs.readFileSync(dir + '/' + f, 'utf8'));
-              (byUrl[r.finalUrl] = byUrl[r.finalUrl] || []).push(r);
-            }
-            const cats = ['performance','accessibility','best-practices','seo'];
-            const U = 32, C = 16;
-            const lpad = (s, n) => String(s).padStart(n);
-            const rpad = (s, n) => String(s).length >= n ? String(s).slice(0, n-1) + '…' : String(s).padEnd(n);
-            console.log('\n' + rpad('URL', U) + cats.map(c => lpad(c, C)).join(''));
-            console.log('-'.repeat(U + C * cats.length));
-            for (const [url, runs] of Object.entries(byUrl)) {
-              const avg = cats.map(c => {
-                const scores = runs.map(r => r.categories[c]?.score ?? null).filter(s => s !== null);
-                return scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*100) : '-';
-              });
-              const label = url.replace('http://localhost','').replace(/\/$/,'') || '/';
-              console.log(rpad(label, U) + avg.map(s => lpad(s, C)).join(''));
-            }
-            console.log('');
-          "
-
-      - name: Lighthouse CI (assert)
-        working-directory: ./frontend
-        run: vp dlx @lhci/cli@0.15.1 assert
-
-      - name: Lighthouse CI (upload)
-        working-directory: ./frontend
-        run: vp dlx @lhci/cli@0.15.1 upload --githubToken="$GITHUB_TOKEN"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -190,7 +85,7 @@ jobs:
             frontend/coverage
 
   repo-lint:
-    name: Spelling, workflows and links
+    name: Spelling, workflows, and links
     runs-on: ubuntu-latest
 
     steps:
@@ -200,6 +95,9 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      - name: Markdown lint
+        run: make markdown-lint
 
       - name: Spelling (typos)
         run: make spell-check
