@@ -23,7 +23,6 @@ env:
 
 jobs:
   qa:
-    name: Code quality checks
     runs-on: ubuntu-latest
     # Lighthouse CI posts its results as commit statuses.
     permissions:
