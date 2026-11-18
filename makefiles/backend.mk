@@ -9,6 +9,7 @@ FASTAPI_RUNSERVER=uv run --env-file .env fastapi dev app/main.py --host 127.0.0.
 OPENAPI_SCHEMA=TESTING=true uv run python -c "from app.main import app; app.openapi()"
 LOCUST=uv run locust -H http://127.0.0.1:8000/
 MUTMUT=uv run mutmut
+UNREF=uv run unref
 
 backend-setup:
 	cd $(BACKEND_DIR) && uv sync --frozen
@@ -25,6 +26,10 @@ backend-format:
 backend-type-check:
 	@echo "$(COLOR_BLUE_BG)Running backend static type checking with ty...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYTYPECHECK)
+
+backend-deadcode:
+	@echo "$(COLOR_BLUE_BG)Running backend dead-code checks with unref...$(COLOR_RESET)"
+	cd $(BACKEND_DIR) && $(UNREF)
 
 backend-audit:
 	@echo "$(COLOR_BLUE_BG)Auditing backend dependencies...$(COLOR_RESET)"
@@ -85,7 +90,7 @@ run-backend:
 	@echo "$(COLOR_BLUE_BG)Running backend server...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(FASTAPI_RUNSERVER)
 
-.PHONY: backend-setup backend-lint backend-format backend-type-check backend-audit \
+.PHONY: backend-setup backend-lint backend-format backend-type-check backend-deadcode backend-audit \
 	backend-validate-api-schema backend-test backend-mutation-test backend-benchmark \
 	backend-snapshot-update \
 	backend-type-coverage backend-load-test backend-clean run-backend

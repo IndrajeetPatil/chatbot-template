@@ -87,6 +87,9 @@ jobs:
       - name: Python types
         run: make backend-type-check
 
+      - name: Python dead code
+        run: make backend-deadcode
+
       - name: Backend dependency audit
         run: make backend-audit
 

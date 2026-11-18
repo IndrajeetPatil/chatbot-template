@@ -71,6 +71,9 @@ css-quality: frontend-css-quality
 accessibility-audit: frontend-accessibility-audit
 lighthouse: frontend-lighthouse
 
+# Convenience aliases for backend tools
+deadcode: backend-deadcode
+
 # Project-wide tools
 commitlint:
 	@echo "$(COLOR_BLUE_BG)Running commit message linting with commitlint...$(COLOR_RESET)"
@@ -187,9 +190,9 @@ hooks:
 	prek run --all-files
 
 # Quality assurance suites
-qa-backend: file-naming backend-lint backend-format backend-type-check backend-audit backend-test backend-mutation-test backend-type-coverage
+qa-backend: file-naming backend-lint backend-format backend-type-check backend-deadcode backend-audit backend-test backend-mutation-test backend-type-coverage
 qa-frontend: file-naming frontend-qa
-qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint spell-check workflow-lint link-check backend-type-check backend-validate-api-schema backend-audit backend-test backend-mutation-test backend-type-coverage frontend-qa security-scan
+qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint spell-check workflow-lint link-check backend-type-check backend-deadcode backend-validate-api-schema backend-audit backend-test backend-mutation-test backend-type-coverage frontend-qa security-scan
 
 # Run targets
 run: service
@@ -216,7 +219,7 @@ e2e-update:
 
 .PHONY: setup service update-deps \
 	lint format type-check test type-coverage clean cache-clean docker-clean \
-	fallow css-quality accessibility-audit lighthouse \
+	fallow deadcode css-quality accessibility-audit lighthouse \
 	commitlint markdown-lint markdown-format spell-check workflow-lint actions-lock actions-lock-verify link-check security-scan secret-scan-ci codex-security file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \

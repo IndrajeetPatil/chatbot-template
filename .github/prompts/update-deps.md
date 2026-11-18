@@ -138,12 +138,12 @@ its latest tag but records the resolved **commit SHA** in `rev` with a
 same SHA-pinning convention the repo uses for GitHub Actions. Never rewrite a
 frozen `rev` back to a bare mutable tag.
 
-Compare the resolved `ty` version in `backend/uv.lock` with the frozen
-`ty-pre-commit` version in `prek.toml`. If the hook lags PyPI, consider keeping
-the project at the hook's version; if they differ, mention the skew and its
-effect on QA versus pre-commit in the PR. Likewise keep the `rumdl` version in
-the `Makefile` (`markdown-lint`, `markdown-format`) equal to the frozen
-`rumdl-pre-commit` tag. Run both `make qa` and `make hooks`.
+Compare the resolved `ty` and `unref` versions in `backend/uv.lock` with the
+frozen `ty-pre-commit` and `unref` versions in `prek.toml`. If either hook lags
+PyPI, consider keeping the project at the hook's version; if they differ,
+mention the skew and its effect on QA versus pre-commit in the PR. Likewise
+keep the `rumdl` version in the `Makefile` (`markdown-lint`, `markdown-format`)
+equal to the frozen `rumdl-pre-commit` tag. Run both `make qa` and `make hooks`.
 
 CI installs prek with `prek-version: latest-known`, the newest version in the
 prek action's bundled checksum table, so updating the action pin also updates
