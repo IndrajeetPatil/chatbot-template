@@ -319,7 +319,7 @@ Keep every check and threshold intact when changing reporting.
 | Local Fallow            | Full report; health scores and template statistics remain advisory                                         |
 | CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                     |
 | Dependency installation | Retain warnings and errors                                                                                 |
-| Build / Lighthouse      | Collapsible measurement details                                                                            |
+| Lighthouse              | Run median assertions across five mobile-throttled runs and upload report                                  |
 | Tests                   | Compact progress plus failure diagnostics, annotations, coverage/HTML artifacts                            |
 | Docker                  | Pass color variables explicitly; mirror the repository layout so annotations retain `frontend/` paths      |
 
