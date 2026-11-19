@@ -29,7 +29,7 @@ project dependencies and lockfiles:
 
 - Update the CLI with `vp update -g agent-browser`; `vp list -g` shows its
   version.
-- Run the Skills CLI as `vp dlx skills@1.8.1` (`npx` fails where `devEngines`
+- Run the Skills CLI as `vp dlx skills@1.9.0` (`npx` fails where `devEngines`
   requires pnpm). If `npm view skills version` is newer, review its changelog
   and bump the pin here.
 - If `check` reports an upstream update, review any local edits, then run

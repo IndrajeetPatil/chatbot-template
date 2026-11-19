@@ -30,12 +30,12 @@ dev = [
   "pytest>=9.1.1",
   "ruff>=0.16.9",
   # Match the frozen ty-pre-commit hook in ../prek.toml.
-  "ty==0.0.104",
+  "ty==0.0.107",
   "unref>=0.3.0",
 ]
 
 [tool.uv]
-required-version = "==0.13.8"
+required-version = "==0.13.9"
 
 [tool.uv.audit]
 ignore = []

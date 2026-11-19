@@ -17,6 +17,7 @@ validation all run against the exact same tree the PR will submit:
 - **Launched by `make codex-security`?** The branch already exists — the make
   target created it off `origin/main` and ran the scan against it. Confirm with
   `git status` and stay on it; do **not** create another branch.
+
 - **Running this prompt standalone?** Create the branch yourself now, *before*
   you run the scan or touch a file, with a name that is unique per run (include
   a timestamp) so a repeat run does not collide with a leftover branch:
