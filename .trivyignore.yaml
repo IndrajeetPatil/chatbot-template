@@ -1,1 +1,22 @@
-vulnerabilities: []
+vulnerabilities:
+  - id: CVE-2026-121810
+    purls:
+      - pkg:deb/debian/nginx
+      - pkg:deb/debian/nginx-common
+      - pkg:deb/debian/nginx-light
+    expired_at: "2027-05-31T00:00:00Z"
+    statement: Rechecked 2026-11-19; Trivy reports no fixed Debian trixie package version in the frontend runtime image.
+  - id: CVE-2026-123007
+    purls:
+      - pkg:deb/debian/nginx
+      - pkg:deb/debian/nginx-common
+      - pkg:deb/debian/nginx-light
+    expired_at: "2027-05-31T00:00:00Z"
+    statement: Rechecked 2026-11-19; Trivy reports no fixed Debian trixie package version in the frontend runtime image.
+  - id: CVE-2026-123633
+    purls:
+      - pkg:deb/debian/nginx
+      - pkg:deb/debian/nginx-common
+      - pkg:deb/debian/nginx-light
+    expired_at: "2027-05-31T00:00:00Z"
+    statement: Rechecked 2026-11-19; Trivy reports no fixed Debian trixie package version in the frontend runtime image.
