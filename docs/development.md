@@ -24,6 +24,7 @@ see [getting started](getting-started.md) for service selection and configuratio
 
 | Command                                          | Purpose                                                                                           |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `make help`                                      | Show available targets and their descriptions                                                     |
 | `make qa`                                        | Format, lint, spelling, workflows, links, types, dead code, schema, coverage, mutants, and audits |
 | `make qa-backend` / `make qa-frontend`           | Checks for one service, including its dependency audit                                            |
 | `make deadcode` / `make backend-deadcode`        | Backend dead-code checks with unref                                                               |
