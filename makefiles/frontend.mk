@@ -16,6 +16,15 @@ CHECK_ARGS ?= --fix
 # Markdown belongs to rumdl and Python to Ruff.
 CONFIG_FILES = $(shell git ls-files -- '*.yml' '*.yaml' '*.json' '*.toml' '*.mjs' ':!:frontend/**')
 
+##@ Frontend
+
+run-frontend: ## Run frontend development server with Vite+
+	@echo "$(COLOR_BLUE_BG)Running frontend server...$(COLOR_RESET)"
+	cd $(FRONTEND_DIR) && $(VP) dev --host 127.0.0.1 --strictPort
+
+frontend-preview: ## Preview built frontend locally
+	cd $(FRONTEND_DIR) && $(VP) run preview
+
 frontend-setup: ## Install locked frontend dependencies with Vite+
 	cd $(FRONTEND_DIR) && $(VP) install --frozen-lockfile
 
@@ -80,13 +89,13 @@ frontend-lighthouse: ## Run Lighthouse CI audits against frontend preview
 	@echo "$(COLOR_BLUE_BG)Running Lighthouse CI...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) run lighthouse
 
-frontend-e2e-test: ## Run frontend Playwright end-to-end tests locally
+frontend-e2e-test:
 	@echo "$(COLOR_BLUE_BG)Running end-to-end tests...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) run test:e2e $(E2E_ARGS)
 
 # Dedicated Linux dependencies never overwrite the host installation.
 # Mirror the repository layout so annotations resolve frontend/ paths from /work.
-frontend-e2e-test-docker: ## Run frontend Playwright end-to-end tests in Docker
+frontend-e2e-test-docker:
 	docker run --rm --init --ipc=host --platform linux/amd64 \
 		-e HOST_UID="$$(id -u)" -e HOST_GID="$$(id -g)" \
 		-e CI=1 -e FORCE_COLOR -e CLICOLOR_FORCE -e GITHUB_ACTIONS \
@@ -110,13 +119,6 @@ frontend-clean: ## Clean frontend build artifacts and caches
 	       $(FRONTEND_DIR)/.fallow \
 	       $(FRONTEND_DIR)/.lighthouseci
 	rm -f $(FRONTEND_DIR)/*.tsbuildinfo
-
-run-frontend: ## Run frontend development server with Vite+
-	@echo "$(COLOR_BLUE_BG)Running frontend server...$(COLOR_RESET)"
-	cd $(FRONTEND_DIR) && $(VP) dev --host 127.0.0.1 --strictPort
-
-frontend-preview: ## Preview built frontend locally
-	cd $(FRONTEND_DIR) && $(VP) run preview
 
 .PHONY: frontend-setup frontend-toolchain-align frontend-check frontend-qa frontend-css-lint \
 	frontend-lint frontend-format config-format frontend-type-check \

@@ -11,6 +11,12 @@ LOCUST=uv run locust -H http://127.0.0.1:8000/
 MUTMUT=uv run mutmut
 UNREF=uv run unref
 
+##@ Backend
+
+run-backend: ## Run FastAPI backend development server
+	@echo "$(COLOR_BLUE_BG)Running backend server...$(COLOR_RESET)"
+	cd $(BACKEND_DIR) && $(FASTAPI_RUNSERVER)
+
 backend-setup: ## Install locked backend Python dependencies
 	cd $(BACKEND_DIR) && uv sync --frozen
 
@@ -85,10 +91,6 @@ backend-clean: ## Clean backend build artifacts and caches
 	       $(BACKEND_DIR)/.codspeed \
 	       $(BACKEND_DIR)/mutants
 	find $(BACKEND_DIR) -type d -name __pycache__ -prune -exec rm -rf {} +
-
-run-backend: ## Run FastAPI backend development server
-	@echo "$(COLOR_BLUE_BG)Running backend server...$(COLOR_RESET)"
-	cd $(BACKEND_DIR) && $(FASTAPI_RUNSERVER)
 
 .PHONY: backend-setup backend-lint backend-format backend-type-check backend-deadcode backend-audit \
 	backend-validate-api-schema backend-test backend-mutation-test backend-benchmark \
