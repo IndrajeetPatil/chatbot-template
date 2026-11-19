@@ -109,6 +109,7 @@ returns a plain-text reply stream through the proxy.
 
 | Task                               | Guide / command                                        |
 | ---------------------------------- | ------------------------------------------------------ |
+| Discover available commands        | `make help`                                            |
 | Understand the app                 | [Frontend](frontend.md), [backend](backend.md)         |
 | Validate a change                  | `make qa`, then [development guidance](development.md) |
 | Refresh dependencies and hook pins | `make update-deps`                                     |
