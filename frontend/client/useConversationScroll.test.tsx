@@ -46,12 +46,25 @@ function Conversation({ contentHeight }: { contentHeight: number }) {
   );
 }
 
+// Wait two frames so browser scroll events from the initial resize settle
+// before subsequent renders run.
+async function settleFrames() {
+  const { promise, resolve } = Promise.withResolvers<undefined>();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      resolve(undefined);
+    });
+  });
+  await promise;
+}
+
 async function openConversation() {
   const rendered = render(<Conversation contentHeight={1000} />);
   const viewport = screen.getByTestId("viewport");
   await waitFor(() => {
     expect(viewport.scrollTop).toBe(1000 - VIEWPORT_HEIGHT);
   });
+  await settleFrames();
   return { viewport, ...rendered };
 }
 
@@ -76,13 +89,7 @@ test("preserves reading position until the reader jumps back to the latest reply
   // polling the unchanged position could succeed before the browser renders.
   await act(async () => {
     rerender(<Conversation contentHeight={1600} />);
-    const { promise, resolve } = Promise.withResolvers<undefined>();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        resolve(undefined);
-      });
-    });
-    await promise;
+    await settleFrames();
   });
   expect(viewport.scrollTop).toBe(200);
   fireEvent.click(jumpButton);

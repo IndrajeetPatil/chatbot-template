@@ -12,10 +12,12 @@ published versions.
 
 - **Files:** `docs/images/chatbot-template-architecture.svg` and
   `docs/images/chatbot-template-architecture.webp`
+
 - **Content:** The browser sends `POST /api/v1/chat` through the frontend proxy.
   FastAPI forwards the request to Azure OpenAI for a streaming completion.
   Text deltas return through FastAPI, the proxy, and the browser. Azure
   credentials remain on the server.
+
 - **Artwork prompt:**
 
   ```text
@@ -37,12 +39,14 @@ published versions.
 
 - **Files:** `docs/images/chatbot-template-quality-harness.svg` and
   `docs/images/chatbot-template-quality-harness.webp`
+
 - **Content:** Local entry points (`make qa`, `make hooks`, and focused targets)
   and GitHub Actions feed six groups of checks: code and types; structure;
   behavior; browser and accessibility; security and supply chain; conventions
   and review evidence. Backend coverage is 100% for lines and branches.
   Frontend coverage is at least 90% for statements, functions, and lines, and
   75% for branches.
+
 - **Artwork prompt:**
 
   ```text

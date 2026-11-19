@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-expected_version=v0.4.1
+expected_version=v0.5.0
 
 version=$(gh actions-lock --version 2>/dev/null) || {
   echo "Install github/gh-actions-lock $expected_version." >&2
