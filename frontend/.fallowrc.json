@@ -1,5 +1,6 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
+  "failOnParseError": true,
   "ignorePatterns": ["**/*.css"],
   "ignoreDependencies": ["@emotion/react", "@emotion/styled"],
   "rules": {
@@ -16,7 +17,16 @@
     "duplicate-exports": "error",
     "circular-dependencies": "error",
     "type-only-dependencies": "error",
-    "test-only-dependencies": "error"
+    "test-only-dependencies": "error",
+    "unused-component-props": "error",
+    "dev-dependencies-in-production": "error",
+    "unlisted-binaries": "error",
+    "stale-suppressions": "error",
+    "re-export-cycle": "error",
+    "package-cycle": "error",
+    "unused-catalog-entries": "error",
+    "empty-catalog-groups": "error",
+    "unused-dependency-overrides": "error"
   },
   "duplicates": {
     "mode": "strict",
@@ -26,6 +36,9 @@
   "health": {
     "maxCyclomatic": 5,
     "maxCognitive": 5,
+    "maxCrap": 15.0,
+    "maxUnitSize": 60,
+    "maxFileLines": 500,
     "coverage": "coverage/coverage-final.json"
   }
 }
