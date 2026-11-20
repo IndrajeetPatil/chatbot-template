@@ -11,8 +11,9 @@ function gtag(): void {
   globalThis.window.dataLayer.push(arguments);
 }
 
-function initializeAnalytics(): void {
-  const { hostname } = globalThis.location;
+function initializeAnalytics(
+  hostname: string = globalThis.location.hostname,
+): void {
   if (
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||
