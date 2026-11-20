@@ -301,10 +301,9 @@ package schema to match the lockfile.
 | Execution                | `doctor` first, then all analyses with `--fail-on-issues`; standalone `make fallow`, also in both QA suites |
 | CSS                      | Separate CSS quality and accessibility gates                                                                |
 
-- Keep `src/main.tsx` as the runtime entry; discover package scripts and test/tool
+- Discover the runtime entry (`src/main.tsx`), package scripts, and test/tool
   entry points through built-in plugins. Do not add QA scripts as runtime entries.
-- Limit dependency exceptions to `@emotion/react`, `@emotion/styled` (MUI peers),
-  and `oxc-transform-react` (loaded by the React plugin's `compiler` option).
+- Limit dependency exceptions to `@emotion/react` and `@emotion/styled` (MUI peers).
 - Recheck exceptions after upgrades. Directly imported QA packages and deleted
   mock paths need no exemptions.
 - No blanket test exclusions or disabling unresolved-import checks.
