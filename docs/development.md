@@ -293,13 +293,13 @@ flowchart LR
 tests. Its [configuration](../frontend/.fallowrc.json) uses the installed
 package schema to match the lockfile.
 
-| Analysis                 | Policy                                                                                                      |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| Dead code / dependencies | All configured rules are errors, including unresolved imports, unused exports/types/packages, and cycles    |
-| Duplication              | Strict mode; minimum 50 tokens and 4 lines; built-in generated/test/mock exclusions retained                |
-| Complexity               | Cyclomatic and cognitive complexity each ≤5, including application code, scripts, and tests                 |
-| Execution                | `doctor` first, then all analyses with `--fail-on-issues`; standalone `make fallow`, also in both QA suites |
-| CSS                      | Separate CSS quality and accessibility gates                                                                |
+| Analysis                 | Policy                                                                                                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dead code / dependencies | All configured rules are errors, including unresolved imports, unused component props, unused exports/types/packages, and cycles                                                     |
+| Duplication              | Strict mode; minimum 50 tokens and 4 lines; built-in generated/test/mock exclusions retained                                                                                         |
+| Health and complexity    | Cyclomatic and cognitive complexity each ≤5, CRAP score <15.0, unit size ≤60 lines, file length ≤500 lines, and project health score ≥90                                             |
+| Execution                | `doctor` readiness check, combined analysis with `--fail-on-issues`, and health score gate with `--min-score 90`; fails on parse errors; standalone `make fallow`, also in QA suites |
+| CSS                      | Separate CSS quality and accessibility gates                                                                                                                                         |
 
 - Discover the runtime entry (`src/main.tsx`), package scripts, and test/tool
   entry points through built-in plugins. Do not add QA scripts as runtime entries.
@@ -312,16 +312,16 @@ package schema to match the lockfile.
 
 Keep every check and threshold intact when changing reporting.
 
-| Report                  | Required behavior                                                                                          |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
-| QA workflow             | Run `make qa-backend` and `make qa-frontend` as aggregate steps rather than separate per-tool steps        |
-| Fallow                  | `doctor`, GitHub annotations, compact job summary; retain `--fail-on-issues --quiet --summary` enforcement |
-| Local Fallow            | Full report; health scores and template statistics remain advisory                                         |
-| CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                     |
-| Dependency installation | Retain warnings and errors                                                                                 |
-| Lighthouse              | Run median assertions across five mobile-throttled runs and upload report                                  |
-| Tests                   | Compact progress plus failure diagnostics, annotations, coverage/HTML artifacts                            |
-| Docker                  | Pass color variables explicitly; mirror the repository layout so annotations retain `frontend/` paths      |
+| Report                  | Required behavior                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| QA workflow             | Run `make qa-backend` and `make qa-frontend` as aggregate steps rather than separate per-tool steps                      |
+| Fallow                  | `doctor`, combined analysis with `--fail-on-issues`, and health score gate (`--min-score 90`); report visible in CI logs |
+| Local Fallow            | Full report without quiet suppression; template statistics remain advisory                                               |
+| CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                                   |
+| Dependency installation | Retain warnings and errors                                                                                               |
+| Lighthouse              | Run median assertions across five mobile-throttled runs and upload report                                                |
+| Tests                   | Compact progress plus failure diagnostics, annotations, coverage/HTML artifacts                                          |
+| Docker                  | Pass color variables explicitly; mirror the repository layout so annotations retain `frontend/` paths                    |
 
 Never rely on CI reporter exit codes alone.
 

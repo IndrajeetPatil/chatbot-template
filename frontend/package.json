@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "lint:css": "biome lint --error-on-warnings",
-    "fallow": "fallow doctor --quiet && fallow --fail-on-issues --quiet",
+    "fallow": "fallow doctor && fallow --fail-on-issues && fallow health --min-score 90",
     "css-quality": "node scripts/css-quality.ts",
     "actions-lock": "../scripts/actions-lock.sh",
     "actions-lock:verify": "../scripts/actions-lock.sh --verify",
