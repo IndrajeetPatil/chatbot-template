@@ -1,6 +1,15 @@
-minimum_prek_version = "0.4.5"
+minimum_prek_version = "0.5.11"
 default_install_hook_types = ["pre-commit", "pre-push", "commit-msg"]
 default_stages = ["pre-commit"]
+
+[[repos]]
+repo = "meta"
+
+[[repos.hooks]]
+id = "check-hooks-apply"
+
+[[repos.hooks]]
+id = "check-useless-excludes"
 
 [[repos]]
 repo = "https://github.com/astral-sh/ruff-pre-commit"
@@ -89,7 +98,6 @@ repo = "builtin"
 
 [[repos.hooks]]
 id = "trailing-whitespace"
-exclude = "\\.snap$"
 
 [[repos.hooks]]
 id = "end-of-file-fixer"
@@ -117,9 +125,6 @@ id = "check-shebang-scripts-are-executable"
 id = "check-executables-have-shebangs"
 
 [[repos.hooks]]
-id = "check-symlinks"
-
-[[repos.hooks]]
 id = "destroyed-symlinks"
 
 [[repos.hooks]]
@@ -131,12 +136,16 @@ args = ["--fix=lf"]
 
 [[repos.hooks]]
 id = "check-added-large-files"
+args = ["--enforce-all"]
 
 [[repos.hooks]]
 id = "detect-private-key"
 
 [[repos.hooks]]
 id = "fix-byte-order-marker"
+
+[[repos.hooks]]
+id = "check-vcs-permalinks"
 
 [[repos.hooks]]
 id = "no-commit-to-branch"

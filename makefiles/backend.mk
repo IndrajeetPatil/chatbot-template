@@ -4,7 +4,7 @@ BACKEND_DIR=./backend
 PYTEST=uv run pytest app tests
 PYCOVERAGE=uv run coverage run -m pytest app tests && uv run coverage report && uv run coverage html && uv run coverage xml
 PYTYPECHECK=TY_UV=1 uv run ty check
-PYTYPECOVERAGE=uv run pyrefly coverage check --fail-under 100
+PYTYPECOVERAGE=uv run pyrefly coverage check --fail-under 100 --strict
 FASTAPI_RUNSERVER=uv run --env-file .env fastapi dev app/main.py --host 127.0.0.1 --port 8000
 OPENAPI_SCHEMA=TESTING=true uv run python -c "from app.main import app; app.openapi()"
 LOCUST=uv run locust -H http://127.0.0.1:8000/
@@ -68,7 +68,7 @@ backend-snapshot-update: ## Rewrite backend inline snapshots
 	@echo "$(COLOR_BLUE_BG)Rewriting backend inline snapshots...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYTEST) --inline-snapshot=create,fix
 
-backend-type-coverage: ## Enforce 100% backend type coverage with pyrefly
+backend-type-coverage: ## Enforce 100% strict type coverage with pyrefly
 	@echo "$(COLOR_BLUE_BG)Running backend type coverage check...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYTYPECOVERAGE)
 

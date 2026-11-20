@@ -4,8 +4,7 @@ lazy import re
 lazy from typing import TYPE_CHECKING, NamedTuple
 
 lazy import pytest
-lazy from hypothesis import given
-lazy from hypothesis import strategies as st
+lazy from hypothesis import given, strategies as st
 lazy from inline_snapshot import snapshot
 lazy from limits import parse
 
