@@ -41,6 +41,7 @@ required-version = "==0.13.9"
 ignore = []
 
 [tool.deptry]
+known_first_party = ["app"]
 # Benchmarks, like tests, run only with the dev dependency group.
 extend_exclude = ["benchmarks"]
 
@@ -48,6 +49,7 @@ extend_exclude = ["benchmarks"]
 DEP004 = ["locust"]
 
 [tool.unref]
+show-transitive = true
 used-names = ["model_config"]
 
 [[tool.unref.overrides]]
@@ -76,10 +78,18 @@ ignore = [
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["app"]
+
 [tool.ruff.lint.flake8-tidy-imports]
 # Every import is lazy (PEP 810): a module loads on first use, so the app and
 # each test file import only what they touch.
 require-lazy = "all"
+ban-relative-imports = "parents"
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 5
@@ -146,6 +156,7 @@ source = ["app"]
 
 [tool.coverage.report]
 fail_under = 100
+precision = 2
 
 [tool.mutmut]
 source_paths = ["app/"]
@@ -163,6 +174,20 @@ format-command = "ruff format --stdin-filename {filename}"
 # and strict_xfail, plus any strictness options future pytest releases add. uv.lock
 # pins pytest, so new options only arrive through a reviewed dependency update.
 strict = true
+minversion = "9.2"
+strict_config = true
+strict_markers = true
+strict_parametrization_ids = true
+xfail_strict = true
+empty_parameter_set_mark = "fail_at_collect"
+collect_imported_tests = false
+required_plugins = [
+  "pytest-random-order",
+  "pytest-env",
+  "pytest-codspeed",
+  "inline-snapshot",
+]
+pythonpath = ["."]
 addopts = [
   # show extra test summary info for everything
   "-ra",
@@ -170,6 +195,8 @@ addopts = [
   "--verbose",
   # using pytest-random-order plugin option
   "--random-order",
+  # isolate test discovery and execution without altering sys.path
+  "--import-mode=importlib",
 ]
 testpaths = ["tests"]
 # pytest-env sets TESTING before any app module is imported, so Settings() does
