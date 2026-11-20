@@ -127,7 +127,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reportsDirectory: "coverage",
-      reporter: ["text", "html", "lcov"],
+      reporter: ["text", "html", "lcov", "json"],
       thresholds: {
         statements: 90,
         branches: 75,
@@ -288,6 +288,9 @@ export default defineConfig({
       // A const object and its union type share a name by design; the type
       // checker still rejects genuine redeclarations.
       "no-redeclare": "off",
+      // Contradicts vitest/prefer-strict-boolean-matchers, which enforces
+      // strict boolean assertions via `toBe(true)`.
+      "vitest/prefer-to-be-truthy": "off",
 
       // Obsolete here: the automatic JSX runtime needs no React import, the
       // React Compiler memoizes props, and the ESNext target has native

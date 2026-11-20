@@ -1,12 +1,7 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
-  "entry": ["src/main.tsx"],
   "ignorePatterns": ["**/*.css"],
-  "ignoreDependencies": [
-    "@emotion/react",
-    "@emotion/styled",
-    "oxc-transform-react"
-  ],
+  "ignoreDependencies": ["@emotion/react", "@emotion/styled"],
   "rules": {
     "unused-files": "error",
     "unused-exports": "error",
@@ -30,6 +25,7 @@
   },
   "health": {
     "maxCyclomatic": 5,
-    "maxCognitive": 5
+    "maxCognitive": 5,
+    "coverage": "coverage/coverage-final.json"
   }
 }
