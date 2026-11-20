@@ -17,86 +17,94 @@ const SUGGESTIONS = [
   },
 ];
 
+const WELCOME_CONTAINER_SX = { my: "auto", py: { xs: 1, sm: 6 } } as const;
+
+const WELCOME_OVERLINE_SX = {
+  color: "primary.main",
+  letterSpacing: "0.16em",
+  display: { xs: "none", sm: "block" },
+} as const;
+
+const WELCOME_HEADING_SX = {
+  fontSize: { xs: "2.5rem", sm: "3.75rem" },
+  fontWeight: 450,
+  letterSpacing: "-0.055em",
+  lineHeight: 1.1,
+  maxWidth: 600,
+  mt: { xs: 0, sm: 2 },
+  textWrap: "balance",
+} as const;
+
+const WELCOME_BODY_SX = {
+  color: "text.secondary",
+  mt: 2,
+  maxWidth: 440,
+  fontSize: { xs: "0.875rem", sm: "1rem" },
+} as const;
+
+const SUGGESTIONS_GRID_SX = {
+  display: "grid",
+  gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+  gap: 1.5,
+  mt: { xs: 3, sm: 5 },
+} as const;
+
+const SUGGESTION_BUTTON_SX = {
+  alignItems: "flex-start",
+  border: 1,
+  borderColor: "divider",
+  color: "text.primary",
+  flexDirection: "column",
+  padding: { xs: 1.5, sm: 2 },
+  textAlign: "left",
+  gap: 1,
+  "&:hover": {
+    borderColor: "primary.main",
+    backgroundColor: "action.hover",
+  },
+} as const;
+
+const SUGGESTION_HEADER_SX = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  width: "100%",
+  gap: 1,
+} as const;
+
 export default function Welcome({
   onSendMessage,
 }: {
   onSendMessage: (message: string) => Promise<void>;
 }): ReactElement {
   return (
-    <Box sx={{ my: "auto", py: { xs: 1, sm: 6 } }}>
+    <Box sx={WELCOME_CONTAINER_SX}>
       <Typography
         variant="overline"
-        sx={{
-          color: "primary.main",
-          letterSpacing: "0.16em",
-          display: { xs: "none", sm: "block" },
-        }}
+        sx={WELCOME_OVERLINE_SX}
       >
         A little curiosity goes a long way
       </Typography>
       <Typography
         component="h2"
-        sx={{
-          fontSize: { xs: "2.5rem", sm: "3.75rem" },
-          fontWeight: 450,
-          letterSpacing: "-0.055em",
-          lineHeight: 1.1,
-          maxWidth: 600,
-          mt: { xs: 0, sm: 2 },
-          textWrap: "balance",
-        }}
+        sx={WELCOME_HEADING_SX}
       >
         Where should we begin?
       </Typography>
-      <Typography
-        sx={{
-          color: "text.secondary",
-          mt: 2,
-          maxWidth: 440,
-          fontSize: { xs: "0.875rem", sm: "1rem" },
-        }}
-      >
+      <Typography sx={WELCOME_BODY_SX}>
         Bring a question, a rough idea, or a fresh perspective. Let’s work
         through it together.
       </Typography>
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-          gap: 1.5,
-          mt: { xs: 3, sm: 5 },
-        }}
-      >
+      <Box sx={SUGGESTIONS_GRID_SX}>
         {SUGGESTIONS.map(({ title, prompt }) => (
           <Button
             key={title}
             onClick={() => {
               void onSendMessage(prompt);
             }}
-            sx={{
-              alignItems: "flex-start",
-              border: 1,
-              borderColor: "divider",
-              color: "text.primary",
-              flexDirection: "column",
-              padding: { xs: 1.5, sm: 2 },
-              textAlign: "left",
-              gap: 1,
-              "&:hover": {
-                borderColor: "primary.main",
-                backgroundColor: "action.hover",
-              },
-            }}
+            sx={SUGGESTION_BUTTON_SX}
           >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                gap: 1,
-              }}
-            >
+            <Box sx={SUGGESTION_HEADER_SX}>
               {title}
               <ArrowOutwardIcon
                 sx={{ fontSize: 16, color: "text.secondary" }}

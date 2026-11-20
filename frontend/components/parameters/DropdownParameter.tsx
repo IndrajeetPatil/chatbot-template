@@ -17,6 +17,17 @@ interface DropdownParameterProps<Value extends string | number> {
   label: string;
 }
 
+const DROPDOWN_BUTTON_SX = {
+  color: "text.secondary",
+  minHeight: 44,
+  px: 1,
+  fontSize: "0.75rem",
+  whiteSpace: "nowrap",
+  "& .MuiButton-startIcon": {
+    display: { xs: "none", sm: "inherit" },
+  },
+} as const;
+
 function DropdownParameter<Value extends string | number>({
   value,
   onChange,
@@ -46,16 +57,7 @@ function DropdownParameter<Value extends string | number>({
           aria-expanded={isOpen}
           startIcon={icon}
           endIcon={<ArrowDropDownIcon fontSize="small" />}
-          sx={{
-            color: "text.secondary",
-            minHeight: 44,
-            px: 1,
-            fontSize: "0.75rem",
-            whiteSpace: "nowrap",
-            "& .MuiButton-startIcon": {
-              display: { xs: "none", sm: "inherit" },
-            },
-          }}
+          sx={DROPDOWN_BUTTON_SX}
         >
           {label}
         </Button>

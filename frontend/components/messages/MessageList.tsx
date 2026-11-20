@@ -71,6 +71,27 @@ interface MessageListProps {
   welcome?: ReactElement | undefined;
 }
 
+const VIEWPORT_SX = {
+  width: "100%",
+  overflowY: "auto",
+  overscrollBehavior: "none",
+  scrollbarWidth: "thin",
+  "&:focus-visible": {
+    outline: "2px solid",
+    outlineColor: "primary.main",
+    outlineOffset: -2,
+  },
+} as const;
+
+const JUMP_BUTTON_SX = {
+  position: "absolute",
+  bottom: 12,
+  left: "50%",
+  transform: "translateX(-50%)",
+  borderRadius: 8,
+  minHeight: 44,
+} as const;
+
 function ResponseStatus({
   assistantIsLoading,
   error,
@@ -123,17 +144,7 @@ function MessageList({
         tabIndex={0}
         ref={viewportRef}
         onScroll={welcome ? undefined : onScroll}
-        sx={{
-          width: "100%",
-          overflowY: "auto",
-          overscrollBehavior: "none",
-          scrollbarWidth: "thin",
-          "&:focus-visible": {
-            outline: "2px solid",
-            outlineColor: "primary.main",
-            outlineOffset: -2,
-          },
-        }}
+        sx={VIEWPORT_SX}
       >
         <Stack
           ref={contentRef}
@@ -162,14 +173,7 @@ function MessageList({
           variant="contained"
           startIcon={<ArrowDownwardIcon />}
           onClick={scrollToBottom}
-          sx={{
-            position: "absolute",
-            bottom: 12,
-            left: "50%",
-            transform: "translateX(-50%)",
-            borderRadius: 8,
-            minHeight: 44,
-          }}
+          sx={JUMP_BUTTON_SX}
         >
           Jump to latest
         </Button>

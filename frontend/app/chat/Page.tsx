@@ -41,6 +41,63 @@ const CHAT_MAIN_SX = {
   px: { xs: 2, sm: 4 },
 } as const;
 
+const CHAT_HEADER_SX = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 2,
+  py: 3,
+  borderBottom: 1,
+  borderColor: "divider",
+} as const;
+
+const CHAT_TITLE_SX = {
+  fontSize: "0.95rem",
+  fontWeight: 600,
+  letterSpacing: "-0.025em",
+} as const;
+
+function SkipLink(): ReactElement {
+  return (
+    <Box
+      href="#message-input"
+      component="a"
+      sx={SKIP_LINK_SX}
+    >
+      Skip to Message
+    </Box>
+  );
+}
+
+function ChatHeader(): ReactElement {
+  return (
+    <Box
+      component="header"
+      sx={CHAT_HEADER_SX}
+    >
+      <Typography
+        component="h1"
+        sx={CHAT_TITLE_SX}
+      >
+        Chatbot Template
+        <Box
+          component="span"
+          aria-hidden
+          sx={{ color: "primary.main", ml: 0.5 }}
+        >
+          ↗
+        </Box>
+      </Typography>
+      <Typography
+        variant="caption"
+        sx={{ color: "text.secondary" }}
+      >
+        Space to think.
+      </Typography>
+    </Box>
+  );
+}
+
 export default function Home(): ReactElement {
   const [model, setModel] = useState<AssistantModel>(AssistantModel.ASTRA);
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>(
@@ -62,55 +119,14 @@ export default function Home(): ReactElement {
       noSsr
     >
       <CssBaseline enableColorScheme />
-      <Box
-        href="#message-input"
-        component="a"
-        sx={SKIP_LINK_SX}
-      >
-        Skip to Message
-      </Box>
+      <SkipLink />
       <Container
         id="chat-main"
         component="main"
         maxWidth={false}
         sx={CHAT_MAIN_SX}
       >
-        <Box
-          component="header"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 2,
-            py: 3,
-            borderBottom: 1,
-            borderColor: "divider",
-          }}
-        >
-          <Typography
-            component="h1"
-            sx={{
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              letterSpacing: "-0.025em",
-            }}
-          >
-            Chatbot Template
-            <Box
-              component="span"
-              aria-hidden
-              sx={{ color: "primary.main", ml: 0.5 }}
-            >
-              ↗
-            </Box>
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{ color: "text.secondary" }}
-          >
-            Space to think.
-          </Typography>
-        </Box>
+        <ChatHeader />
         <MessageList
           messages={messages}
           assistantIsLoading={assistantIsLoading}
