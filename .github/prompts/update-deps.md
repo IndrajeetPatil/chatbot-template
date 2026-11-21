@@ -185,9 +185,13 @@ stay in every workflow:
   or other build inputs.
 
 Once the dependency update is green, review relevant changelogs and current
-documentation for upgraded libraries. Apply small compatibility simplifications
-only when they reduce local complexity or remove a workaround, and rerun the
-affected checks after each change.
+documentation for upgraded libraries and CLIs. Apply small compatibility
+simplifications only when they reduce local complexity or remove a workaround,
+and rerun the affected checks after each change. Check whether changes in CLIs
+or dependencies also allow updating or simplifying artifacts relevant for
+agentic engineering: keep `AGENTS.md`, agentic skills (under `.agents/skills/`),
+and their referenced assets or instructions aligned whenever tool flags,
+behaviors, or capabilities change.
 
 Make a ready-for-review PR using the gh CLI (`gh pr create`, without `--draft`),
 instead of the GitHub MCP server. Follow the PR lifecycle in `AGENTS.md`,
