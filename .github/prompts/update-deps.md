@@ -193,6 +193,16 @@ agentic engineering: keep `AGENTS.md`, agentic skills (under `.agents/skills/`),
 and their referenced assets or instructions aligned whenever tool flags,
 behaviors, or capabilities change.
 
+## Learn from mistakes
+
+When a check fails, a reviewer raises a finding, or you notice a mistake in
+your own work, fix it, then ask what led you to it. If a skill, its scripts or
+templates, a prompt, or `AGENTS.md` gave missing, ambiguous, or wrong
+guidance, correct that guidance in the same pull request, stating the general
+rule rather than the incident. Never weaken a quality gate instead.
+
+## Pull request
+
 Make a ready-for-review PR using the gh CLI (`gh pr create`, without `--draft`),
 instead of the GitHub MCP server. Follow the PR lifecycle in `AGENTS.md`,
 including frontend screenshots, CI fixes, Codex review, and eligible squash merge.
