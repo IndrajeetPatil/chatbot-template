@@ -63,10 +63,13 @@ rule off only with a comment saying why.
 
 - After each push, wait for CI and fix failures until required checks pass.
 
-- Request Codex review if it is not automatic. Fix merited findings, reply to
-  and resolve addressed threads, and re-request review after changes, until
-  Codex approves the current head with no unresolved findings. If Codex usage is
-  exhausted, leave the PR open and report it.
+- Codex reviews every PR automatically and decides itself whether later pushes
+  need another review, so never comment `@codex review`. Fix merited findings
+  and reply to and resolve addressed threads until Codex approves with no
+  unresolved findings.
 
-- When CI is green and Codex has approved the current head, recheck both and
+- If Codex usage is exhausted, leave the PR open and report it. Once usage
+  refreshes, comment `@codex review` once; only this case needs the comment.
+
+- When CI is green and Codex has approved, recheck both and
   squash-merge with the owner's `gh` credentials, respecting branch protection.
