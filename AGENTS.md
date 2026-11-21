@@ -71,5 +71,9 @@ rule off only with a comment saying why.
 - If Codex usage is exhausted, leave the PR open and report it. Once usage
   refreshes, comment `@codex review` once; only this case needs the comment.
 
+- Never write `@codex` anywhere else in a PR title, body, or comment, not
+  even inside backticks: Codex treats any mention as a task request and skips
+  its automatic review.
+
 - When CI is green and Codex has approved, recheck both and
   squash-merge with the owner's `gh` credentials, respecting branch protection.
