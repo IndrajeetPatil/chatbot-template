@@ -52,28 +52,40 @@ rule off only with a comment saying why.
 
 ## Pull requests
 
-- Use the shared `pull-requests` skill when available. Keep the title and body
-  in sync with the net diff, updating stale metadata without asking.
+Follow these rules without relying on any instructions outside this
+repository:
 
-- Open PRs ready for review, never as drafts.
+- Write every commit message and PR title as a Conventional Commit,
+  `type(scope): description`, lowercase and imperative, with an allowed type
+  (`build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`,
+  `revert`, `style`, `test`).
+
+- Open every PR ready for review with `gh pr create`, never as a draft. Keep
+  the title and body in step with the net diff.
+
+- Never add agent or tool attribution to commits, PRs, or comments.
 
 - For frontend source changes (components, styles, client behavior, assets),
   follow [frontend-pr-screenshot](.agents/skills/frontend-pr-screenshot/SKILL.md)
   unprompted, even when the rendering is unchanged.
 
-- After each push, wait for CI and fix failures until required checks pass.
+- After opening or pushing, wait for hosted CI to finish. Inspect failed jobs,
+  fix the cause, run the local checks (`make qa` and `make hooks`), push,
+  and repeat. Skipped, queued, or failing required checks are not success.
 
-- Codex reviews every PR automatically and decides itself whether later pushes
-  need another review, so never comment `@codex review`. Fix merited findings
-  and reply to and resolve addressed threads until Codex approves with no
-  unresolved findings.
+- If an automatic AI review (Codex, for the owner) runs on the PR, wait for
+  its result instead of requesting one. Fix merited findings, reply to and
+  resolve addressed threads, and continue until the review approves the
+  current head with no unresolved findings. Never write `@codex` anywhere in
+  a PR, even in backticks: it cancels the automatic review. Say "a Codex
+  review request" instead.
 
-- If Codex usage is exhausted, leave the PR open and report it. Once usage
-  refreshes, comment `@codex review` once; only this case needs the comment.
+- Once CI is green and the review gate is met, squash-merge, then verify the
+  merged state. Recheck the head, threads, and checks immediately before
+  merging, and never bypass branch protections.
 
-- Never write `@codex` anywhere else in a PR title, body, or comment, not
-  even inside backticks: Codex treats any mention as a task request and skips
-  its automatic review.
+- Update a PR branch from `main` only to resolve conflicts or pick up a change
+  the PR depends on, never just to bring it up to date.
 
-- When CI is green and Codex has approved, recheck both and
-  squash-merge with the owner's `gh` credentials, respecting branch protection.
+- Report local validation, hosted CI, review, and merge state separately. If
+  an external blocker stops completion, leave the PR open and say so.
