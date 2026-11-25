@@ -88,6 +88,10 @@ repository:
   a PR, even in backticks: it cancels the automatic review. Say "a Codex
   review request" instead.
 
+- If Codex reports exhausted usage, leave the PR open and report it; no other
+  reviewer or silence counts as approval. Once usage refreshes, comment
+  `@codex review` once; only this case needs the comment.
+
 - Once CI is green and the review gate is met, squash-merge, then verify the
   merged state. Recheck the head, threads, and checks immediately before
   merging, and never bypass branch protections.
