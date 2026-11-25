@@ -128,7 +128,7 @@ make qa
 | Benchmarks               | CodSpeed reports backend CPU regressions against `main`; see [backend](backend.md#benchmarks)                                         |
 | Frontend coverage        | ≥90% statements/functions/lines; ≥75% branches                                                                                        |
 | Type annotation coverage | 100% on both sides                                                                                                                    |
-| Lighthouse               | Three mobile-throttled samples; assert the median                                                                                     |
+| Lighthouse               | Five mobile-throttled samples; assert the median                                                                                      |
 | Lighthouse failures      | Performance, accessibility, best practices, SEO, agentic browsing, LCP, CLS, TBT; no unresolved `runWarnings` or warn-only assertions |
 | Accessibility audit      | No axe-core violations (WCAG 2.0–2.2 A/AA, best practices) per UI state, theme, and layout                                            |
 | Manual UI review         | [Vercel Web Interface Guidelines](https://vercel.com/design/guidelines); automated checks do not prove full compliance                |
