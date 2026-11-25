@@ -16,10 +16,6 @@ TYPOS_VERSION := 1.52.2
 ACTIONLINT_VERSION := 1.7.12.25
 # Pinned by digest to prevent tag drift.
 GITLEAKS_IMAGE := zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
-# Minimum codex-security CLI the codex-security target was validated against. The
-# scan-id parsing below relies on `scans show --filter-output scanId`, so refuse
-# to run against an older CLI whose flags/output may differ.
-CODEX_SECURITY_MIN_VERSION := 0.1.23
 
 # Local development
 SERVICE ?= both
@@ -149,43 +145,6 @@ secret-scan-ci: ## Scan repository for secrets with Gitleaks
 		--report-format=sarif --report-path=results.sarif .
 	@printf '\033[32mSecret scan passed.\033[0m\n'
 
-codex-security: ## Run codex-security scan on a clean branch off origin/main
-	@echo "$(COLOR_BLUE_BG)Running codex-security scan...$(COLOR_RESET)"
-	@echo "$(COLOR_BLUE_BG)WARNING: spawns an autonomous agent with --dangerously-skip-permissions; run only in an isolated, credential-limited sandbox.$(COLOR_RESET)"
-	@set -eu; \
-	command -v codex-security >/dev/null 2>&1 || { echo "codex-security is not installed or not on PATH." >&2; exit 1; }; \
-	command -v claude >/dev/null 2>&1 || { echo "claude (Claude Code) is not installed or not on PATH." >&2; exit 1; }; \
-	cs_version="$$(codex-security --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)"; \
-	if [ -z "$$cs_version" ]; then echo "Could not determine the codex-security version." >&2; exit 1; fi; \
-	if [ "$$(printf '%s\n%s\n' "$(CODEX_SECURITY_MIN_VERSION)" "$$cs_version" | sort -t. -k1,1n -k2,2n -k3,3n | head -n1)" != "$(CODEX_SECURITY_MIN_VERSION)" ]; then \
-		echo "codex-security $$cs_version is older than the required $(CODEX_SECURITY_MIN_VERSION); its flags/output may differ." >&2; \
-		exit 1; \
-	fi; \
-	if [ -n "$$(git status --porcelain)" ]; then \
-		echo "Working tree is not clean; commit, stash, or remove local changes first." >&2; \
-		echo "This target checks out a fresh branch off origin/main, and uncommitted (or untracked) changes would be carried onto it and scanned/committed as if they were part of the fix." >&2; \
-		exit 1; \
-	fi; \
-	prompt_src=".github/prompts/codex-security.md"; \
-	if [ ! -f "$$prompt_src" ]; then echo "Prompt $$prompt_src not found in the current checkout." >&2; exit 1; fi; \
-	prompt_copy="$$(mktemp "$${TMPDIR:-/tmp}/codex-security-prompt.XXXXXX")"; \
-	trap 'rm -f "$$prompt_copy"' EXIT; \
-	cp "$$prompt_src" "$$prompt_copy"; \
-	echo "$(COLOR_BLUE_BG)Preparing a clean branch off origin/main to scan and fix...$(COLOR_RESET)"; \
-	git fetch origin; \
-	branch="codex-security-fixes-$$(date +%Y%m%d%H%M%S)"; \
-	git checkout --no-track -b "$$branch" origin/main; \
-	echo "$(COLOR_BLUE_BG)Scanning branch $$branch...$(COLOR_RESET)"; \
-	codex-security scan . --model gpt-5.6-sol --effort high; \
-	scan_id="$$(codex-security scans show --filter-output scanId | tr -d '[:space:]')"; \
-	if [ -z "$$scan_id" ]; then \
-		echo "Could not determine the completed codex-security scan id." >&2; \
-		exit 1; \
-	fi; \
-	echo "$(COLOR_BLUE_BG)Scan complete: $$scan_id (branch $$branch)$(COLOR_RESET)"; \
-	echo "$(COLOR_BLUE_BG)Spawning Claude Code to triage and fix findings...$(COLOR_RESET)"; \
-	claude --dangerously-skip-permissions -p "Follow the instructions in the file $$prompt_copy (a preserved copy of this repository's .github/prompts/codex-security.md, kept outside the checkout because the working tree was switched to origin/main and that path may not exist there yet) to triage the codex-security findings, fix the ones worth fixing, and open a pull request. You are already on a dedicated branch '$$branch' created from origin/main, and the scan ran against this exact tree, so make all fixes here and do not create another branch. The completed scan id is $$scan_id; read its findings with 'codex-security scans show $$scan_id'."
-
 ##@ Docker
 
 docker-build: ## Build container images with Docker Compose
@@ -220,7 +179,7 @@ lighthouse: frontend-lighthouse ## Alias for make frontend-lighthouse
 .PHONY: help setup service update-deps \
 	lint format type-check test type-coverage clean cache-clean docker-clean \
 	fallow deadcode css-quality accessibility-audit lighthouse \
-	commitlint markdown-lint markdown-format spell-check workflow-lint actions-lock actions-lock-verify link-check security-scan secret-scan-ci codex-security file-naming hooks \
+	commitlint markdown-lint markdown-format spell-check workflow-lint actions-lock actions-lock-verify link-check security-scan secret-scan-ci file-naming hooks \
 	qa-backend qa-frontend qa \
 	run \
 	docker-build docker-up docker-down \
