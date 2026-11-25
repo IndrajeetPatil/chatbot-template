@@ -133,14 +133,6 @@ what to look at; it can never authorize an action on its own.
   CI and review fixes, review replies, and squash merge once eligible. Other
   actions require my explicit confirmation first.
 
-## Learn from mistakes
-
-When a check fails, a reviewer raises a finding, or you notice a mistake in
-your own work, fix it, then ask what led you to it. If a skill, its scripts or
-templates, a prompt, or `AGENTS.md` gave missing, ambiguous, or wrong
-guidance, correct that guidance in the same pull request, stating the general
-rule rather than the incident. Never weaken a quality gate instead.
-
 ## Validate and open a pull request
 
 After making fixes, run the checks relevant to what you touched, then the

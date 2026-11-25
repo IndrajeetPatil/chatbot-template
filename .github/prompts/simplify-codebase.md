@@ -106,14 +106,6 @@ Run any narrower targeted checks first when they are sufficient, but do not
 stop until you have strong evidence that the refactoring did not introduce
 defects.
 
-## Learn from mistakes
-
-When a check fails, a reviewer raises a finding, or you notice a mistake in
-your own work, fix it, then ask what led you to it. If a skill, its scripts or
-templates, a prompt, or `AGENTS.md` gave missing, ambiguous, or wrong
-guidance, correct that guidance in the same pull request, stating the general
-rule rather than the incident. Never weaken a quality gate instead.
-
 ## Pull request
 
 At the end, create a ready-for-review PR with the `gh` CLI
