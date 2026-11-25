@@ -53,7 +53,7 @@ reviewing new or changed UI; automated scores do not establish full compliance.
 | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Manual     | Keyboard operation, visible focus, loading/error states, reduced motion, resilient layout, semantic controls, concise copy |
 | WCAG       | Check Perceivable, Operable, Understandable, and Robust criteria                                                           |
-| Lighthouse | Accessibility, best practices, SEO: 100%; performance: ≥85%, all enforced                                                  |
+| Lighthouse | Accessibility, best practices, SEO, agentic browsing: 100%; performance: ≥85%, all enforced                                |
 | axe-core   | Every WCAG 2.0–2.2 A/AA rule and axe best practice, per UI state, theme, and layout; see below                             |
 
 ### Automated accessibility audit

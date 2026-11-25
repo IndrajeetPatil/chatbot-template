@@ -13,6 +13,7 @@
         "categories:accessibility": ["error", { "minScore": 1 }],
         "categories:best-practices": ["error", { "minScore": 1 }],
         "categories:seo": ["error", { "minScore": 1 }],
+        "categories:agentic-browsing": ["error", { "minScore": 1 }],
         "largest-contentful-paint": ["error", { "maxNumericValue": 4000 }],
         "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
         "total-blocking-time": ["error", { "maxNumericValue": 200 }]
