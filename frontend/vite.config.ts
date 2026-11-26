@@ -92,9 +92,11 @@ export default defineConfig({
         dependsOn: ["build"],
         cache: false,
       },
+      // Build quietly for production, then audit with Lighthouse CI.
+      // Retain warnings and errors while suppressing routine build output.
       lighthouse: {
-        command: "vp dlx @lhci/cli@0.16.1 autorun",
-        dependsOn: ["build"],
+        command:
+          "vp build --logLevel warn && vp dlx --silent @lhci/cli@0.16.1 collect && vp dlx --silent @lhci/cli@0.16.1 assert",
         cache: false,
       },
     },

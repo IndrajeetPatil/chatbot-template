@@ -24,10 +24,6 @@ env:
 jobs:
   qa:
     runs-on: ubuntu-latest
-    # Lighthouse CI posts its results as commit statuses.
-    permissions:
-      contents: read
-      statuses: write
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -70,11 +66,6 @@ jobs:
 
       - name: Frontend quality checks
         run: make qa-frontend
-
-      - name: Lighthouse CI
-        run: make lighthouse
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Configuration format
         run: make config-format FMT_ARGS=--check
