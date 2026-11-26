@@ -23,7 +23,7 @@ env:
 
 jobs:
   backend:
-    name: Run backend CodSpeed benchmarks
+    name: Backend
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:

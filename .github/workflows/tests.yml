@@ -23,6 +23,7 @@ env:
 
 jobs:
   backend:
+    name: Backend
     runs-on: ubuntu-latest
 
     steps:
@@ -61,6 +62,7 @@ jobs:
           path: backend/htmlcov
 
   frontend:
+    name: Frontend
     runs-on: ubuntu-latest
 
     steps:
@@ -104,6 +106,7 @@ jobs:
           path: frontend/coverage
 
   e2e:
+    name: E2E
     runs-on: ubuntu-latest
 
     steps:

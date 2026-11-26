@@ -1,4 +1,4 @@
-name: QA Checks
+name: QA
 
 on:
   push:
@@ -23,6 +23,7 @@ env:
 
 jobs:
   qa:
+    name: QA
     runs-on: ubuntu-latest
 
     steps:

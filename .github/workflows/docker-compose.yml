@@ -1,4 +1,4 @@
-name: Docker Build Checks
+name: Docker
 
 on:
   push:
@@ -20,6 +20,7 @@ env:
 
 jobs:
   test:
+    name: Docker build
     runs-on: ubuntu-latest
     env:
       TRIVY_VERSION: v0.76.2
