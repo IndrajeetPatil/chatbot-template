@@ -212,9 +212,10 @@ make qa
 ### Frontend tasks
 
 The `run.tasks` block in `vite.config.ts` owns QA orchestration and the build
-dependencies of `test:e2e`, `accessibility-audit`, `preview`, and `lighthouse`.
+dependencies of `test:e2e`, `accessibility-audit`, and `preview`.
 These tasks build production assets before running, including when invoked
 directly with `vp run`. Pass Playwright arguments after `vp run test:e2e`.
+`lighthouse` builds quietly with `vp build --logLevel warn` before auditing.
 Make remains the entry point for backend, frontend, and repository checks.
 
 Only the build task is cached. Vite Task tracks its file inputs and outputs;
@@ -308,20 +309,36 @@ package schema to match the lockfile.
   mock paths need no exemptions.
 - No blanket test exclusions or disabling unresolved-import checks.
 
+## Lighthouse audits
+
+`make lighthouse` builds the frontend quietly with `vp build --logLevel warn`
+and runs [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci)
+(`@lhci/cli` 0.16.1) against the app five times with Lighthouse's default
+mobile throttling. The self-contained `Lighthouse` workflow runs on every pull
+request and manual dispatch, auditing only the main app page. Assertions in
+[`frontend/.lighthouserc.json`](../frontend/.lighthouserc.json) apply to each
+metric's median, and each one fails the build.
+
+Native assertion logs show actual values, limits, and samples in colour. HTML
+and JSON reports are retained as `lighthouse-reports` artifacts for 14 days,
+including after failures. Dependencies and the exact Node/Vite+ toolchain are
+cached; measurements always run afresh. No status token or public report
+storage is needed.
+
 ## CI output
 
 Keep every check and threshold intact when changing reporting.
 
-| Report                  | Required behavior                                                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| QA workflow             | Run `make qa-backend` and `make qa-frontend` as aggregate steps rather than separate per-tool steps                      |
-| Fallow                  | `doctor`, combined analysis with `--fail-on-issues`, and health score gate (`--min-score 90`); report visible in CI logs |
-| Local Fallow            | Full report without quiet suppression; template statistics remain advisory                                               |
-| CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                                   |
-| Dependency installation | Retain warnings and errors                                                                                               |
-| Lighthouse              | Run median assertions across five mobile-throttled runs and upload report                                                |
-| Tests                   | Compact progress plus failure diagnostics, annotations, coverage/HTML artifacts                                          |
-| Docker                  | Pass color variables explicitly; mirror the repository layout so annotations retain `frontend/` paths                    |
+| Report                  | Required behavior                                                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| QA workflow             | Run `make qa-backend` and `make qa-frontend` as aggregate steps rather than separate per-tool steps                                            |
+| Fallow                  | `doctor`, combined analysis with `--fail-on-issues`, and health score gate (`--min-score 90`); report visible in CI logs                       |
+| Local Fallow            | Full report without quiet suppression; template statistics remain advisory                                                                     |
+| CSS quality             | Distinguish advisory scores; show penalty details on enforced failures                                                                         |
+| Dependency installation | Retain warnings and errors                                                                                                                     |
+| Lighthouse              | Self-contained workflow on pull requests and manual dispatch; median assertions across five mobile-throttled runs; retain reports as artifacts |
+| Tests                   | Compact progress plus failure diagnostics, annotations, coverage/HTML artifacts                                                                |
+| Docker                  | Pass color variables explicitly; mirror the repository layout so annotations retain `frontend/` paths                                          |
 
 Never rely on CI reporter exit codes alone.
 

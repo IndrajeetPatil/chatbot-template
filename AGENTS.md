@@ -58,6 +58,14 @@ its scripts or templates, a prompt, or a doc gave missing, ambiguous, or
 wrong guidance, correct that guidance in the same pull request, stating the
 general rule rather than the incident. Never weaken a quality gate instead.
 
+## Lighthouse
+
+Keep audits in a self-contained `lighthouse.yml` workflow named `Lighthouse`.
+Use native LHCI assertion output for coloured values, and retain report
+artifacts after failures. Cache dependencies and the exact Node/Vite+
+toolchain, but always collect fresh measurements. Do not introduce a shared
+action, reusable Lighthouse workflow, or custom reporter.
+
 ## Pull requests
 
 Follow these rules without relying on any instructions outside this
