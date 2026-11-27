@@ -57,7 +57,7 @@ frontend-type-check: ## Check frontend types with TypeScript
 	@echo "$(COLOR_BLUE_BG)Running frontend static type checking with TypeScript...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) check --no-fmt --no-lint
 
-frontend-test: ## Run frontend unit tests in Chromium with Vitest
+frontend-unit-test: ## Run frontend unit tests in Chromium with Vitest
 	@echo "$(COLOR_BLUE_BG)Running frontend unit tests in Chromium...$(COLOR_RESET)"
 	cd $(FRONTEND_DIR) && $(VP) test --coverage
 
@@ -122,6 +122,6 @@ frontend-clean: ## Clean frontend build artifacts and caches
 
 .PHONY: frontend-setup frontend-toolchain-align frontend-check frontend-qa frontend-css-lint \
 	frontend-lint frontend-format config-format frontend-type-check \
-	frontend-test frontend-build frontend-audit frontend-fallow \
+	frontend-unit-test frontend-test frontend-build frontend-audit frontend-fallow \
 	frontend-css-quality frontend-accessibility-audit frontend-type-coverage \
 	frontend-lighthouse frontend-e2e-test frontend-e2e-test-docker frontend-clean run-frontend frontend-preview

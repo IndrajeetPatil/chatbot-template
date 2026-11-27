@@ -61,9 +61,9 @@ cache-clean: ## Clean shared uv and unused pnpm caches
 
 ##@ Quality Assurance
 
-qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint spell-check workflow-lint link-check backend-type-check backend-deadcode backend-validate-api-schema backend-audit backend-test backend-mutation-test backend-type-coverage frontend-qa security-scan ## Run full repository quality assurance suite
+qa: file-naming backend-format config-format markdown-format backend-lint markdown-lint spell-check workflow-lint link-check backend-type-check backend-deadcode backend-validate-api-schema backend-audit backend-unit-test backend-mutation-test backend-type-coverage frontend-qa security-scan ## Run full repository quality assurance suite
 
-qa-backend: file-naming backend-lint backend-format backend-type-check backend-deadcode backend-validate-api-schema backend-audit backend-test backend-mutation-test backend-type-coverage ## Run backend quality assurance suite
+qa-backend: file-naming backend-lint backend-format backend-type-check backend-deadcode backend-validate-api-schema backend-audit backend-unit-test backend-mutation-test backend-type-coverage ## Run backend quality assurance suite
 
 qa-frontend: file-naming frontend-qa ## Run frontend quality assurance suite
 
@@ -77,7 +77,10 @@ format: backend-format frontend-format config-format markdown-format ## Format b
 
 type-check: backend-type-check frontend-type-check ## Run static type checks on backend and frontend
 
-test: backend-test frontend-test ## Run backend and frontend unit test suites
+test: backend-unit-test frontend-unit-test ## Run backend and frontend unit test suites
+
+backend-test: backend-unit-test ## Alias for backend-unit-test
+frontend-test: frontend-unit-test ## Alias for frontend-unit-test
 
 type-coverage: backend-type-coverage frontend-type-coverage ## Check backend and frontend type coverage
 

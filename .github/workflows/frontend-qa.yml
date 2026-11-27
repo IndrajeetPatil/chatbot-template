@@ -1,0 +1,60 @@
+name: Frontend QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-qa-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+# Force colour in non-TTY Actions logs; retain warnings and errors.
+env:
+  FORCE_COLOR: "1"
+  CLICOLOR_FORCE: "1"
+
+jobs:
+  frontend-qa:
+    name: Frontend QA
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Vite+ provisions Node from .node-version and pnpm from packageManager.
+      - name: Install Vite+
+        uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
+        with:
+          working-directory: ./frontend
+          node-version-file: .node-version
+          # Needs exact versions: Vite+ from the catalog, Node from .node-version.
+          cache-toolchain: true
+          cache: true
+          run-install: |
+            args: [--frozen-lockfile, --, --loglevel=warn]
+
+      - name: Install ls-lint
+        run: bash scripts/install-ls-lint.sh
+
+      - name: Install Playwright Chromium
+        working-directory: ./frontend
+        run: vp exec playwright install --with-deps chromium
+
+      - name: Frontend quality checks
+        run: make qa-frontend
+
+      - name: Configuration format
+        run: make config-format FMT_ARGS=--check
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
