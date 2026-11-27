@@ -90,19 +90,19 @@ make setup
 make qa
 ```
 
-| Removed by `make clean`                                              | Recreated by                                 |
-| -------------------------------------------------------------------- | -------------------------------------------- |
-| Backend `.venv`, frontend and root `node_modules`                    | `make setup`                                 |
-| Python bytecode, pytest / Hypothesis caches, coverage data and XML   | `make backend-test`                          |
-| mutmut's `backend/mutants/` and CodSpeed's `backend/.codspeed/`      | `make backend-mutation-test` / benchmarks    |
-| Ruff, rumdl, Fallow, TypeScript, and local `.cache` directories      | `make qa`                                    |
-| Frontend build and coverage output                                   | `make frontend-build` / `make frontend-test` |
-| Vitest reports in `frontend/.vitest/`                                | Test runs with artifact reporters            |
-| Playwright reports, traces, blob reports, and local cache            | `make e2e-test` / `make e2e-test-docker`     |
-| Lighthouse reports                                                   | `make lighthouse`                            |
-| Gitleaks `results.sarif`                                             | `make secret-scan-ci`                        |
-| uv download/tool cache; unused pnpm packages, metadata and dlx cache | `make setup` and the relevant tool targets   |
-| Local pnpm stores and Docker's `chatbot-pw-*` dependency volumes     | `make setup` / `make e2e-test-docker`        |
+| Removed by `make clean`                                              | Recreated by                                      |
+| -------------------------------------------------------------------- | ------------------------------------------------- |
+| Backend `.venv`, frontend and root `node_modules`                    | `make setup`                                      |
+| Python bytecode, pytest / Hypothesis caches, coverage data and XML   | `make backend-unit-test`                          |
+| mutmut's `backend/mutants/` and CodSpeed's `backend/.codspeed/`      | `make backend-mutation-test` / benchmarks         |
+| Ruff, rumdl, Fallow, TypeScript, and local `.cache` directories      | `make qa`                                         |
+| Frontend build and coverage output                                   | `make frontend-build` / `make frontend-unit-test` |
+| Vitest reports in `frontend/.vitest/`                                | Test runs with artifact reporters                 |
+| Playwright reports, traces, blob reports, and local cache            | `make e2e-test` / `make e2e-test-docker`          |
+| Lighthouse reports                                                   | `make lighthouse`                                 |
+| Gitleaks `results.sarif`                                             | `make secret-scan-ci`                             |
+| uv download/tool cache; unused pnpm packages, metadata and dlx cache | `make setup` and the relevant tool targets        |
+| Local pnpm stores and Docker's `chatbot-pw-*` dependency volumes     | `make setup` / `make e2e-test-docker`             |
 
 - `backend/.env`, source files, lockfiles, and visual baselines are preserved.
 - uv and pnpm caches are shared with other projects: their next runs may download

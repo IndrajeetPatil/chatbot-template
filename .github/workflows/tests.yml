@@ -43,7 +43,7 @@ jobs:
           uv sync --frozen
 
       - name: Run backend unit tests
-        run: make backend-test
+        run: make backend-unit-test
 
       - name: Upload backend coverage to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
@@ -87,7 +87,7 @@ jobs:
         run: vp exec playwright install --with-deps chromium
 
       - name: Run frontend unit tests in Chromium
-        run: make frontend-test
+        run: make frontend-unit-test
 
       - name: Upload frontend coverage to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1

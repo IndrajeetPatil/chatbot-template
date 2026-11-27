@@ -45,7 +45,7 @@ backend-validate-api-schema: ## Validate backend OpenAPI schema generation
 	@echo "$(COLOR_BLUE_BG)Validating API schema...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(OPENAPI_SCHEMA)
 
-backend-test: ## Run backend unit tests with pytest and coverage
+backend-unit-test: ## Run backend unit tests with pytest and coverage
 	@echo "$(COLOR_BLUE_BG)Running backend unit tests...$(COLOR_RESET)"
 	cd $(BACKEND_DIR) && $(PYCOVERAGE)
 
@@ -93,6 +93,6 @@ backend-clean: ## Clean backend build artifacts and caches
 	find $(BACKEND_DIR) -type d -name __pycache__ -prune -exec rm -rf {} +
 
 .PHONY: backend-setup backend-lint backend-format backend-type-check backend-deadcode backend-audit \
-	backend-validate-api-schema backend-test backend-mutation-test backend-benchmark \
+	backend-validate-api-schema backend-unit-test backend-test backend-mutation-test backend-benchmark \
 	backend-snapshot-update \
 	backend-type-coverage backend-load-test backend-clean run-backend
