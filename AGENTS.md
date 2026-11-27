@@ -27,9 +27,10 @@ Start with the [documentation index](docs/README.md).
   self-contained so downstream repositories created from this template remain
   fully independent.
 
-- In `.github/workflows/qa.yml`, run backend and frontend checks as aggregate
-  steps calling `make qa-backend` and `make qa-frontend`, rather than splitting
-  them into separate steps for each tool.
+- In `.github/workflows/frontend-qa.yml` and
+  `.github/workflows/backend-qa.yml`, run backend and frontend checks as
+  aggregate steps calling `make qa-backend` and `make qa-frontend`, rather than
+  splitting them into separate steps for each tool.
 
 ## Before you change
 

@@ -1,0 +1,59 @@
+name: Backend QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-qa-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+# Force colour in non-TTY Actions logs; retain warnings and errors.
+env:
+  FORCE_COLOR: "1"
+  CLICOLOR_FORCE: "1"
+  UV_COLOR: always
+  UV_NO_PROGRESS: "1"
+  PYTEST_ADDOPTS: "-q --color=yes"
+
+jobs:
+  backend-qa:
+    name: Backend QA
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          working-directory: ./backend
+
+      - name: Install ls-lint
+        run: bash scripts/install-ls-lint.sh
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: |
+          uv python install
+          uv sync --frozen
+
+      - name: Backend quality checks
+        run: make qa-backend
+
+      - name: Infrastructure security
+        run: make security-scan
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-coverage
+          path: backend/htmlcov

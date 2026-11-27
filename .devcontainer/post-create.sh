@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs once after the dev container is created.
 # Installs the same tools and dependencies required for development and CI
-# (see .github/workflows/qa.yml for the equivalent CI steps).
+# (see .github/workflows/frontend-qa.yml and backend-qa.yml for the equivalent CI steps).
 set -euo pipefail
 
 # ──────────────────────────────────────────────────────────────────────────────
