@@ -21,6 +21,9 @@ full local quality gate passes:
 
 Fix any breaking API changes, type errors, lockfile drift, Docker build
 failures, coverage regressions, or lint failures introduced by the upgrades.
+Check if `@lhci/cli` has a newer release (`npm view @lhci/cli version`), review
+its changelog, and update the pinned version in `frontend/vite.config.ts` and
+`docs/development.md`.
 
 ## Agent browser CLI and skill
 
