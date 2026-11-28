@@ -10,7 +10,7 @@ workflows:
     '.github/workflows/benchmarks.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d'
-        - 'codspeedhq/action@af75f77f17a054769abefaa42fe8dc2975469b5f'
+        - 'codspeedhq/action@b1f28b5eccf7cb5bfe6a2a89cb3053eb67f1150c'
     '.github/workflows/docker-compose.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069'
@@ -102,9 +102,9 @@ dependencies:
         repo_id: 200299178
         uses:
             - 'actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd'
-    'codspeedhq/action@af75f77f17a054769abefaa42fe8dc2975469b5f':
-        ref: 'v5.6.3'
-        commit: 'sha1-af75f77f17a054769abefaa42fe8dc2975469b5f'
+    'codspeedhq/action@b1f28b5eccf7cb5bfe6a2a89cb3053eb67f1150c':
+        ref: 'v5.8.0'
+        commit: 'sha1-b1f28b5eccf7cb5bfe6a2a89cb3053eb67f1150c'
         owner_id: 116658140
         repo_id: 561699778
         uses:
